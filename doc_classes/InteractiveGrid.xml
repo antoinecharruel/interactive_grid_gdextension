@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="InteractiveGrid" inherits="Node3D" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+	Represents a 3D interactive grid for gameplay. Designed to be extended for tactical or strategy game mechanics.
+	</brief_description>
+	<description>
+	...
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="center">
+			<return type="void" />
+			<param index="0" name="center_position" type="Vector3" />
+			<description>
+				Called to re-center the grid.
+			</description>
+		</method>
+		<method name="get_cell_golbal_position" qualifiers="const">
+			<return type="Vector3" />
+			<param index="0" name="index" type="int" />
+			<description>
+				Returns the global world‑space position of the cell identified by index.
+			</description>
+		</method>
+		<method name="get_cell_index_from_global_position">
+			<return type="int" />
+			<param index="0" name="global_position" type="Vector3" />
+			<description>
+				Returns the linear index of the grid cell that is closest to the supplied world‑space position.
+			</description>
+		</method>
+		<method name="get_grid_center_position" qualifiers="const">
+			<return type="Vector3" />
+			<description>
+				Returns the central position of the interactive grid in world coordinates.
+			</description>
+		</method>
+		<method name="get_grid_visible" qualifiers="const">
+			<return type="bool" />
+			<description>
+			Checks if the combat grid has been created.
+			</description>
+		</method>
+		<method name="get_latest_selected">
+			<return type="int" />
+			<description>
+				Returns the most recently selected cell from the user's selection.
+			</description>
+		</method>
+		<method name="get_path">
+			<return type="PackedInt64Array" />
+			<param index="0" name="start_cell_index" type="int" />
+			<param index="1" name="target_cell_index" type="int" />
+			<description>
+			Computes a path between two cells on the grid using A* pathfinding.
+			</description>
+		</method>
+		<method name="get_selected_cells">
+			<return type="Array" />
+			<description>
+				Returns an array of all cells currently marked as selected by the user.
+			</description>
+		</method>
+		<method name="hide_distant_cells">
+			<return type="void" />
+			<param index="0" name="start_cell_index" type="int" />
+			<param index="1" name="distance" type="float" />
+			<description>
+				Iterates over all grid cells and hides those located farther than the specified distance from the start cell.
+			</description>
+		</method>
+		<method name="hide_inaccessible_cells">
+			<return type="void" />
+			<param index="0" name="start_cell_index" type="int" />
+			<description>
+				Iterates over all grid cells and marks as inaccessible those cells that cannot be reached from the specified start cell.
+				
+				TODO: Improve performance: 
+				current implementation iterates through all cells and calculates paths for each, which can be slow
+				for large grids.
+			</description>
+		</method>
+		<method name="highlight_on_hover">
+			<return type="void" />
+			<param index="0" name="global_position" type="Vector3" />
+			<description>
+				Updates hover highlighting – finds the cell under the mouse, clears any previous hover, and applies the hover colour unless the cell is already selected.
+			</description>
+		</method>
+		<method name="highlight_path">
+			<return type="void" />
+			<param index="0" name="path" type="PackedInt64Array" />
+			<description>
+				Highlights a given path on the grid by changing the color of each cell along the path to the predefined _path_color.
+			</description>
+		</method>
+		<method name="is_grid_created" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Checks if the combat grid has been created.
+			</description>
+		</method>
+		<method name="reset_cells_state">
+			<return type="void" />
+			<description>
+				Resets the state of all cells in the grid to their default data.
+			</description>
+		</method>
+		<method name="select_cell">
+			<return type="void" />
+			<param index="0" name="global_position" type="Vector3" />
+			<description>
+				Selects a grid cell based on a world‑space position.
+			</description>
+		</method>
+		<method name="set_grid_visible">
+			<return type="void" />
+			<param index="0" name="visible_param" type="bool" />
+			<description>
+				Sets the visibility of the combat grid.
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="_cell_mesh" type="Mesh" setter="set_cell_mesh" getter="get_cell_mesh">
+		</member>
+		<member name="_columns" type="int" setter="set_columns" getter="get_columns" default="9">
+		</member>
+		<member name="_material_override" type="Material" setter="set_material_override" getter="get_material_override">
+		</member>
+		<member name="_rows" type="int" setter="set_rows" getter="get_rows" default="9">
+		</member>
+		<member name="cell_size" type="Vector2" setter="set_cell_size" getter="get_cell_size" default="Vector2(1, 1)">
+		</member>
+		<member name="hovered color" type="Color" setter="set_hovered_color" getter="get_hovered_color" default="Color(1, 0.784314, 0.239216, 0.33)">
+		</member>
+		<member name="inaccessible color" type="Color" setter="set_inaccessible_color" getter="get_inaccessible_color" default="Color(1, 1, 1, 0.1)">
+		</member>
+		<member name="movement" type="int" setter="set_movement" getter="get_movement" default="0">
+		</member>
+		<member name="obstacles_collision_masks" type="int" setter="set_obstacles_collision_masks" getter="get_obstacles_collision_masks" default="8192">
+		</member>
+		<member name="path color" type="Color" setter="set_path_color" getter="get_path_color" default="Color(1, 0.752941, 0, 0.33)">
+		</member>
+		<member name="selected color" type="Color" setter="set_selected_color" getter="get_selected_color" default="Color(0, 0.588235, 0.784314, 0.33)">
+		</member>
+		<member name="surface_collision_masks" type="int" setter="set_grid_surface_collision_masks" getter="get_grid_surface_collision_masks" default="16384">
+		</member>
+		<member name="unvalid color" type="Color" setter="set_unvalid_color" getter="get_unvalid_color" default="Color(0.780392, 0, 0.086275, 1)">
+		</member>
+		<member name="valid color" type="Color" setter="set_valid_color" getter="get_valid_color" default="Color(0.960784, 0.905882, 0.827451, 1)">
+		</member>
+	</members>
+</class>

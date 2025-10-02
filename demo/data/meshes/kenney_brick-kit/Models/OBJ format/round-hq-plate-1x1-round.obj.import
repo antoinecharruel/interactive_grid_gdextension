@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://crsbooxfuyj64"
+path="res://.godot/imported/round-hq-plate-1x1-round.obj-87730bcad98ad8affbce42f11fec4aec.mesh"
+
+[deps]
+
+files=["res://.godot/imported/round-hq-plate-1x1-round.obj-87730bcad98ad8affbce42f11fec4aec.mesh"]
+
+source_file="res://data/meshes/kenney_brick-kit/Models/OBJ format/round-hq-plate-1x1-round.obj"
+dest_files=["res://.godot/imported/round-hq-plate-1x1-round.obj-87730bcad98ad8affbce42f11fec4aec.mesh", "res://.godot/imported/round-hq-plate-1x1-round.obj-87730bcad98ad8affbce42f11fec4aec.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

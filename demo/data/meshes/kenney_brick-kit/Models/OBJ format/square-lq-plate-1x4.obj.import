@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://d3g4mn5rmpt5k"
+path="res://.godot/imported/square-lq-plate-1x4.obj-e84a3be48d3452d43ae7ac56c441a02f.mesh"
+
+[deps]
+
+files=["res://.godot/imported/square-lq-plate-1x4.obj-e84a3be48d3452d43ae7ac56c441a02f.mesh"]
+
+source_file="res://data/meshes/kenney_brick-kit/Models/OBJ format/square-lq-plate-1x4.obj"
+dest_files=["res://.godot/imported/square-lq-plate-1x4.obj-e84a3be48d3452d43ae7ac56c441a02f.mesh", "res://.godot/imported/square-lq-plate-1x4.obj-e84a3be48d3452d43ae7ac56c441a02f.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

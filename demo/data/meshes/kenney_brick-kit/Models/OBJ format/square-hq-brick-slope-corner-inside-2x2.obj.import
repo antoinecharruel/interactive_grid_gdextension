@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://70kqh4ha84al"
+path="res://.godot/imported/square-hq-brick-slope-corner-inside-2x2.obj-1251746cf23f7ab9f6ec9c31d7148765.mesh"
+
+[deps]
+
+files=["res://.godot/imported/square-hq-brick-slope-corner-inside-2x2.obj-1251746cf23f7ab9f6ec9c31d7148765.mesh"]
+
+source_file="res://data/meshes/kenney_brick-kit/Models/OBJ format/square-hq-brick-slope-corner-inside-2x2.obj"
+dest_files=["res://.godot/imported/square-hq-brick-slope-corner-inside-2x2.obj-1251746cf23f7ab9f6ec9c31d7148765.mesh", "res://.godot/imported/square-hq-brick-slope-corner-inside-2x2.obj-1251746cf23f7ab9f6ec9c31d7148765.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

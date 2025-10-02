@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://isl0dvcmgchj"
+path="res://.godot/imported/none-hq-brick-1x2.obj-0516041a46e30f6698509b47e189f1ec.mesh"
+
+[deps]
+
+files=["res://.godot/imported/none-hq-brick-1x2.obj-0516041a46e30f6698509b47e189f1ec.mesh"]
+
+source_file="res://data/meshes/kenney_brick-kit/Models/OBJ format/none-hq-brick-1x2.obj"
+dest_files=["res://.godot/imported/none-hq-brick-1x2.obj-0516041a46e30f6698509b47e189f1ec.mesh", "res://.godot/imported/none-hq-brick-1x2.obj-0516041a46e30f6698509b47e189f1ec.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false
