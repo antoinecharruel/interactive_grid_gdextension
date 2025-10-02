@@ -59,10 +59,10 @@ func _input(event):
 			if interactive_grid != null && pawn != null:
 				# Makes the grid visible.
 				interactive_grid.set_grid_visible(true)
-				# # Centers the grid.
-				# # ! Info: every time center is called, the state of the cells is reset.
+				# Centers the grid.
+				# ! Info: every time center is called, the state of the cells is reset.
 				interactive_grid.center(pawn.global_position)
-				 # Hides distant cells..
+				 # Hides distant cells.
 				var index_pawn_cell = interactive_grid.get_cell_index_from_global_position(pawn.global_position)
 				interactive_grid.hide_distant_cells(index_pawn_cell, 6)
 		else:
