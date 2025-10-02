@@ -27,7 +27,7 @@ fog_sky_affect = 0.5
 volumetric_fog_density = 0.0
 adjustment_contrast = 1.1
 
-[sub_resource type="BoxMesh" id="BoxMesh_5b6nc"]
+[sub_resource type="BoxMesh" id="BoxMesh_g470t"]
 size = Vector3(0.8, 0.1, 0.8)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_6q4xt"]
@@ -64,9 +64,9 @@ directional_shadow_split_1 = 0.2
 [node name="InteractiveGrid" type="InteractiveGrid" parent="."]
 _rows = 17
 _columns = 17
-_cell_mesh = SubResource("BoxMesh_5b6nc")
-"valid color" = Color(0.9607843, 0.90588236, 0.827451, 1)
-"unvalid color" = Color(0.78431374, 0, 0.08627451, 1)
+_cell_mesh = SubResource("BoxMesh_g470t")
+"valid color" = Color(0.9607843, 0.90588236, 0.827451, 0.41568628)
+"unvalid color" = Color(0.78431374, 0, 0.08627451, 0.4627451)
 "inaccessible color" = Color(1, 1, 1, 0)
 "selected color" = Color(0, 0.5882353, 0.78431374, 1)
 "path color" = Color(0, 0.78431374, 0.23921569, 1)

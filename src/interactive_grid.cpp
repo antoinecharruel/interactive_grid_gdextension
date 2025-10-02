@@ -1,7 +1,9 @@
 /*+===================================================================
 File: interactive_grid.cpp
 
-Summary: ...
+Summary: InteractiveGrid is a Godot 4.5 GDExtension that allows player
+         interaction with a 3D grid, including cell selection,
+		 pathfinding, and hover highlights.
 
 Last Modified: October 01, 2025
 
@@ -21,6 +23,14 @@ InteractiveGrid::InteractiveGrid() {} // CONSTRUCTOR.
 InteractiveGrid::~InteractiveGrid() {} // DESTRUCTOR.
 
 void InteractiveGrid::_bind_methods() {
+	/*F+F+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    Summary: _bind_methods, is a static function that Godot will call to 
+	         find out which methods can be called and which properties it
+			 exposes.
+
+    Last Modified: October 01, 2025
+  -----------------------------------------------------------------F-F*/
+
 	// --- Grid dimensions.
 
 	// Number of rows.
@@ -196,8 +206,8 @@ void InteractiveGrid::_ready(void) {
 
 void InteractiveGrid::_physics_process(double p_delta) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Called every frame. 'delta' is the elapsed time since the previous
-  frame.
+  Summary: Called every frame. 'delta' is the elapsed time since the 
+           previous frame.
 
   Last Modified: 03 May 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -206,7 +216,7 @@ void InteractiveGrid::_physics_process(double p_delta) {
 
 void InteractiveGrid::set_rows(const unsigned int rows) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary:  Sets the number of rows in the combat grid.
+  Summary: Sets the number of rows in the combat grid.
 
   Last Modified: April 29, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -216,7 +226,7 @@ void InteractiveGrid::set_rows(const unsigned int rows) {
 
 int InteractiveGrid::get_rows(void) const {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary:  Returns the number of rows in the combat grid.
+  Summary: Returns the number of rows in the combat grid.
 
   Last Modified: April 29, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -226,7 +236,7 @@ int InteractiveGrid::get_rows(void) const {
 
 void InteractiveGrid::set_columns(const unsigned int columns) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary:  Sets the number of columns in the combat grid.
+  Summary: Sets the number of columns in the combat grid.
 
   Last Modified: April 29, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -236,7 +246,7 @@ void InteractiveGrid::set_columns(const unsigned int columns) {
 
 int InteractiveGrid::get_columns(void) const {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary:  Returns the columns of rows in the combat grid.
+  Summary: Returns the columns of rows in the combat grid.
 
   Last Modified: April 29, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -246,9 +256,8 @@ int InteractiveGrid::get_columns(void) const {
 
 void InteractiveGrid::set_cell_size(const godot::Vector2 cell_size) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Sets the size of each cell in the combat grid.
-                          The provided value will be stored and used for grid
-  layout.
+  Summary: Sets the size of each cell in the combat grid. The provided 
+           value will be stored and used for grid layout.
 
   Last Modified: May 03, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -258,8 +267,8 @@ void InteractiveGrid::set_cell_size(const godot::Vector2 cell_size) {
 godot::Vector2 InteractiveGrid::get_cell_size(void) const {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
   Summary: Returns the size of a single cell in the combat grid.
-                  This value is used to manage grid dimensions and cell
-  positioning.
+           This value is used to manage grid dimensions and cell 
+		   positioning.
 
   Last Modified: May 03, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -430,7 +439,7 @@ godot::Ref<godot::Material> InteractiveGrid::get_material_override() const {
 void InteractiveGrid::apply_default_material() {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
   Summary: Creates and applies a default ShaderMaterial to the grid's
-        MultiMeshInstance.
+           MultiMeshInstance.
 
   Last Modified: October 01, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -542,8 +551,8 @@ void InteractiveGrid::highlight_on_hover(const godot::Vector3 global_position) {
 
 void InteractiveGrid::highlight_path(godot::PackedInt64Array path) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary:  Highlights a given path on the grid by changing the color of each
-    cell along the path to the predefined _path_color.
+  Summary: Highlights a given path on the grid by changing the color of 
+           each cell along the path to the predefined _path_color.
 
   Last Modified: September 29, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -571,7 +580,7 @@ godot::Vector3 InteractiveGrid::get_cell_golbal_position(const unsigned int inde
 godot::Vector3 InteractiveGrid::get_grid_center_position() const {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
   Summary: Returns the central position of the interactive grid in world
-    coordinates.
+           coordinates.
 
   Last Modified: September 29, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -627,10 +636,10 @@ bool InteractiveGrid::get_grid_visible() const {
 
 void InteractiveGrid::hide_inaccessible_cells(unsigned int start_cell_index) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Iterates over all grid cells and marks as inaccessible those cells
-    that cannot be reached from the specified start cell. Updates the
-    visual representation of inaccessible cells by applying the
-    _inaccessible_color to the grid's multimesh.
+  Summary: Iterates over all grid cells and marks as inaccessible those 
+           cells that cannot be reached from the specified start cell. 
+		   Updates the visual representation of inaccessible cells by 
+		   applying the _inaccessible_color to the grid's multimesh.
 
 	// TODO: Improve performance: 
 	current implementation iterates through
@@ -663,10 +672,10 @@ void InteractiveGrid::hide_inaccessible_cells(unsigned int start_cell_index) {
 
 void InteractiveGrid::hide_distant_cells(unsigned int start_cell_index, float distance) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Iterates over all grid cells and hides those located farther than
-    the specified distance from the start cell. Sets the visual 
-    representation of distant cells to fully transparent and marks 
-    them as non-walkable.
+  Summary: Iterates over all grid cells and hides those located farther 
+           than the specified distance from the start cell. Sets the 
+		   visual representation of distant cells to fully transparent 
+		   and marks them as non-walkable.
 
   Last Modified: September 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -701,7 +710,8 @@ bool InteractiveGrid::is_grid_created() const {
 
 void InteractiveGrid::InteractiveGrid::reset_cells_state() {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Resets the state of all cells in the grid to their default flags.
+  Summary: Resets the state of all cells in the grid to their default 
+           flags.
 
   Last Modified: October 01, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -722,7 +732,9 @@ void InteractiveGrid::InteractiveGrid::reset_cells_state() {
 
 void InteractiveGrid::set_obstacles_collision_masks(unsigned int masks) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: 
+  Summary: Sets the collision masks used by the interactive grid to 
+           detect obstacles. These masks define which objects are 
+		   considered as obstacles when checking for collisions.
 
   Last Modified: September 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -731,7 +743,9 @@ void InteractiveGrid::set_obstacles_collision_masks(unsigned int masks) {
 
 int InteractiveGrid::get_obstacles_collision_masks() {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: 
+  Summary: Returns the collision masks currently configured for obstacle 
+           detection. These masks specify which objects are treated as 
+           obstacles by the interactive grid.
 
   Last Modified: September 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -740,7 +754,8 @@ int InteractiveGrid::get_obstacles_collision_masks() {
 
 void InteractiveGrid::set_grid_surface_collision_masks(unsigned int masks) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: 
+  Summary: Sets the collision masks used by the interactive grid to 
+           detect and align with scene surfaces (meshes).
 
   Last Modified: September 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -749,7 +764,10 @@ void InteractiveGrid::set_grid_surface_collision_masks(unsigned int masks) {
 
 int InteractiveGrid::get_grid_surface_collision_masks() {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: 
+  Summary: Returns the collision masks currently configured for the 
+           interactive grid alignment. These masks specify which surfaces
+		   are used as references when aligning grid cells with meshes in 
+		   the scene
 
   Last Modified: September 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -790,7 +808,7 @@ void InteractiveGrid::select_cell(const godot::Vector3 global_position) {
 godot::Array InteractiveGrid::get_selected_cells() {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
   Summary: Returns an array of all cells currently marked as selected by
-    the user.
+           the user.
 
   Last Modified: September 26, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -800,7 +818,8 @@ godot::Array InteractiveGrid::get_selected_cells() {
 
 int InteractiveGrid::get_latest_selected() {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Returns the most recently selected cell from the user's selection.
+  Summary: Returns the most recently selected cell from the user's
+           selection.
 
   Last Modified: September 29, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -810,11 +829,12 @@ int InteractiveGrid::get_latest_selected() {
 godot::PackedInt64Array InteractiveGrid::get_path(unsigned int start_cell_index,
 		unsigned int target_cell_index) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Computes a path between two cells on the grid using A* pathfinding.
-  
-    Sets up all grid points with their walkable state and configures
-    the A* algorithm according to the selected movement type 
-    (orthogonal or diagonal).
+  Summary: Computes a path between two cells on the grid using A* 
+           pathfinding.
+		
+           Sets up all grid points with their walkable state and 
+		   configures the A* algorithm according to the selected movement
+		   type (orthogonal or diagonal).
 
   Last Modified: September 27, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -856,7 +876,8 @@ void InteractiveGrid::set_movement(unsigned int value) {
 
 int InteractiveGrid::get_movement() const {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Returns the current movement type used for pathfinding on the grid.
+  Summary: Returns the current movement type used for pathfinding on the
+           grid.
 
   Last Modified: September 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -866,10 +887,10 @@ int InteractiveGrid::get_movement() const {
 void InteractiveGrid::configure_astar_diagonal() {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
   Summary: Configures the A* pathfinding graph for diagonal movement.
-    Each cell is connected to all 8 neighboring cells (orthogonal
-    and diagonal) if the neighbor is walkable. This setup allows
-    the pathfinding algorithm to move in all directions across
-    the grid.
+           Each cell is connected to all 8 neighboring cells (orthogonal
+           and diagonal) if the neighbor is walkable. This setup allows
+           the pathfinding algorithm to move in all directions across
+           the grid.
 
   Last Modified: September 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -904,9 +925,9 @@ void InteractiveGrid::configure_astar_diagonal() {
 void InteractiveGrid::configure_astar_orthogonal() {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
   Summary: Configures the A* pathfinding graph for orthogonal movement.
-    Each cell is connected to its four immediate neighbors (up, down,
-    left, right) if they exist. This setup allows the pathfinding
-    algorithm to move only in orthogonal directions across the grid.
+           Each cell is connected to its four immediate neighbors (up, 
+		   down, left, right) if they exist. This setup allows the 
+		   pathfinding algorithm to move only in orthogonal directions across the grid.
 
   Last Modified: September 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -948,15 +969,14 @@ void InteractiveGrid::create() {
 
 void InteractiveGrid::init_multi_mesh() {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Initializes and configures the MultiMesh used for rendering the
-                  combat grid efficiently. MultiMesh enables high-performance
-                  instancing by drawing the same mesh multiple times using the
-  GPU.
-
-  MultiMesh:
-                  "Provides high-performance drawing of a mesh multiple times
-                  using GPU instancing."
-                  https://docs.godotengine.org/fr/4.x/classes/class_multimesh.html#
+  Summary: Initializes and configures the MultiMesh used for rendering 
+           the combat grid efficiently. MultiMesh enables high-
+		   performance instancing by drawing the same mesh multiple 
+		   times using the GPU.
+		   
+  MultiMesh: "Provides high-performance drawing of a mesh multiple times
+		     using GPU instancing."
+		https://docs.godotengine.org/fr/4.x/classes/class_multimesh.html#
 
   Last Modified: September 19, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -1009,8 +1029,9 @@ void InteractiveGrid::init_multi_mesh() {
 
 void InteractiveGrid::init_astar() {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary:  Initializes the A* pathfinding instance by creating a new AStar2D object.
-    Must be called before configuring points or calculating paths.
+  Summary: Initializes the A* pathfinding instance by creating a new 
+           AStar2D object. Must be called before configuring points or
+		   calculating paths.
 
   Last Modified: September 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -1019,8 +1040,8 @@ void InteractiveGrid::init_astar() {
 
 void InteractiveGrid::layout_cells_as_square_grid(const godot::Vector3 center_position) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: This method arranges the cells of the combat grid into a square
-                  grid layout, positioning each cell relative to a pawn.
+  Summary: This method arranges the cells of the combat grid into a 
+           square grid layout, positioning each cell relative to a pawn.
 
   Last Modified: September 19, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -1226,13 +1247,14 @@ void InteractiveGrid::align_cells_with_floor() {
 
 void InteractiveGrid::scan_environnement_obstacles() {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Scans the game grid to detect obstacles and updates the corresponding
-    grid cells as walkable or unwalkable. For each cell in the grid, a
-    physics query is performed using a box shape representing the cell.
-    The query checks for collisions with objects on specific layers.
-    Cells with collisions are marked as invalid (unwalkable), while cells
-    without collisions are marked as valid (walkable). Debug logs are
-    generated to provide information about the collision results.
+  Summary: Scans the game grid to detect obstacles and updates the 
+           corresponding grid cells as walkable or unwalkable. For each 
+		   cell in the grid, a physics query is performed using a box 
+		   shape representing the cell. The query checks for collisions 
+		   with objects on specific layers.Cells with collisions are 
+		   marked as invalid (unwalkable), while cells without collisions 
+		   are marked as valid (walkable). Debug logs are generated to 
+		   provide information about the collision results.
 
 
   Last Modified: September 23, 2025
@@ -1354,7 +1376,7 @@ void InteractiveGrid::scan_environnement_obstacles() {
 void InteractiveGrid::apply_material(const godot::Ref<godot::Material> &p_material) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
   Summary: Applies the supplied material as an override to the grid’s
-          MultiMeshInstance.
+           MultiMeshInstance.
 
   Last Modified: September 19, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -1374,7 +1396,8 @@ void InteractiveGrid::apply_material(const godot::Ref<godot::Material> &p_materi
 
 void InteractiveGrid::set_cells_visible(bool visible_param) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Toggles the visual visibility of every cell in the combat grid.
+  Summary: Toggles the visual visibility of every cell in the combat 
+           grid.
 
   Last Modified: April 29, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/

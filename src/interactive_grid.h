@@ -1,8 +1,9 @@
 /*+===================================================================
 File: interactive_grid.h
 
-Summary: Represents a 3D interactive grid for gameplay. Designed to be 
-    extended for tactical or strategy game mechanics.
+Summary: InteractiveGrid is a Godot 4.5 GDExtension that allows player
+interaction with a 3D grid, including cell selection, pathfinding, and
+hover highlights.
 
 Last Modified: October 01, 2025
 
@@ -34,11 +35,6 @@ public:
 	virtual void _ready() override;
 	virtual void _physics_process(double p_delta) override;
 
-	/*--------------------------------------------------------------------
-    BIND METHOD : expose the public API to Godot scripts
-    + make editable properties visible in the editor
-  --------------------------------------------------------------------*/
-
 	// --- Grid dimensions.
 
 	// Number of rows.
@@ -58,6 +54,7 @@ public:
 	godot::Ref<godot::Mesh> get_cell_mesh() const;
 
 	// --- Astar.
+
 	void set_movement(unsigned int value);
 	int get_movement() const;
 	void configure_astar_orthogonal();
@@ -187,7 +184,7 @@ private:
 	godot::Vector3 _grid_offset = godot::Vector3(0.0f, 0.0f, 0.0f);
 	godot::Ref<godot::AStar2D> _astar;
 
-	unsigned int _movement{ 0 };
+	unsigned int _movement{ 0 }; // ORTHOGONAL = 0, DIAGONAL = 1.
 	unsigned int _obstacles_collision_masks{ 1 << 13 }; // mask 14 = pow(2,13) = 1 << 13 = 8192
 	unsigned int _surface_collision_masks{ 1 << 14 }; // mask 15 = pow(2,14) = 1 << 14 = 16384
 
