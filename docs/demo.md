@@ -49,16 +49,16 @@ Launch Godot, create a new project, choose a location, and give it a name.
   - In the Mesh property, select PlaneMesh.
   - Set Transform → Scale to 20, 20, 1.
 
+- Add collision to the floor.
+  - With Floor selected, click Mesh → Create Collision Shape.
+  - Set Collision Shape → Type to Single Convex.
+
 ```{=latex}
 \begin{center}
     \includegraphics[width=0.33\textwidth]{data/s2.1.png}
 \end{center}
 ```
 
-- Add collision to the floor.
-  - With Floor selected, click Mesh → Create Collision Shape.
-  - Set Collision Shape → Type to Single Convex.
-  
 ```{=latex}
 \begin{center}
     \includegraphics[width=0.33\textwidth]{data/s2.2.png}
@@ -151,12 +151,12 @@ func _physics_process(delta: float) -> void:
 \end{lstlisting}
 ```
 
-- Add a Raycast3D node
+- Add a Raycast3D node.
   - Select PawnPlayer.
   - Click + and add a Raycast3D node.
   - Rename it RayCastFromMouse.
 
-- Attach the script
+- Attach the script.
   - Select RayCastFromMouse.
   - Click Attach Script.
   - Choose the script ray_cast_from_mouse.gd.
@@ -244,22 +244,22 @@ func get_ray_intersection_position() -> Vector3:
 - Open the PawnPlayer scene.
 - Select CharacterBody3D (Pawn), click +, and add a InteractiveGrid node.
 
-If you see the error:
-
-ERROR: servers/rendering/renderer_rd/storage_rd/mesh_storage.cpp:1827 - Condition "multimesh->mesh.is_null()" is true.
-
-Don’t worry—this is normal. It simply means that the InteractiveGrid node does not yet have a multimesh assigned. You can fix it by adding a multimesh in the Cell Mesh property (see next step).
-
-- Add a multimesh
-- Select InteractiveGrid, go to the Inspector → Cell Mesh property.
-- Click on the mesh field and select BoxMesh.
-- Set the size to 0.8, 0.1, 0.8.
-
 ```{=latex}
 \begin{center}
     \includegraphics[width=0.75\textwidth]{data/s5.1.png}
 \end{center}
 ```
+
+If you see the error:
+
+ERROR: servers/rendering/renderer_rd/storage_rd/mesh_storage.cpp:1827 - Condition "multimesh->mesh.is_null()" is true.
+
+Don’t worry—this is normal. It simply means that the InteractiveGrid node does not yet have a multimesh assigned. You can fix it by adding a mesh in the Cell Mesh property.
+
+- Add a cell_mesh
+  - Select InteractiveGrid, go to the Inspector → Cell Mesh property.
+  - Click on the mesh field and select BoxMesh.
+  - Set the size to 0.8, 0.1, 0.8.
 
 ## 6 - Interactive grid scripting
 
