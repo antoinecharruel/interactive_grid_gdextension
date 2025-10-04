@@ -22,7 +22,7 @@ InteractiveGrid is a Godot 4.5 GDExtension that allows player interaction with a
 - Customize the grid from the editor: grid size, cell size, mesh, colors, and shaders.
 - High performance using [MultiMeshInstance3D](https://docs.godotengine.org/en/4.4/classes/class_multimeshinstance3d.html) for efficient rendering of multiple cells.
 
-📄 [Download the full Interactive Grid GDExtension demo PDF](https://raw.githubusercontent.com/antoinecharruel/interactive_grid_gdextension/main/addons/interactive-grid/docs/demo.pdf)
+📄 [Download the full Interactive Grid GDExtension demo PDF](https://raw.githubusercontent.com/antoinecharruel/interactive_grid_gdextension/main/addons/interactive-grid/demo.pdf)
 
 ## Demo Example GDScript
 
