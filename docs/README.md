@@ -7,3 +7,10 @@ pandoc demo.md -o ../addons/interactive-grid/demo.pdf --pdf-engine=xelatex -V ma
 
 cp ../addons/interactive-grid/demo.pdf ../demo/addons/interactive-grid/demo.pdf
 ```
+
+## Build doc interactiveGrid.xml
+```bash
+cd demo
+godot --doctool .. --gdextension-docs
+& "C:\Program Files (x86)\Steam\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe" --doctool .. --gdextension-docs
+```
