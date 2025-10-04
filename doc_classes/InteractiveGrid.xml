@@ -145,7 +145,7 @@
 		</member>
 		<member name="selected color" type="Color" setter="set_selected_color" getter="get_selected_color" default="Color(0, 0.588235, 0.784314, 0.33)">
 		</member>
-		<member name="surface_collision_masks" type="int" setter="set_grid_surface_collision_masks" getter="get_grid_surface_collision_masks" default="16384">
+		<member name="floor_collision_masks" type="int" setter="set_grid_floor_collision_masks" getter="get_grid_floor_collision_masks" default="16384">
 		</member>
 		<member name="unvalid color" type="Color" setter="set_unvalid_color" getter="get_unvalid_color" default="Color(0.780392, 0, 0.086275, 1)">
 		</member>

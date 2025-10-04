@@ -5,12 +5,12 @@ Summary: InteractiveGrid is a Godot 4.5 GDExtension that allows player
          interaction with a 3D grid, including cell selection,
 		 pathfinding, and hover highlights.
 
-Last Modified: October 01, 2025
+Last Modified: October 04, 2025
 
 This file is part of the InteractiveGrid GDExtension Source Code.
 Repository: https://github.com/antoinecharruel/interactive_grid
 
-Version InteractiveGrid: 1.0.0
+Version InteractiveGrid: 1.0.1
 Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 
 Author: Antoine Charruel
@@ -168,10 +168,10 @@ void InteractiveGrid::_bind_methods() {
 	ADD_PROPERTY(godot::PropertyInfo(godot::Variant::INT, "obstacles_collision_masks", godot::PROPERTY_HINT_LAYERS_3D_RENDER),
 			"set_obstacles_collision_masks", "get_obstacles_collision_masks");
 
-	godot::ClassDB::bind_method(godot::D_METHOD("set_grid_surface_collision_masks", "masks"), &InteractiveGrid::set_grid_surface_collision_masks);
-	godot::ClassDB::bind_method(godot::D_METHOD("get_grid_surface_collision_masks"), &InteractiveGrid::get_grid_surface_collision_masks);
-	ADD_PROPERTY(godot::PropertyInfo(godot::Variant::INT, "surface_collision_masks", godot::PROPERTY_HINT_LAYERS_3D_RENDER),
-			"set_grid_surface_collision_masks", "get_grid_surface_collision_masks");
+	godot::ClassDB::bind_method(godot::D_METHOD("set_grid_floor_collision_masks", "masks"), &InteractiveGrid::set_grid_floor_collision_masks);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_grid_floor_collision_masks"), &InteractiveGrid::get_grid_floor_collision_masks);
+	ADD_PROPERTY(godot::PropertyInfo(godot::Variant::INT, "floor_collision_masks", godot::PROPERTY_HINT_LAYERS_3D_RENDER),
+			"set_grid_floor_collision_masks", "get_grid_floor_collision_masks");
 
 	// --- Astar.
 
@@ -216,7 +216,7 @@ void InteractiveGrid::_physics_process(double p_delta) {
 
 void InteractiveGrid::set_rows(const unsigned int rows) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Sets the number of rows in the combat grid.
+  Summary: Sets the number of rows in the grid.
 
   Last Modified: April 29, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -226,7 +226,7 @@ void InteractiveGrid::set_rows(const unsigned int rows) {
 
 int InteractiveGrid::get_rows(void) const {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Returns the number of rows in the combat grid.
+  Summary: Returns the number of rows in the grid.
 
   Last Modified: April 29, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -236,7 +236,7 @@ int InteractiveGrid::get_rows(void) const {
 
 void InteractiveGrid::set_columns(const unsigned int columns) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Sets the number of columns in the combat grid.
+  Summary: Sets the number of columns in the grid.
 
   Last Modified: April 29, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -246,7 +246,7 @@ void InteractiveGrid::set_columns(const unsigned int columns) {
 
 int InteractiveGrid::get_columns(void) const {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Returns the columns of rows in the combat grid.
+  Summary: Returns the columns of rows in the grid.
 
   Last Modified: April 29, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -256,7 +256,7 @@ int InteractiveGrid::get_columns(void) const {
 
 void InteractiveGrid::set_cell_size(const godot::Vector2 cell_size) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Sets the size of each cell in the combat grid. The provided 
+  Summary: Sets the size of each cell in the grid. The provided 
            value will be stored and used for grid layout.
 
   Last Modified: May 03, 2025
@@ -266,7 +266,7 @@ void InteractiveGrid::set_cell_size(const godot::Vector2 cell_size) {
 
 godot::Vector2 InteractiveGrid::get_cell_size(void) const {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Returns the size of a single cell in the combat grid.
+  Summary: Returns the size of a single cell in the grid.
            This value is used to manage grid dimensions and cell 
 		   positioning.
 
@@ -277,7 +277,7 @@ godot::Vector2 InteractiveGrid::get_cell_size(void) const {
 
 void InteractiveGrid::set_cell_mesh(const godot::Ref<godot::Mesh> &p_mesh) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Sets the mesh used for each cell of the combat grid.
+  Summary: Sets the mesh used for each cell of the grid.
 
   Last Modified: May 03, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -287,7 +287,7 @@ void InteractiveGrid::set_cell_mesh(const godot::Ref<godot::Mesh> &p_mesh) {
 
 godot::Ref<godot::Mesh> InteractiveGrid::get_cell_mesh() const {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary:  Returns the mesh used for each cell of the combat grid.
+  Summary:  Returns the mesh used for each cell of the grid.
 
   Last Modified: September 29, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -297,7 +297,7 @@ godot::Ref<godot::Mesh> InteractiveGrid::get_cell_mesh() const {
 
 void InteractiveGrid::set_valid_color(const godot::Color color) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Sets the valid color for the combat grid.
+  Summary: Sets the valid color for the grid.
 
   Last Modified: April 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -307,7 +307,7 @@ void InteractiveGrid::set_valid_color(const godot::Color color) {
 
 godot::Color InteractiveGrid::get_valid_color() const {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Returns the valid color for the combat grid.
+  Summary: Returns the valid color for the grid.
 
   Last Modified: April 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -317,7 +317,7 @@ godot::Color InteractiveGrid::get_valid_color() const {
 
 void InteractiveGrid::set_unvalid_color(const godot::Color color) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Sets the unvalid color for the combat grid.
+  Summary: Sets the unvalid color for the grid.
 
   Last Modified: April 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -327,7 +327,7 @@ void InteractiveGrid::set_unvalid_color(const godot::Color color) {
 
 godot::Color InteractiveGrid::get_unvalid_color() const {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Returns the unvalid color for the combat grid.
+  Summary: Returns the unvalid color for the grid.
 
   Last Modified: April 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -337,7 +337,7 @@ godot::Color InteractiveGrid::get_unvalid_color() const {
 
 void InteractiveGrid::set_inaccessible_color(const godot::Color color) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Sets the inaccessible color for the combat grid.
+  Summary: Sets the inaccessible color for the grid.
 
   Last Modified: April 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -347,7 +347,7 @@ void InteractiveGrid::set_inaccessible_color(const godot::Color color) {
 
 godot::Color InteractiveGrid::get_inaccessible_color() const {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Returns the inaccessible color for the combat grid.
+  Summary: Returns the inaccessible color for the grid.
 
   Last Modified: April 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -357,7 +357,7 @@ godot::Color InteractiveGrid::get_inaccessible_color() const {
 
 void InteractiveGrid::set_selected_color(const godot::Color color) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Sets the selected color for the combat grid.
+  Summary: Sets the selected color for the grid.
 
   Last Modified: April 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -367,7 +367,7 @@ void InteractiveGrid::set_selected_color(const godot::Color color) {
 
 godot::Color InteractiveGrid::get_selected_color() const {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Returns the selected color for the combat grid.
+  Summary: Returns the selected color for the grid.
 
   Last Modified: April 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -377,7 +377,7 @@ godot::Color InteractiveGrid::get_selected_color() const {
 
 void InteractiveGrid::set_path_color(const godot::Color color) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Sets the path color for the combat grid.
+  Summary: Sets the path color for the grid.
 
   Last Modified: April 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -387,7 +387,7 @@ void InteractiveGrid::set_path_color(const godot::Color color) {
 
 godot::Color InteractiveGrid::get_path_color() const {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Returns the path color for the combat grid.
+  Summary: Returns the path color for the grid.
 
   Last Modified: April 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -397,7 +397,7 @@ godot::Color InteractiveGrid::get_path_color() const {
 
 void InteractiveGrid::set_hovered_color(const godot::Color color) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Sets the hovered color for the combat grid.
+  Summary: Sets the hovered color for the grid.
 
   Last Modified: April 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -407,7 +407,7 @@ void InteractiveGrid::set_hovered_color(const godot::Color color) {
 
 godot::Color InteractiveGrid::get_hovered_color() const {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Returns the hovered color for the combat grid.
+  Summary: Returns the hovered color for the grid.
 
   Last Modified: April 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -418,7 +418,7 @@ godot::Color InteractiveGrid::get_hovered_color() const {
 void InteractiveGrid::set_material_override(
 		const godot::Ref<godot::Material> &p_material) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Sets the material override for the combat grid.
+  Summary: Sets the material override for the grid.
 
   Last Modified: April 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -428,7 +428,7 @@ void InteractiveGrid::set_material_override(
 
 godot::Ref<godot::Material> InteractiveGrid::get_material_override() const {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Returns the material override for the combat grid.
+  Summary: Returns the material override for the grid.
 
   Last Modified: April 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -603,7 +603,7 @@ void InteractiveGrid::center(const godot::Vector3 center_position) {
 
 void InteractiveGrid::set_grid_visible(bool visible_param) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Sets the visibility of the combat grid.
+  Summary: Sets the visibility of the grid.
 
   Last Modified: September 19, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -627,7 +627,7 @@ void InteractiveGrid::set_grid_visible(bool visible_param) {
 
 bool InteractiveGrid::get_grid_visible() const {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Checks if the combat grid has been created.
+  Summary: Checks if the grid has been created.
 
   Last Modified: May 03, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -701,7 +701,7 @@ void InteractiveGrid::hide_distant_cells(unsigned int start_cell_index, float di
 
 bool InteractiveGrid::is_grid_created() const {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Checks if the combat grid has been created.
+  Summary: Checks if the grid has been created.
 
   Last Modified: May 03, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -752,26 +752,26 @@ int InteractiveGrid::get_obstacles_collision_masks() {
 	return _obstacles_collision_masks;
 }
 
-void InteractiveGrid::set_grid_surface_collision_masks(unsigned int masks) {
+void InteractiveGrid::set_grid_floor_collision_masks(unsigned int masks) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
   Summary: Sets the collision masks used by the interactive grid to 
-           detect and align with scene surfaces (meshes).
+           detect and align with scene floor (meshes).
 
-  Last Modified: September 30, 2025
+  Last Modified: October 04, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	_surface_collision_masks = masks;
+	_floor_collision_masks = masks;
 }
 
-int InteractiveGrid::get_grid_surface_collision_masks() {
+int InteractiveGrid::get_grid_floor_collision_masks() {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
   Summary: Returns the collision masks currently configured for the 
-           interactive grid alignment. These masks specify which surfaces
+           interactive grid alignment. These masks specify which floor
 		   are used as references when aligning grid cells with meshes in 
 		   the scene
 
-  Last Modified: September 30, 2025
+  Last Modified: October 04, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	return _surface_collision_masks;
+	return _floor_collision_masks;
 }
 
 void InteractiveGrid::select_cell(const godot::Vector3 global_position) {
@@ -927,7 +927,8 @@ void InteractiveGrid::configure_astar_orthogonal() {
   Summary: Configures the A* pathfinding graph for orthogonal movement.
            Each cell is connected to its four immediate neighbors (up, 
 		   down, left, right) if they exist. This setup allows the 
-		   pathfinding algorithm to move only in orthogonal directions across the grid.
+		   pathfinding algorithm to move only in orthogonal directions 
+		   across the grid.
 
   Last Modified: September 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -951,7 +952,7 @@ void InteractiveGrid::configure_astar_orthogonal() {
 
 void InteractiveGrid::create() {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Initializes the combat grid if it has not been created yet.
+  Summary: Initializes the grid if it has not been created yet.
 
   Last Modified: September 19, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -970,7 +971,7 @@ void InteractiveGrid::create() {
 void InteractiveGrid::init_multi_mesh() {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
   Summary: Initializes and configures the MultiMesh used for rendering 
-           the combat grid efficiently. MultiMesh enables high-
+           the grid efficiently. MultiMesh enables high-
 		   performance instancing by drawing the same mesh multiple 
 		   times using the GPU.
 		   
@@ -1040,7 +1041,7 @@ void InteractiveGrid::init_astar() {
 
 void InteractiveGrid::layout_cells_as_square_grid(const godot::Vector3 center_position) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: This method arranges the cells of the combat grid into a 
+  Summary: This method arranges the cells of the grid into a 
            square grid layout, positioning each cell relative to a pawn.
 
   Last Modified: September 19, 2025
@@ -1163,7 +1164,7 @@ void InteractiveGrid::align_cells_with_floor() {
 				ray_query->set_from(global_from); // Starting point of the ray.
 				ray_query->set_to(global_to); // End point of the ray.
 
-				ray_query->set_collision_mask(_surface_collision_masks);
+				ray_query->set_collision_mask(_floor_collision_masks);
 
 				// Excludes the MultiMesh to prevent it from blocking its own ray.
 				godot::TypedArray<godot::RID> exclude_array;
@@ -1396,8 +1397,7 @@ void InteractiveGrid::apply_material(const godot::Ref<godot::Material> &p_materi
 
 void InteractiveGrid::set_cells_visible(bool visible_param) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Toggles the visual visibility of every cell in the combat 
-           grid.
+  Summary: Toggles the visual visibility of every cell in the grid.
 
   Last Modified: April 29, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -1425,8 +1425,8 @@ void InteractiveGrid::set_cells_visible(bool visible_param) {
 int InteractiveGrid::get_cell_index_from_global_position(
 		const godot::Vector3 global_position) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Returns the linear index of the grid cell that is closest to the
-           supplied world‑space position.
+  Summary: Returns the linear index of the grid cell that is closest to
+		   the supplied world‑space position.
 
   Last Modified: September 26, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/

@@ -5,12 +5,12 @@ Summary: InteractiveGrid is a Godot 4.5 GDExtension that allows player
 interaction with a 3D grid, including cell selection, pathfinding, and
 hover highlights.
 
-Last Modified: October 01, 2025
+Last Modified: October 04, 2025
 
 This file is part of the InteractiveGrid GDExtension Source Code.
 Repository: https://github.com/antoinecharruel/interactive_grid
 
-Version InteractiveGrid: 1.0.0
+Version InteractiveGrid: 1.0.1
 Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 
 Author: Antoine Charruel
@@ -119,8 +119,8 @@ public:
 	void set_obstacles_collision_masks(unsigned int masks);
 	int get_obstacles_collision_masks();
 
-	void set_grid_surface_collision_masks(unsigned int masks);
-	int get_grid_surface_collision_masks();
+	void set_grid_floor_collision_masks(unsigned int masks);
+	int get_grid_floor_collision_masks();
 
 	// --- User interaction.
 
@@ -186,7 +186,7 @@ private:
 
 	unsigned int _movement{ 0 }; // ORTHOGONAL = 0, DIAGONAL = 1.
 	unsigned int _obstacles_collision_masks{ 1 << 13 }; // mask 14 = pow(2,13) = 1 << 13 = 8192
-	unsigned int _surface_collision_masks{ 1 << 14 }; // mask 15 = pow(2,14) = 1 << 14 = 16384
+	unsigned int _floor_collision_masks{ 1 << 14 }; // mask 15 = pow(2,14) = 1 << 14 = 16384
 
 	// --- Cells.
 	godot::Ref<godot::Mesh> _cell_mesh;
@@ -198,20 +198,20 @@ private:
 	int _hovered_cell_index{ -1 };
 
 	// --- colors.
-	godot::Color _valid_color{ godot::Color(0.960784, 0.905882, 0.827451, 1) }; // #f5e7d3
+	godot::Color _valid_color{ godot::Color(0.9411765, 1, 0.9411765, 1) }; // HONEYDEW
 	godot::Color _unvalid_color{
-		godot::Color(0.780392, 0.0, 0.086275, 1)
-	}; // #c80016
+		godot::Color(0.8039216, 0.36078432, 0.36078432, 1)
+	}; // INDIAN_RED 
 	godot::Color _inaccessible_color{
 		godot::Color(1, 1, 1, 0.10)
 	}; // #ffffff00
 	godot::Color _selected_color{
-		godot::Color(0.0, 0.588235, 0.784314, 0.33)
-	}; // #0096c8
-	godot::Color _path_color{ godot::Color(1, 0.752941, 0, 0.33) }; // Default AMBER
+		godot::Color(0.8784314, 1, 1, 1)
+	}; // LIGHT_CYAN 
+	godot::Color _path_color{ godot::Color(0.5647059, 0.93333334, 0.5647059, 1) }; // LIGHT_GREEN
 	godot::Color _hovered_color{
-		godot::Color(1, 0.784314, 0.239216, 0.33)
-	}; // #00c83d
+		godot::Color(1, 0.84313726, 0, 1) // GOLD
+	};
 
 	// --- material.
 	godot::Ref<godot::Material> _material_override;

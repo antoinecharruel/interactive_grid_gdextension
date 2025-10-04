@@ -1,32 +1,3 @@
-[![Interactive Grid GDExtension Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=Interactive%20Grid%20GDExtension&color=478CBF&message=1.0.0)](https://godotengine.org/asset-library/asset/4372)
-[![Patreon](https://img.shields.io/badge/Patreon-Vivensoft-F96854?logo=patreon&logoColor=white)](https://www.patreon.com/c/vivensoft/)  
-[![Ko-fi](https://img.shields.io/badge/Ko--fi-AntoineCharruel-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/antoinecharruel)  
-[![Instagram](https://img.shields.io/badge/Instagram-VSFT%20GameDev-E4405F?logo=instagram&logoColor=white)](https://www.instagram.com/vsftgamedev/)
-
-# Interactive Grid GDExtension
-
-![Grid Showcase](addons/interactive-grid/thumbnail/thumbnail.png)
-
-InteractiveGrid is a Godot 4.5 GDExtension that allows player interaction with a 3D grid, including cell selection, pathfinding, and hover highlights.
-
-## Features
-
-- Fully compatible with Godot 4.5.
-- Highlight cells when hovering the mouse over them.
-- Select individual cells.
-- Detect obstacles (collision mask configurable from the editor).
-- Align cells with the floor (collision mask configurable from the editor).
-- Hide distant cells to focus on the relevant area.
-- Calculate paths from a global position to selected cells using [AStar2D](https://docs.godotengine.org/en/stable/classes/class_astar2d.html).
-- Choose movement type: orthogonal (4 directions) or diagonal (8 directions) directly from the editor.
-- Customize the grid from the editor: grid size, cell size, mesh, colors, and shaders.
-- High performance using [MultiMeshInstance3D](https://docs.godotengine.org/en/4.4/classes/class_multimeshinstance3d.html) for efficient rendering of multiple cells.
-
-📄 [Download the full Interactive Grid GDExtension demo PDF](https://raw.githubusercontent.com/antoinecharruel/interactive_grid_gdextension/main/addons/interactive-grid/docs/demo.pdf)
-
-## Demo Example GDScript
-
-```python
 # File: interactive_grid.gd
 #
 # Summary: Script extending InteractiveGrid to handle player interaction with the grid.
@@ -131,4 +102,3 @@ func _input(event):
 		else:
 			print("Right button was released")
 	# ----------------------------------------------------------------------------------------F-F*/	
-```
