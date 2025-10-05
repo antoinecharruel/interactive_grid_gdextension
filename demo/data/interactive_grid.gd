@@ -4,12 +4,12 @@
 #
 # Node: InteractiveGrid (InteractiveGrid).
 #
-# Last modified: October 04, 2025
+# Last modified: October 05, 2025
 #
 # This file is part of the InteractiveGrid GDExtension Source Code.
 # Repository: https://github.com/antoinecharruel/interactive_grid_gdextension
 #
-# Version InteractiveGrid: 1.0.1
+# Version InteractiveGrid: 1.0.2
 # Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 #
 # Author: Antoine Charruel
@@ -46,7 +46,7 @@ func _input(event):
 	# /*F+F++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	# Summary: Handles mouse input events for the InteractiveGrid.
 	#
-	# Last Modified: October 04, 2025
+	# Last Modified: October 05, 2025
 	
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT:
 	# --------------------------------------------------------------------
@@ -63,6 +63,12 @@ func _input(event):
 				self.center(pawn.global_position)
 				 # Hides distant cells.
 				var index_pawn_cell: int = self.get_cell_index_from_global_position(pawn.global_position)
+				
+				# Manually set cells as unwalkable.
+				set_cell_walkable(158, 0);
+				set_cell_walkable(175, 0);
+				set_cell_walkable(192, 0);
+
 				self.hide_distant_cells(index_pawn_cell, 6)
 		else:
 			print("Right button was released")

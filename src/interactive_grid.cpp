@@ -5,12 +5,12 @@ Summary: InteractiveGrid is a Godot 4.5 GDExtension that allows player
          interaction with a 3D grid, including cell selection,
 		 pathfinding, and hover highlights.
 
-Last Modified: October 04, 2025
+Last Modified: October 05, 2025
 
 This file is part of the InteractiveGrid GDExtension Source Code.
 Repository: https://github.com/antoinecharruel/interactive_grid
 
-Version InteractiveGrid: 1.0.1
+Version InteractiveGrid: 1.0.2
 Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 
 Author: Antoine Charruel
@@ -151,7 +151,7 @@ void InteractiveGrid::_bind_methods() {
 			&InteractiveGrid::get_layout);
 	ADD_PROPERTY(godot::PropertyInfo(
 						 godot::Variant::INT, "layout", godot::PROPERTY_HINT_ENUM,
-						 "SQUARE"), // TODO ADD HEXAGONAL
+						 "SQUARE, HEXAGONAL_NOT_WORKING"), // TODO ADD HEXAGONAL
 			"set_layout", "get_layout");
 
 	// --- Grid visibility.
@@ -171,6 +171,12 @@ void InteractiveGrid::_bind_methods() {
 			&InteractiveGrid::is_grid_created);
 	godot::ClassDB::bind_method(godot::D_METHOD("reset_cells_state"),
 			&InteractiveGrid::reset_cells_state);
+
+	// --- Cell state.
+	godot::ClassDB::bind_method(godot::D_METHOD("set_cell_walkable"),
+			&InteractiveGrid::set_cell_walkable);
+
+	// TODO get get_cell_walkable
 
 	// --- Masks.
 
@@ -757,6 +763,28 @@ void InteractiveGrid::InteractiveGrid::reset_cells_state() {
 	_flags &= ~GFL_CELL_DISTANT_HIDDEN; // Reset.
 
 	_selected_cells.clear();
+}
+
+void InteractiveGrid::set_cell_walkable(unsigned int cell_index, bool is_walkable) {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Sets whether a specific cell is walkable or not.
+
+  Last Modified: October 05, 2025
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+	if (cell_index >= (_rows * _columns)) {
+		godot::print_line("nombre de cell : ", _rows * _columns);
+		PrintError(__FILE__, __FUNCTION__, __LINE__, "Cell index out of bounds.");
+		return;
+	}
+
+	if (is_walkable) {
+		_cells.at(cell_index)->flags |= CFL_WALKABLE;
+		_multimesh->set_instance_custom_data(cell_index, _valid_color);
+	} else if (!is_walkable) {
+		_cells.at(cell_index)->flags &= ~CFL_WALKABLE;
+		_multimesh->set_instance_custom_data(cell_index, _unvalid_color);
+	}
 }
 
 void InteractiveGrid::set_obstacles_collision_masks(unsigned int masks) {

@@ -1,4 +1,4 @@
-[![Interactive Grid GDExtension Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=Interactive%20Grid%20GDExtension&color=478CBF&message=1.0.1)](https://godotengine.org/asset-library/asset/4372)
+[![Interactive Grid GDExtension Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=Interactive%20Grid%20GDExtension&color=478CBF&message=1.0.2)](https://godotengine.org/asset-library/asset/4372)
 [![Patreon](https://img.shields.io/badge/Patreon-Vivensoft-F96854?logo=patreon&logoColor=white)](https://www.patreon.com/c/vivensoft/)  
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-AntoineCharruel-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/antoinecharruel)  
 [![Instagram](https://img.shields.io/badge/Instagram-VSFT%20GameDev-E4405F?logo=instagram&logoColor=white)](https://www.instagram.com/vsftgamedev/)
@@ -33,12 +33,12 @@ InteractiveGrid is a Godot 4.5 GDExtension that allows player interaction with a
 #
 # Node: InteractiveGrid (InteractiveGrid).
 #
-# Last modified: October 04, 2025
+# Last modified: October 05, 2025
 #
 # This file is part of the InteractiveGrid GDExtension Source Code.
 # Repository: https://github.com/antoinecharruel/interactive_grid_gdextension
 #
-# Version InteractiveGrid: 1.0.1
+# Version InteractiveGrid: 1.0.2
 # Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 #
 # Author: Antoine Charruel
@@ -75,7 +75,7 @@ func _input(event):
 	# /*F+F++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	# Summary: Handles mouse input events for the InteractiveGrid.
 	#
-	# Last Modified: October 04, 2025
+	# Last Modified: October 05, 2025
 	
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT:
 	# --------------------------------------------------------------------
@@ -92,6 +92,12 @@ func _input(event):
 				self.center(pawn.global_position)
 				 # Hides distant cells.
 				var index_pawn_cell: int = self.get_cell_index_from_global_position(pawn.global_position)
+				
+				# Manually set cells as unwalkable.
+				set_cell_walkable(158, 0);
+				set_cell_walkable(175, 0);
+				set_cell_walkable(192, 0);
+
 				self.hide_distant_cells(index_pawn_cell, 6)
 		else:
 			print("Right button was released")
