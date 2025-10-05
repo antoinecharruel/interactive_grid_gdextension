@@ -10,7 +10,7 @@ Last Modified: October 05, 2025
 This file is part of the InteractiveGrid GDExtension Source Code.
 Repository: https://github.com/antoinecharruel/interactive_grid
 
-Version InteractiveGrid: 1.0.2
+Version InteractiveGrid: 1.0.3
 Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 
 Author: Antoine Charruel
@@ -1444,7 +1444,7 @@ void InteractiveGrid::apply_material(const godot::Ref<godot::Material> &p_materi
   Summary: Applies the supplied material as an override to the grid’s
            MultiMeshInstance.
 
-  Last Modified: September 19, 2025
+  Last Modified: October 05, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
 	if (_multimesh_instance == nullptr) {
@@ -1457,6 +1457,8 @@ void InteractiveGrid::apply_material(const godot::Ref<godot::Material> &p_materi
 		_multimesh_instance->set_material_override(nullptr);
 		apply_default_material();
 		return;
+	} else {
+		_multimesh_instance->set_material_override(p_material);
 	}
 }
 

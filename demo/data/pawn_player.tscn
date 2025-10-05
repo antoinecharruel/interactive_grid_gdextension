@@ -32,5 +32,6 @@ script = ExtResource("2_x8n0i")
 _rows = 17
 _columns = 17
 _cell_mesh = SubResource("BoxMesh_x8n0i")
+"valid color" = Color(0.9607843, 0.79607844, 0.98039216, 0.34901962)
 movement = 1
 script = ExtResource("3_hc0jp")

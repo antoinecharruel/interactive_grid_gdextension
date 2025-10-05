@@ -1,3 +1,4 @@
+# =================================================================================================
 # File: interactive_grid.gd
 #
 # Summary: Script extending InteractiveGrid to handle player interaction with the grid.

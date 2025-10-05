@@ -81,8 +81,8 @@ func get_ray_intersection_position() -> Vector3:
 		var collider:Node3D = ray_cast_from_mouse.get_collider()
 		
 		intersect_ray_position = ray_cast_from_mouse.get_collision_point()
-		print("[GetRayIntersectionPosition] Collision detected at: ", intersect_ray_position)
-		print("[GetRayIntersectionPosition] Collision detected with: ", collider.name)
+		#print("[GetRayIntersectionPosition] Collision detected at: ", intersect_ray_position)
+		#print("[GetRayIntersectionPosition] Collision detected with: ", collider.name)
 		
 	return intersect_ray_position
 	# ----------------------------------------------------------------------------------------F-F*/
