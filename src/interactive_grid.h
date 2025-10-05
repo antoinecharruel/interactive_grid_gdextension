@@ -228,19 +228,19 @@ private:
 
 	// --- colors.
 
-	godot::Color _valid_color{ godot::Color(0.9411765, 1, 0.9411765, 1) }; // HONEYDEW
+	godot::Color _valid_color{ godot::Color(0.9411765, 1, 0.9411765, (240.0 / 255.0)) }; // HONEYDEW
 	godot::Color _unvalid_color{
-		godot::Color(0.8039216, 0.36078432, 0.36078432, 1)
+		godot::Color(0.8039216, 0.36078432, 0.36078432, (241.0 / 255.0))
 	}; // INDIAN_RED
 	godot::Color _inaccessible_color{
-		godot::Color(1, 1, 1, 0.10)
+		godot::Color(1, 1, 1, (242.0 / 255.0))
 	}; // #ffffff00
 	godot::Color _selected_color{
-		godot::Color(0.8784314, 1, 1, 1)
+		godot::Color(0.8784314, 1, 1, (243.0 / 255.0))
 	}; // LIGHT_CYAN
-	godot::Color _path_color{ godot::Color(0.5647059, 0.93333334, 0.5647059, 1) }; // LIGHT_GREEN
+	godot::Color _path_color{ godot::Color(0.5647059, 0.93333334, 0.5647059, (244.0 / 255.0)) }; // LIGHT_GREEN
 	godot::Color _hovered_color{
-		godot::Color(1, 0.84313726, 0, 1) // GOLD
+		godot::Color(1, 0.84313726, 0, (245.0 / 255.0)) // GOLD
 	};
 
 	// --- material.

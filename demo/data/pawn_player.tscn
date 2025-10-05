@@ -1,7 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://dbna5exmjhbhp"]
+[gd_scene load_steps=9 format=3 uid="uid://dbna5exmjhbhp"]
 
 [ext_resource type="Script" uid="uid://1118fnkm8r3g" path="res://data/pawn.gd" id="1_ak1kh"]
 [ext_resource type="Script" uid="uid://dwabf7i2a8d4o" path="res://data/ray_cast_from_mouse.gd" id="2_x8n0i"]
+[ext_resource type="Shader" uid="uid://dc4oav4wip1yi" path="res://addons/interactive-grid/data/shaders/dynamic.gdshader" id="3_7xyhs"]
 [ext_resource type="Script" uid="uid://cnxwc4e8vdiox" path="res://data/interactive_grid.gd" id="3_hc0jp"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_8yhgy"]
@@ -10,6 +11,10 @@
 
 [sub_resource type="BoxMesh" id="BoxMesh_x8n0i"]
 size = Vector3(0.8, 0.1, 0.8)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7xyhs"]
+render_priority = 0
+shader = ExtResource("3_7xyhs")
 
 [node name="PawnPlayer" type="CharacterBody3D"]
 script = ExtResource("1_ak1kh")
@@ -32,6 +37,6 @@ script = ExtResource("2_x8n0i")
 _rows = 17
 _columns = 17
 _cell_mesh = SubResource("BoxMesh_x8n0i")
-"valid color" = Color(0.9607843, 0.79607844, 0.98039216, 0.34901962)
+_material_override = SubResource("ShaderMaterial_7xyhs")
 movement = 1
 script = ExtResource("3_hc0jp")

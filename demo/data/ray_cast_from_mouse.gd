@@ -36,6 +36,7 @@ func _ready() -> void:
 	debug_sphere_ray_cast_.material_override = mat_target
 	debug_sphere_ray_cast_.scale = Vector3(0.3, 0.3, 0.3)
 	add_child(debug_sphere_ray_cast_)
+	debug_sphere_ray_cast_.visible = false
 	# ----------------------------------------------------------------------------------------F-F*/
 	
 func _process(delta: float) -> void:

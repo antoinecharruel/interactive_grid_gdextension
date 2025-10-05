@@ -66,9 +66,9 @@ func _input(event):
 				var index_pawn_cell: int = self.get_cell_index_from_global_position(pawn.global_position)
 				
 				# Manually set cells as unwalkable.
-				set_cell_walkable(158, 0);
-				set_cell_walkable(175, 0);
-				set_cell_walkable(192, 0);
+				#set_cell_walkable(158, 0);
+				#set_cell_walkable(175, 0);
+				#set_cell_walkable(192, 0);
 
 				self.hide_distant_cells(index_pawn_cell, 6)
 		else:
