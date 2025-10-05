@@ -143,6 +143,17 @@ void InteractiveGrid::_bind_methods() {
 	godot::ClassDB::bind_method(godot::D_METHOD("get_grid_center_position"),
 			&InteractiveGrid::get_grid_center_position);
 
+	// --- Grid layout.
+
+	godot::ClassDB::bind_method(godot::D_METHOD("set_layout", "value"),
+			&InteractiveGrid::set_layout);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_layout"),
+			&InteractiveGrid::get_layout);
+	ADD_PROPERTY(godot::PropertyInfo(
+						 godot::Variant::INT, "layout", godot::PROPERTY_HINT_ENUM,
+						 "SQUARE"), // TODO ADD HEXAGONAL
+			"set_layout", "get_layout");
+
 	// --- Grid visibility.
 
 	godot::ClassDB::bind_method(godot::D_METHOD("set_grid_visible"),
@@ -588,6 +599,24 @@ godot::Vector3 InteractiveGrid::get_grid_center_position() const {
 	return _grid_center_position;
 }
 
+void InteractiveGrid::set_layout(unsigned int value) {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+	Summary: Sets the grid layout.
+
+	Last Modified: October 05, 2025
+	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+	_layout = value;
+}
+
+unsigned int InteractiveGrid::get_layout() const {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+	Summary: Returns the current grid layout.
+
+	Last Modified: October 05, 2025
+	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+	return _layout;
+}
+
 void InteractiveGrid::center(const godot::Vector3 center_position) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
   Summary: Called to re-center the grid.
@@ -874,7 +903,7 @@ void InteractiveGrid::set_movement(unsigned int value) {
 	_movement = value;
 }
 
-int InteractiveGrid::get_movement() const {
+unsigned int InteractiveGrid::get_movement() const {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
   Summary: Returns the current movement type used for pathfinding on the
            grid.
@@ -932,7 +961,7 @@ void InteractiveGrid::configure_astar_orthogonal() {
 
   Last Modified: September 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	// Créer les connexions 4 directions
+	// Create the four-direction connections
 	for (int i = 0; i < _rows; i++) {
 		for (int j = 0; j < _columns; j++) {
 			const int index = i * _columns + j;
@@ -1097,6 +1126,14 @@ void InteractiveGrid::layout_cells_as_square_grid(const godot::Vector3 center_po
 
 	PrintLine(__FILE__, __FUNCTION__, __LINE__,
 			"The grid cells have been laid out as a square grid.");
+}
+
+void InteractiveGrid::layout_cells_as_hexagonal_grid(const godot::Vector3 center_position) {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: // TODO
+
+  Last Modified: October 05, 2025
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 }
 
 void InteractiveGrid::align_cells_with_floor() {

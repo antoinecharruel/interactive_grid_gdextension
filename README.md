@@ -132,3 +132,11 @@ func _input(event):
 			print("Right button was released")
 	# ----------------------------------------------------------------------------------------F-F*/	
 ```
+
+## TODO
+
+- [ ] Define hexagonal layout method.
+- [ ] Add vaultable cells
+  + [ ] A Define `CFL_VAULT` flag for cells that can be vaulted/climbed.
+  + [ ] Assign vaultable cells to a specific collision layer checked by `scan_environnement_obstacles` method.
+  + [ ] Add a visual indicator (color) for vaultable cells using `ADD_PROPERTY`.

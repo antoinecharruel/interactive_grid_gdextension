@@ -22,6 +22,11 @@ Author: Antoine Charruel
 
 class InteractiveGrid : public godot::Node3D {
 public:
+	enum LAYOUT {
+		SQUARE = 0,
+		HEXAGONAL = 1,
+	};
+
 	enum MOVEMENT {
 		ORTHOGONAL = 0,
 		DIAGONAL = 1,
@@ -56,7 +61,7 @@ public:
 	// --- Astar.
 
 	void set_movement(unsigned int value);
-	int get_movement() const;
+	unsigned int get_movement() const;
 	void configure_astar_orthogonal();
 	void configure_astar_diagonal();
 
@@ -104,6 +109,11 @@ public:
 	godot::Vector3 get_grid_center_position() const;
 	void center(const godot::Vector3 center_position);
 
+	// --- Grid layout.
+
+	void set_layout(unsigned int value);
+	unsigned get_layout() const;
+
 	// --- Grid visibility.
 
 	void set_grid_visible(bool visible);
@@ -112,10 +122,12 @@ public:
 	void hide_distant_cells(unsigned int start_cell_index, float distance);
 
 	// --- Grid state.
+
 	bool is_grid_created() const;
 	void reset_cells_state();
 
 	// --- Grid masks.
+
 	void set_obstacles_collision_masks(unsigned int masks);
 	int get_obstacles_collision_masks();
 
@@ -142,6 +154,7 @@ private:
 	} Cell;
 
 	// Grid flags.
+
 	static constexpr int GFL_DEBUG = 1 << 0;
 	static constexpr int GFL_CREATED = 1 << 1;
 	static constexpr int GFL_VISIBLE = 1 << 2;
@@ -149,6 +162,7 @@ private:
 	static constexpr int GFL_CELL_DISTANT_HIDDEN = 1 << 4;
 
 	// Cell flags.
+
 	static constexpr int CFL_WALKABLE = 1 << 0;
 	static constexpr int CFL_INACCESSIBLE = 1 << 1;
 	static constexpr int CFL_HOVERED = 1 << 2;
@@ -158,18 +172,26 @@ private:
 	void create();
 
 	// --- Grid initialization.
+
 	void init_multi_mesh();
 	void init_astar();
 
 	// --- Grid position.
-	void layout_cells_as_square_grid(const godot::Vector3 center_position);
+
 	void align_cells_with_floor();
 	void scan_environnement_obstacles();
 
+	// --- Grid layout.
+
+	void layout_cells_as_square_grid(const godot::Vector3 center_position);
+	void layout_cells_as_hexagonal_grid(const godot::Vector3 center_position);
+
 	// --- Grid materials.
+
 	void apply_material(const godot::Ref<godot::Material> &p_material);
 
 	// --- Grid visibility.
+
 	void set_cells_visible(bool visible_param);
 
 	/*--------------------------------------------------------------------
@@ -177,6 +199,7 @@ private:
   --------------------------------------------------------------------*/
 
 	// --- Grid.
+
 	unsigned int _rows{ 9 }; // ROWS.
 	unsigned int _columns{ 9 }; // COLUMNS.
 	uint32_t _flags = 0; // FLAGS.
@@ -184,11 +207,13 @@ private:
 	godot::Vector3 _grid_offset = godot::Vector3(0.0f, 0.0f, 0.0f);
 	godot::Ref<godot::AStar2D> _astar;
 
+	unsigned int _layout{ 0 }; // SQUARE = 0, HEXAGONAL = 1.
 	unsigned int _movement{ 0 }; // ORTHOGONAL = 0, DIAGONAL = 1.
 	unsigned int _obstacles_collision_masks{ 1 << 13 }; // mask 14 = pow(2,13) = 1 << 13 = 8192
 	unsigned int _floor_collision_masks{ 1 << 14 }; // mask 15 = pow(2,14) = 1 << 14 = 16384
 
 	// --- Cells.
+
 	godot::Ref<godot::Mesh> _cell_mesh;
 	godot::MultiMeshInstance3D *_multimesh_instance;
 	godot::Ref<godot::MultiMesh> _multimesh;
@@ -198,24 +223,27 @@ private:
 	int _hovered_cell_index{ -1 };
 
 	// --- colors.
+
 	godot::Color _valid_color{ godot::Color(0.9411765, 1, 0.9411765, 1) }; // HONEYDEW
 	godot::Color _unvalid_color{
 		godot::Color(0.8039216, 0.36078432, 0.36078432, 1)
-	}; // INDIAN_RED 
+	}; // INDIAN_RED
 	godot::Color _inaccessible_color{
 		godot::Color(1, 1, 1, 0.10)
 	}; // #ffffff00
 	godot::Color _selected_color{
 		godot::Color(0.8784314, 1, 1, 1)
-	}; // LIGHT_CYAN 
+	}; // LIGHT_CYAN
 	godot::Color _path_color{ godot::Color(0.5647059, 0.93333334, 0.5647059, 1) }; // LIGHT_GREEN
 	godot::Color _hovered_color{
 		godot::Color(1, 0.84313726, 0, 1) // GOLD
 	};
 
 	// --- material.
+
 	godot::Ref<godot::Material> _material_override;
 
 	// --- Scan environnement.
+
 	godot::Ref<godot::BoxShape3D> _obstacle_shape;
 };
