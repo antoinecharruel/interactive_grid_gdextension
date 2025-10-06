@@ -10,7 +10,7 @@ Last Modified: October 05, 2025
 This file is part of the InteractiveGrid GDExtension Source Code.
 Repository: https://github.com/antoinecharruel/interactive_grid
 
-Version InteractiveGrid: 1.0.3
+Version InteractiveGrid: 1.0.6
 Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 
 Author: Antoine Charruel

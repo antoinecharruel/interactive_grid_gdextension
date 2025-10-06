@@ -64,13 +64,123 @@ collision_layer = 8193
 shape = SubResource("ConvexPolygonShape3D_fh8d7")
 
 [node name="MeshInstance3D3" type="MeshInstance3D" parent="Walls"]
-transform = Transform3D(-8.742278e-08, 0, 1, 0, 2, 0, -2, 0, -4.371139e-08, -0.8003092, 1, 2.4694667)
+transform = Transform3D(-8.742278e-08, 0, 1, 0, 2, 0, -2, 0, -4.371139e-08, -1.8003092, 1, 2.4694667)
 mesh = SubResource("BoxMesh_fh8d7")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="Walls/MeshInstance3D3"]
 collision_layer = 8193
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Walls/MeshInstance3D3/StaticBody3D"]
+shape = SubResource("ConvexPolygonShape3D_fh8d7")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="Walls"]
+transform = Transform3D(-8.742278e-08, 0, 1, 0, 2, 0, -2, 0, -4.371139e-08, -1.8003092, 1, 4.4694667)
+mesh = SubResource("BoxMesh_fh8d7")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Walls/MeshInstance3D4"]
+collision_layer = 8193
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Walls/MeshInstance3D4/StaticBody3D"]
+shape = SubResource("ConvexPolygonShape3D_fh8d7")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="Walls"]
+transform = Transform3D(-8.742278e-08, 0, 1, 0, 2, 0, -2, 0, -4.371139e-08, -5.783481, 1, 2.4694667)
+mesh = SubResource("BoxMesh_fh8d7")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Walls/MeshInstance3D5"]
+collision_layer = 8193
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Walls/MeshInstance3D5/StaticBody3D"]
+shape = SubResource("ConvexPolygonShape3D_fh8d7")
+
+[node name="MeshInstance3D6" type="MeshInstance3D" parent="Walls"]
+transform = Transform3D(-8.742278e-08, 0, 1, 0, 2, 0, -2, 0, -4.371139e-08, -5.800309, 1, 4.4694667)
+mesh = SubResource("BoxMesh_fh8d7")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Walls/MeshInstance3D6"]
+collision_layer = 8193
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Walls/MeshInstance3D6/StaticBody3D"]
+shape = SubResource("ConvexPolygonShape3D_fh8d7")
+
+[node name="MeshInstance3D7" type="MeshInstance3D" parent="Walls"]
+transform = Transform3D(-8.742278e-08, 0, 1, 0, 2, 0, -2, 0, -4.371139e-08, -5.800309, 1, 6.4694667)
+mesh = SubResource("BoxMesh_fh8d7")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Walls/MeshInstance3D7"]
+collision_layer = 8193
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Walls/MeshInstance3D7/StaticBody3D"]
+shape = SubResource("ConvexPolygonShape3D_fh8d7")
+
+[node name="MeshInstance3D8" type="MeshInstance3D" parent="Walls"]
+transform = Transform3D(-8.742278e-08, 0, 1, 0, 2, 0, -2, 0, -4.371139e-08, -5.800309, 1, 8.469467)
+mesh = SubResource("BoxMesh_fh8d7")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Walls/MeshInstance3D8"]
+collision_layer = 8193
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Walls/MeshInstance3D8/StaticBody3D"]
+shape = SubResource("ConvexPolygonShape3D_fh8d7")
+
+[node name="MeshInstance3D9" type="MeshInstance3D" parent="Walls"]
+transform = Transform3D(-8.742278e-08, 0, 1, 0, 2, 0, -2, 0, -4.371139e-08, -1.8003092, 1, 6.4694667)
+mesh = SubResource("BoxMesh_fh8d7")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Walls/MeshInstance3D9"]
+collision_layer = 8193
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Walls/MeshInstance3D9/StaticBody3D"]
+shape = SubResource("ConvexPolygonShape3D_fh8d7")
+
+[node name="MeshInstance3D10" type="MeshInstance3D" parent="Walls"]
+transform = Transform3D(-8.742278e-08, 0, 1, 0, 2, 0, -2, 0, -4.371139e-08, -1.8003092, 1, 8.469467)
+mesh = SubResource("BoxMesh_fh8d7")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Walls/MeshInstance3D10"]
+collision_layer = 8193
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Walls/MeshInstance3D10/StaticBody3D"]
+shape = SubResource("ConvexPolygonShape3D_fh8d7")
+
+[node name="MeshInstance3D11" type="MeshInstance3D" parent="Walls"]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 1, -2.8003087, 1, 9.469467)
+mesh = SubResource("BoxMesh_fh8d7")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Walls/MeshInstance3D11"]
+collision_layer = 8193
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Walls/MeshInstance3D11/StaticBody3D"]
+shape = SubResource("ConvexPolygonShape3D_fh8d7")
+
+[node name="MeshInstance3D12" type="MeshInstance3D" parent="Walls"]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 1, -4.800309, 1, 9.469467)
+mesh = SubResource("BoxMesh_fh8d7")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Walls/MeshInstance3D12"]
+collision_layer = 8193
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Walls/MeshInstance3D12/StaticBody3D"]
+shape = SubResource("ConvexPolygonShape3D_fh8d7")
+
+[node name="MeshInstance3D13" type="MeshInstance3D" parent="Walls"]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 1, -2.8003087, 1, 1.4694672)
+mesh = SubResource("BoxMesh_fh8d7")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Walls/MeshInstance3D13"]
+collision_layer = 8193
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Walls/MeshInstance3D13/StaticBody3D"]
+shape = SubResource("ConvexPolygonShape3D_fh8d7")
+
+[node name="MeshInstance3D14" type="MeshInstance3D" parent="Walls"]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 1, -4.800309, 1, 1.4694672)
+mesh = SubResource("BoxMesh_fh8d7")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Walls/MeshInstance3D14"]
+collision_layer = 8193
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Walls/MeshInstance3D14/StaticBody3D"]
 shape = SubResource("ConvexPolygonShape3D_fh8d7")
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="Walls"]

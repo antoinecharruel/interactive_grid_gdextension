@@ -1,4 +1,4 @@
-[![Interactive Grid GDExtension Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=Interactive%20Grid%20GDExtension&color=478CBF&message=1.0.3)](https://godotengine.org/asset-library/asset/4372)
+[![Interactive Grid GDExtension Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=Interactive%20Grid%20GDExtension&color=478CBF&message=1.0.4)](https://godotengine.org/asset-library/asset/4372)
 [![Patreon](https://img.shields.io/badge/Patreon-Vivensoft-F96854?logo=patreon&logoColor=white)](https://www.patreon.com/c/vivensoft/)  
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-AntoineCharruel-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/antoinecharruel)  
 [![Instagram](https://img.shields.io/badge/Instagram-VSFT%20GameDev-E4405F?logo=instagram&logoColor=white)](https://www.instagram.com/vsftgamedev/)
@@ -151,3 +151,12 @@ func _input(event):
   + [ ] A Define `CFL_VAULT` flag for cells that can be vaulted/climbed.
   + [ ] Assign vaultable cells to a specific collision layer checked by `scan_environnement_obstacles` method.
   + [ ] Add a visual indicator (color) for vaultable cells using `ADD_PROPERTY`.
+
+
+## Acknowledgments
+
+A big thank you to the creators whose YouTube videos helped me during this project:
+
+- BornCG. (2024, August 4). Godot 4 3D Platformer Lesson #13: Align Player with Ground! [Video]. YouTube. https://www.youtube.com/watch?v=Y5OiChOukfg
+- 
+- jitspoe. (2022, May 11). Godot 3D Spatial Shaders: Getting started [Video]. YouTube. https://www.youtube.com/watch?v=6-eIEFPcvrU

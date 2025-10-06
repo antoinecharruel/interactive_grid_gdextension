@@ -5,12 +5,12 @@
 #
 # Node: InteractiveGrid (InteractiveGrid).
 #
-# Last modified: October 05, 2025
+# Last modified: October 06, 2025
 #
 # This file is part of the InteractiveGrid GDExtension Source Code.
 # Repository: https://github.com/antoinecharruel/interactive_grid_gdextension
 #
-# Version InteractiveGrid: 1.0.2
+# Version InteractiveGrid: 1.0.4
 # Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 #
 # Author: Antoine Charruel
@@ -47,7 +47,7 @@ func _input(event):
 	# /*F+F++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	# Summary: Handles mouse input events for the InteractiveGrid.
 	#
-	# Last Modified: October 05, 2025
+	# Last Modified: October 06, 2025
 	
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT:
 	# --------------------------------------------------------------------
@@ -62,15 +62,18 @@ func _input(event):
 				# Centers the grid.
 				# ! Info: every time center is called, the state of the cells is reset.
 				self.center(pawn.global_position)
-				 # Hides distant cells.
-				var index_pawn_cell: int = self.get_cell_index_from_global_position(pawn.global_position)
+				
+				var index_cell_pawn: int = self.get_cell_index_from_global_position(pawn.global_position)
 				
 				# Manually set cells as unwalkable.
 				#set_cell_walkable(158, 0);
 				#set_cell_walkable(175, 0);
 				#set_cell_walkable(192, 0);
 
-				self.hide_distant_cells(index_pawn_cell, 6)
+ 				# Hides distant cells.
+				self.hide_distant_cells(index_cell_pawn, 6)
+				
+				self.hide_inaccessible_cells(index_cell_pawn)
 		else:
 			print("Right button was released")
 
@@ -94,13 +97,13 @@ func _input(event):
 					print("Selected cells: ", selected_cells)
 					print("Position of the selected cell: ", self.get_cell_golbal_position(selected_cells[0]))
 
-					var cell_index_pawn = self.get_cell_index_from_global_position(self.get_grid_center_position())
-					print("Pawn index: ", cell_index_pawn)
+					var index_cell_pawn = self.get_cell_index_from_global_position(self.get_grid_center_position())
+					print("Pawn index: ", index_cell_pawn)
 					
 					# Retrieve the path.
 					var path: PackedInt64Array
-					path = self.get_path(cell_index_pawn, selected_cells[0]) # only the first one.
-					#path = self.get_path(cell_index_pawn, self.get_latest_selected()) \# the last one.
+					path = self.get_path(index_cell_pawn, selected_cells[0]) # only the first one.
+					#path = self.get_path(index_cell_pawn, self.get_latest_selected()) \# the last one.
 					print("Last selected cell:", self.get_latest_selected())
 					print("Path:", path)
 					

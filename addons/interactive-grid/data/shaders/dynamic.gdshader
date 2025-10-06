@@ -1,6 +1,9 @@
 // dynamic.gdshader
 // https://rgbcolorpicker.com/0-1
 
+
+// ref : jitspoe. (2022, May 11). Godot 3D Spatial Shaders: Getting started [Video]. YouTube. https://www.youtube.com/watch?v=6-eIEFPcvrU
+
 shader_type spatial;
 render_mode unshaded, cull_disabled, depth_draw_opaque;
 
@@ -50,5 +53,5 @@ void fragment() {
     // Base color.
     ALBEDO = instance_c.rgb;
     EMISSION = instance_c.rgb;
-    ALPHA = instance_c.a; // flag remains unchanged
+    ALPHA = instance_c.a;
 }

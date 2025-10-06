@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://1118fnkm8r3g" path="res://data/pawn.gd" id="1_ak1kh"]
 [ext_resource type="Script" uid="uid://dwabf7i2a8d4o" path="res://data/ray_cast_from_mouse.gd" id="2_x8n0i"]
-[ext_resource type="Shader" uid="uid://dc4oav4wip1yi" path="res://addons/interactive-grid/data/shaders/dynamic.gdshader" id="3_7xyhs"]
+[ext_resource type="Shader" uid="uid://dc4oav4wip1yi" path="res://data/shaders/dynamic.gdshader" id="3_7xyhs"]
 [ext_resource type="Script" uid="uid://cnxwc4e8vdiox" path="res://data/interactive_grid.gd" id="3_hc0jp"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_8yhgy"]
@@ -37,6 +37,7 @@ script = ExtResource("2_x8n0i")
 _rows = 17
 _columns = 17
 _cell_mesh = SubResource("BoxMesh_x8n0i")
+"inaccessible color" = Color(1, 1, 1, 0)
 _material_override = SubResource("ShaderMaterial_7xyhs")
 movement = 1
 script = ExtResource("3_hc0jp")

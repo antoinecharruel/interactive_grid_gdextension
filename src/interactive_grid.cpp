@@ -5,12 +5,12 @@ Summary: InteractiveGrid is a Godot 4.5 GDExtension that allows player
          interaction with a 3D grid, including cell selection,
 		 pathfinding, and hover highlights.
 
-Last Modified: October 05, 2025
+Last Modified: October 06, 2025
 
 This file is part of the InteractiveGrid GDExtension Source Code.
 Repository: https://github.com/antoinecharruel/interactive_grid
 
-Version InteractiveGrid: 1.0.3
+Version InteractiveGrid: 1.0.4
 Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 
 Author: Antoine Charruel
@@ -558,7 +558,13 @@ void InteractiveGrid::highlight_on_hover(const godot::Vector3 global_position) {
 		return;
 	}
 
-	// 6) If the new cell is not selected, mark it as hovered.
+	//6) Skip inaccessible cells.
+	bool inaccessible = (_cells.at(closest_index)->flags & CFL_INACCESSIBLE) != 0;
+	if (inaccessible) {
+		return;
+	}
+
+	// 7) If the new cell is not selected, mark it as hovered.
 	if (!new_is_selected) {
 		_hovered_cell_index = closest_index;
 		_cells.at(_hovered_cell_index)->flags |= CFL_HOVERED;
@@ -681,8 +687,14 @@ void InteractiveGrid::hide_inaccessible_cells(unsigned int start_cell_index) {
 	all cells and calculates paths for each, which can be slow
     for large grids.
 
-  Last Modified: September 30, 2025
+  Last Modified: October 06, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+	if (start_cell_index >= (_rows * _columns)) {
+		godot::print_line("nombre de cell : ", _rows * _columns);
+		PrintError(__FILE__, __FUNCTION__, __LINE__, "Cell index out of bounds.");
+		return;
+	}
 
 	if ((_flags & GFL_VISIBLE) && !(_flags & GFL_CELL_INACCESSIBLE_HIDDEN)) {
 		// Iterate through the cells.
@@ -712,8 +724,15 @@ void InteractiveGrid::hide_distant_cells(unsigned int start_cell_index, float di
 		   visual representation of distant cells to fully transparent 
 		   and marks them as non-walkable.
 
-  Last Modified: September 30, 2025
+  Last Modified: October 06, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+	if (start_cell_index >= (_rows * _columns)) {
+		godot::print_line("nombre de cell : ", _rows * _columns);
+		PrintError(__FILE__, __FUNCTION__, __LINE__, "Cell index out of bounds.");
+		return;
+	}
+
 	if ((_flags & GFL_VISIBLE) && !(_flags & GFL_CELL_DISTANT_HIDDEN)) {
 		// Iterate through the cells.
 		for (int i = 0; i < _rows; i++) {
@@ -849,6 +868,12 @@ void InteractiveGrid::select_cell(const godot::Vector3 global_position) {
 
 	// If the index is valid.
 	if (closest_index != -1) {
+		//6) Skip inaccessible cells.
+		bool inaccessible = (_cells.at(closest_index)->flags & CFL_INACCESSIBLE) != 0;
+		if (inaccessible) {
+			return;
+		}
+
 		bool walkable = (_cells.at(closest_index)->flags & CFL_WALKABLE) != 0;
 
 		if (walkable) {
@@ -1174,7 +1199,9 @@ void InteractiveGrid::align_cells_with_floor() {
         hit surface (floor normal). Cells are not aligned with
         invisible objects.
 
-  Ref : https://youtu.be/Y5OiChOukfg
+  Ref : BornCG. (2024, August 4). Godot 4 3D Platformer Lesson #13: 
+  		Align Player with Ground! [Video]. YouTube.
+		https://www.youtube.com/watch?v=Y5OiChOukfg
 
   Last Modified: September 19, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
