@@ -73,7 +73,7 @@ func _input(event):
  				# Hides distant cells.
 				self.hide_distant_cells(index_cell_pawn, 6)
 				
-				self.hide_inaccessible_cells(index_cell_pawn)
+				self.compute_inaccessible_cells(index_cell_pawn)
 		else:
 			print("Right button was released")
 
@@ -103,7 +103,7 @@ func _input(event):
 					# Retrieve the path.
 					var path: PackedInt64Array
 					path = self.get_path(index_cell_pawn, selected_cells[0]) # only the first one.
-					#path = self.get_path(index_cell_pawn, self.get_latest_selected()) \# the last one.
+					#path = self.get_path(index_cell_pawn, self.get_latest_selected()) # the last one.
 					print("Last selected cell:", self.get_latest_selected())
 					print("Path:", path)
 					

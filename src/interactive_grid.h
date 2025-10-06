@@ -118,17 +118,17 @@ public:
 
 	void set_grid_visible(bool visible);
 	bool get_grid_visible() const;
-	void hide_inaccessible_cells(unsigned int start_cell_index);
+	void compute_inaccessible_cells(unsigned int start_cell_index);
 	void hide_distant_cells(unsigned int start_cell_index, float distance);
 
 	// --- Grid state.
 
 	bool is_grid_created() const;
-	void reset_cells_state();
 
 	// --- Cell state.
 
 	void set_cell_walkable(unsigned int cell_index, bool is_walkable);
+	void reset_cells_state();
 
 	// --- Grid masks.
 

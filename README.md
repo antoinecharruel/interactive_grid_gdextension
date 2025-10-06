@@ -24,9 +24,7 @@ InteractiveGrid is a Godot 4.5 GDExtension that allows player interaction with a
 
 📄 [Download the full Interactive Grid GDExtension demo PDF](https://raw.githubusercontent.com/antoinecharruel/interactive_grid_gdextension/main/addons/interactive-grid/demo.pdf)
 
-
 ![Custom shader demonstration](addons/interactive-grid/preview/custom_grid_shader_demo.gif)
-
 
 ## Demo Example GDScript
 
@@ -106,7 +104,7 @@ func _input(event):
  				# Hides distant cells.
 				self.hide_distant_cells(index_cell_pawn, 6)
 				
-				self.hide_inaccessible_cells(index_cell_pawn)
+				self.compute_inaccessible_cells(index_cell_pawn)
 		else:
 			print("Right button was released")
 
@@ -136,7 +134,7 @@ func _input(event):
 					# Retrieve the path.
 					var path: PackedInt64Array
 					path = self.get_path(index_cell_pawn, selected_cells[0]) # only the first one.
-					#path = self.get_path(index_cell_pawn, self.get_latest_selected()) \# the last one.
+					#path = self.get_path(index_cell_pawn, self.get_latest_selected()) # the last one.
 					print("Last selected cell:", self.get_latest_selected())
 					print("Path:", path)
 					
@@ -155,11 +153,9 @@ func _input(event):
   + [ ] Assign vaultable cells to a specific collision layer checked by `scan_environnement_obstacles` method.
   + [ ] Add a visual indicator (color) for vaultable cells using `ADD_PROPERTY`.
 
-
 ## Acknowledgments
 
 A big thank you to the creators whose YouTube videos helped me during this project:
 
 - BornCG. (2024, August 4). Godot 4 3D Platformer Lesson #13: Align Player with Ground! [Video]. YouTube. https://www.youtube.com/watch?v=Y5OiChOukfg
-- 
 - jitspoe. (2022, May 11). Godot 3D Spatial Shaders: Getting started [Video]. YouTube. https://www.youtube.com/watch?v=6-eIEFPcvrU

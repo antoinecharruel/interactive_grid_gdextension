@@ -160,8 +160,8 @@ void InteractiveGrid::_bind_methods() {
 			&InteractiveGrid::set_grid_visible);
 	godot::ClassDB::bind_method(godot::D_METHOD("get_grid_visible"),
 			&InteractiveGrid::get_grid_visible);
-	godot::ClassDB::bind_method(godot::D_METHOD("hide_inaccessible_cells"),
-			&InteractiveGrid::hide_inaccessible_cells);
+	godot::ClassDB::bind_method(godot::D_METHOD("compute_inaccessible_cells"),
+			&InteractiveGrid::compute_inaccessible_cells);
 	godot::ClassDB::bind_method(godot::D_METHOD("hide_distant_cells"),
 			&InteractiveGrid::hide_distant_cells);
 
@@ -675,23 +675,28 @@ bool InteractiveGrid::get_grid_visible() const {
 	return (_flags & GFL_VISIBLE) != 0;
 }
 
-void InteractiveGrid::hide_inaccessible_cells(unsigned int start_cell_index) {
+void InteractiveGrid::compute_inaccessible_cells(unsigned int start_cell_index) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Iterates over all grid cells and marks as inaccessible those 
-           cells that cannot be reached from the specified start cell. 
-		   Updates the visual representation of inaccessible cells by 
+  Summary: Iterates over all grid cells and marks as inaccessible those
+           cells that cannot be reached from the specified start cell.
+		   Updates the visual representation of inaccessible cells by
 		   applying the _inaccessible_color to the grid's multimesh.
+			
+		   Inaccessible cells are not marked as unwalkable.
+           I prefer this option so that this gdextension can adapt
+           to any type of game, for example a game that implements
+           teleportation.
+
 
 	// TODO: Improve performance: 
-	current implementation iterates through
-	all cells and calculates paths for each, which can be slow
-    for large grids.
+	       current implementation iterates through
+	       all cells and calculates paths for each, which can be slow
+           for large grids.
 
   Last Modified: October 06, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
 	if (start_cell_index >= (_rows * _columns)) {
-		godot::print_line("nombre de cell : ", _rows * _columns);
 		PrintError(__FILE__, __FUNCTION__, __LINE__, "Cell index out of bounds.");
 		return;
 	}
@@ -728,7 +733,6 @@ void InteractiveGrid::hide_distant_cells(unsigned int start_cell_index, float di
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
 	if (start_cell_index >= (_rows * _columns)) {
-		godot::print_line("nombre de cell : ", _rows * _columns);
 		PrintError(__FILE__, __FUNCTION__, __LINE__, "Cell index out of bounds.");
 		return;
 	}
@@ -762,6 +766,27 @@ bool InteractiveGrid::is_grid_created() const {
 	return (_flags & GFL_CREATED) != 0;
 }
 
+void InteractiveGrid::set_cell_walkable(unsigned int cell_index, bool is_walkable) {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Sets whether a specific cell is walkable or not.
+
+  Last Modified: October 05, 2025
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+	if (cell_index >= (_rows * _columns)) {
+		PrintError(__FILE__, __FUNCTION__, __LINE__, "Cell index out of bounds.");
+		return;
+	}
+
+	if (is_walkable) {
+		_cells.at(cell_index)->flags |= CFL_WALKABLE;
+		_multimesh->set_instance_custom_data(cell_index, _valid_color);
+	} else if (!is_walkable) {
+		_cells.at(cell_index)->flags &= ~CFL_WALKABLE;
+		_multimesh->set_instance_custom_data(cell_index, _unvalid_color);
+	}
+}
+
 void InteractiveGrid::InteractiveGrid::reset_cells_state() {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
   Summary: Resets the state of all cells in the grid to their default 
@@ -782,28 +807,6 @@ void InteractiveGrid::InteractiveGrid::reset_cells_state() {
 	_flags &= ~GFL_CELL_DISTANT_HIDDEN; // Reset.
 
 	_selected_cells.clear();
-}
-
-void InteractiveGrid::set_cell_walkable(unsigned int cell_index, bool is_walkable) {
-	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Sets whether a specific cell is walkable or not.
-
-  Last Modified: October 05, 2025
-  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-
-	if (cell_index >= (_rows * _columns)) {
-		godot::print_line("nombre de cell : ", _rows * _columns);
-		PrintError(__FILE__, __FUNCTION__, __LINE__, "Cell index out of bounds.");
-		return;
-	}
-
-	if (is_walkable) {
-		_cells.at(cell_index)->flags |= CFL_WALKABLE;
-		_multimesh->set_instance_custom_data(cell_index, _valid_color);
-	} else if (!is_walkable) {
-		_cells.at(cell_index)->flags &= ~CFL_WALKABLE;
-		_multimesh->set_instance_custom_data(cell_index, _unvalid_color);
-	}
 }
 
 void InteractiveGrid::set_obstacles_collision_masks(unsigned int masks) {
@@ -1091,7 +1094,7 @@ void InteractiveGrid::init_multi_mesh() {
 					i * _columns + j; // Index in the 2D array stored as 1D.
 
 			// Position and color all cells.
-			_multimesh->set_instance_transform(index, xform); // utiliser index ici.
+			_multimesh->set_instance_transform(index, xform);
 			_multimesh->set_instance_custom_data(index, _valid_color);
 
 			// Save the metadata.
