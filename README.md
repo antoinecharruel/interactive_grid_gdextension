@@ -24,6 +24,10 @@ InteractiveGrid is a Godot 4.5 GDExtension that allows player interaction with a
 
 📄 [Download the full Interactive Grid GDExtension demo PDF](https://raw.githubusercontent.com/antoinecharruel/interactive_grid_gdextension/main/addons/interactive-grid/demo.pdf)
 
+
+![Custom shader demonstration](addons/interactive-grid/preview/custom_grid_shader_demo.gif)
+
+
 ## Demo Example GDScript
 
 ```python
