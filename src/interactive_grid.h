@@ -5,12 +5,12 @@ Summary: InteractiveGrid is a Godot 4.5 GDExtension that allows player
 interaction with a 3D grid, including cell selection, pathfinding, and
 hover highlights.
 
-Last Modified: October 06, 2025
+Last Modified: October 08, 2025
 
 This file is part of the InteractiveGrid GDExtension Source Code.
 Repository: https://github.com/antoinecharruel/interactive_grid
 
-Version InteractiveGrid: 1.0.4
+Version InteractiveGrid: 1.1.0
 Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 
 Author: Antoine Charruel
@@ -67,13 +67,13 @@ public:
 
 	// --- Grid colors.
 
-	// Color indicating that a cell is valid.
-	void set_valid_color(const godot::Color color);
-	godot::Color get_valid_color() const;
+	// Color indicating that a cell is walkable.
+	void set_walkable_color(const godot::Color color);
+	godot::Color get_walkable_color() const;
 
-	// Color indicating that a cell is invalid.
-	void set_unvalid_color(const godot::Color color);
-	godot::Color get_unvalid_color() const;
+	// Color indicating that a cell is unwalkable.
+	void set_unwalkable_color(const godot::Color color);
+	godot::Color get_unwalkable_color() const;
 
 	// Color indicating that a cell is inaccessible (e.g., out of range).
 	void set_inaccessible_color(const godot::Color color);
@@ -127,8 +127,25 @@ public:
 
 	// --- Cell state.
 
+	// Getters
+	bool is_cell_walkable(unsigned int cell_index) const;
+	bool is_cell_inaccesible(unsigned int cell_index) const;
+	bool is_cell_hovered(unsigned int cell_index) const;
+	bool is_cell_selected(unsigned int cell_index) const;
+	bool is_cell_visible(unsigned int cell_index) const;
+
+	// Setters
 	void set_cell_walkable(unsigned int cell_index, bool is_walkable);
+	void set_cell_inaccesible(unsigned int cell_index, bool is_inaccesible);
+	void set_cell_hovered(unsigned int cell_index, bool is_hovered);
+	void set_cell_selected(unsigned int cell_index, bool is_selected);
+	void set_cell_visible(unsigned int cell_index, bool is_visible);
+
 	void reset_cells_state();
+
+	// --- Cell color.
+
+	void set_cell_color(unsigned int cell_index, godot::Color color);
 
 	// --- Grid masks.
 
@@ -154,6 +171,7 @@ private:
 		uint16_t index = -1;
 		godot::Transform3D local_xform;
 		godot::Transform3D global_xform;
+		godot::Color color;
 		uint32_t flags = 0;
 	} Cell;
 
@@ -226,10 +244,12 @@ private:
 	godot::Array _selected_cells;
 	int _hovered_cell_index{ -1 };
 
+	bool is_cell_index_out_of_bounds(const godot::String &file, const godot::String &func, const int &line, const unsigned int &cell_index);
+
 	// --- colors.
 
-	godot::Color _valid_color{ godot::Color(0.9411765, 1, 0.9411765, (240.0 / 255.0)) }; // HONEYDEW
-	godot::Color _unvalid_color{
+	godot::Color _walkable_color{ godot::Color(0.9411765, 1, 0.9411765, (240.0 / 255.0)) }; // HONEYDEW
+	godot::Color _unwalkable_color{
 		godot::Color(0.8039216, 0.36078432, 0.36078432, (241.0 / 255.0))
 	}; // INDIAN_RED
 	godot::Color _inaccessible_color{

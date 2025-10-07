@@ -5,12 +5,12 @@ Summary: InteractiveGrid is a Godot 4.5 GDExtension that allows player
          interaction with a 3D grid, including cell selection,
 		 pathfinding, and hover highlights.
 
-Last Modified: October 06, 2025
+Last Modified: October 08, 2025
 
 This file is part of the InteractiveGrid GDExtension Source Code.
 Repository: https://github.com/antoinecharruel/interactive_grid
 
-Version InteractiveGrid: 1.0.4
+Version InteractiveGrid: 1.1.0
 Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 
 Author: Antoine Charruel
@@ -66,21 +66,21 @@ void InteractiveGrid::_bind_methods() {
 
 	// --- Grid colors.
 
-	// Color indicating that a cell is valid.
-	godot::ClassDB::bind_method(godot::D_METHOD("set_valid_color"),
-			&InteractiveGrid::set_valid_color);
-	godot::ClassDB::bind_method(godot::D_METHOD("get_valid_color"),
-			&InteractiveGrid::get_valid_color);
-	ADD_PROPERTY(godot::PropertyInfo(godot::Variant::COLOR, "valid color"),
-			"set_valid_color", "get_valid_color");
+	// Color indicating that a cell is walkable.
+	godot::ClassDB::bind_method(godot::D_METHOD("set_walkable_color"),
+			&InteractiveGrid::set_walkable_color);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_walkable_color"),
+			&InteractiveGrid::get_walkable_color);
+	ADD_PROPERTY(godot::PropertyInfo(godot::Variant::COLOR, "walkable color"),
+			"set_walkable_color", "get_walkable_color");
 
-	// Color indicating that a cell is invalid.
-	godot::ClassDB::bind_method(godot::D_METHOD("set_unvalid_color"),
-			&InteractiveGrid::set_unvalid_color);
-	godot::ClassDB::bind_method(godot::D_METHOD("get_unvalid_color"),
-			&InteractiveGrid::get_unvalid_color);
-	ADD_PROPERTY(godot::PropertyInfo(godot::Variant::COLOR, "unvalid color"),
-			"set_unvalid_color", "get_unvalid_color");
+	// Color indicating that a cell is unwalkable.
+	godot::ClassDB::bind_method(godot::D_METHOD("set_unwalkable_color"),
+			&InteractiveGrid::set_unwalkable_color);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_unwalkable_color"),
+			&InteractiveGrid::get_unwalkable_color);
+	ADD_PROPERTY(godot::PropertyInfo(godot::Variant::COLOR, "unwalkable color"),
+			"set_unwalkable_color", "get_unwalkable_color");
 
 	// Color indicating that a cell is inaccessible (e.g., out of range).
 	godot::ClassDB::bind_method(godot::D_METHOD("set_inaccessible_color"),
@@ -173,10 +173,32 @@ void InteractiveGrid::_bind_methods() {
 			&InteractiveGrid::reset_cells_state);
 
 	// --- Cell state.
+
+	godot::ClassDB::bind_method(godot::D_METHOD("is_cell_walkable"),
+			&InteractiveGrid::is_cell_walkable);
+	godot::ClassDB::bind_method(godot::D_METHOD("is_cell_inaccesible"),
+			&InteractiveGrid::is_cell_inaccesible);
+	godot::ClassDB::bind_method(godot::D_METHOD("is_cell_hovered"),
+			&InteractiveGrid::is_cell_hovered);
+	godot::ClassDB::bind_method(godot::D_METHOD("is_cell_selected"),
+			&InteractiveGrid::is_cell_selected);
+	godot::ClassDB::bind_method(godot::D_METHOD("is_cell_visible"),
+			&InteractiveGrid::is_cell_visible);
+
 	godot::ClassDB::bind_method(godot::D_METHOD("set_cell_walkable"),
 			&InteractiveGrid::set_cell_walkable);
+	godot::ClassDB::bind_method(godot::D_METHOD("set_cell_inaccesible"),
+			&InteractiveGrid::set_cell_inaccesible);
+	godot::ClassDB::bind_method(godot::D_METHOD("set_cell_hovered"),
+			&InteractiveGrid::set_cell_hovered);
+	godot::ClassDB::bind_method(godot::D_METHOD("set_cell_selected"),
+			&InteractiveGrid::set_cell_selected);
+	godot::ClassDB::bind_method(godot::D_METHOD("set_cell_visible"),
+			&InteractiveGrid::set_cell_visible);
 
-	// TODO get get_cell_walkable
+	// --- Cell color.
+	godot::ClassDB::bind_method(godot::D_METHOD("set_cell_color"),
+			&InteractiveGrid::set_cell_color);
 
 	// --- Masks.
 
@@ -312,44 +334,44 @@ godot::Ref<godot::Mesh> InteractiveGrid::get_cell_mesh() const {
 	return _cell_mesh;
 }
 
-void InteractiveGrid::set_valid_color(const godot::Color color) {
+void InteractiveGrid::set_walkable_color(const godot::Color color) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Sets the valid color for the grid.
+  Summary: Sets the walkable color for the grid.
 
   Last Modified: April 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
-	_valid_color = color;
+	_walkable_color = color;
 }
 
-godot::Color InteractiveGrid::get_valid_color() const {
+godot::Color InteractiveGrid::get_walkable_color() const {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Returns the valid color for the grid.
+  Summary: Returns the walkable color for the grid.
 
   Last Modified: April 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
-	return _valid_color;
+	return _walkable_color;
 }
 
-void InteractiveGrid::set_unvalid_color(const godot::Color color) {
+void InteractiveGrid::set_unwalkable_color(const godot::Color color) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Sets the unvalid color for the grid.
+  Summary: Sets the unwalkable color for the grid.
 
   Last Modified: April 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
-	_unvalid_color = color;
+	_unwalkable_color = color;
 }
 
-godot::Color InteractiveGrid::get_unvalid_color() const {
+godot::Color InteractiveGrid::get_unwalkable_color() const {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
   Summary: Returns the unvalid color for the grid.
 
   Last Modified: April 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
-	return _unvalid_color;
+	return _unwalkable_color;
 }
 
 void InteractiveGrid::set_inaccessible_color(const godot::Color color) {
@@ -503,7 +525,7 @@ void InteractiveGrid::highlight_on_hover(const godot::Vector3 global_position) {
            clears any previous hover, and applies the hover colour
            unless the cell is already selected.
 
-  Last Modified: October 01, 2025
+  Last Modified: October 07, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
 	// If the grid isn’t visible, exit early.
@@ -518,12 +540,12 @@ void InteractiveGrid::highlight_on_hover(const godot::Vector3 global_position) {
 	// 1) No cell under the mouse: clean the previously hovered cell (if any).
 	if (closest_index == -1) {
 		if (_hovered_cell_index > -1) {
-			_cells.at(_hovered_cell_index)->flags &= ~CFL_HOVERED;
-			bool hovered_cell_is_selected =
-					(_cells.at(_hovered_cell_index)->flags & CFL_SELECTED) != 0;
+			set_cell_hovered(_hovered_cell_index, false);
+
+			bool hovered_cell_is_selected = is_cell_selected(_hovered_cell_index);
 
 			if (!hovered_cell_is_selected) {
-				_multimesh->set_instance_custom_data(_hovered_cell_index, _valid_color);
+				set_cell_color(_hovered_cell_index, _walkable_color);
 			}
 
 			_hovered_cell_index = -1;
@@ -537,29 +559,29 @@ void InteractiveGrid::highlight_on_hover(const godot::Vector3 global_position) {
 	}
 
 	// 3) Check whether the new cell is already selected.
-	bool new_is_selected = (_cells.at(closest_index)->flags & CFL_SELECTED) != 0;
+	bool new_is_selected = is_cell_selected(closest_index);
 
 	// 4) Clear the previously hovered cell (if it exists).
 	if (_hovered_cell_index > -1) {
-		bool old_is_selected =
-				(_cells.at(_hovered_cell_index)->flags & CFL_SELECTED) != 0;
-		_cells.at(_hovered_cell_index)->flags &= ~CFL_HOVERED;
+		bool old_is_selected = is_cell_selected(_hovered_cell_index);
+
+		set_cell_hovered(_hovered_cell_index, false);
 
 		if (!old_is_selected) {
-			_multimesh->set_instance_custom_data(_hovered_cell_index, _valid_color);
+			set_cell_color(_hovered_cell_index, _walkable_color);
 		}
 
 		_hovered_cell_index = -1;
 	}
 
 	// 5) Skip non-walkable cells: only allow hovering on walkable cells.
-	bool walkable = (_cells.at(closest_index)->flags & CFL_WALKABLE) != 0;
+	bool walkable = is_cell_walkable(closest_index);
 	if (!walkable) {
 		return;
 	}
 
 	//6) Skip inaccessible cells.
-	bool inaccessible = (_cells.at(closest_index)->flags & CFL_INACCESSIBLE) != 0;
+	bool inaccessible = is_cell_inaccesible(closest_index);
 	if (inaccessible) {
 		return;
 	}
@@ -567,8 +589,7 @@ void InteractiveGrid::highlight_on_hover(const godot::Vector3 global_position) {
 	// 7) If the new cell is not selected, mark it as hovered.
 	if (!new_is_selected) {
 		_hovered_cell_index = closest_index;
-		_cells.at(_hovered_cell_index)->flags |= CFL_HOVERED;
-		_multimesh->set_instance_custom_data(_hovered_cell_index, _hovered_color);
+		set_cell_hovered(_hovered_cell_index, true);
 	}
 }
 
@@ -577,12 +598,12 @@ void InteractiveGrid::highlight_path(godot::PackedInt64Array path) {
   Summary: Highlights a given path on the grid by changing the color of 
            each cell along the path to the predefined _path_color.
 
-  Last Modified: September 29, 2025
+  Last Modified: October 07, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
 	for (int step = 0; step < path.size(); step++) {
 		int cell_index = path[step];
-		_multimesh->set_instance_custom_data(cell_index, _path_color);
+		set_cell_color(cell_index, _path_color);
 	}
 }
 
@@ -646,7 +667,7 @@ void InteractiveGrid::set_grid_visible(bool visible_param) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
   Summary: Sets the visibility of the grid.
 
-  Last Modified: September 19, 2025
+  Last Modified: October 07, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 	if (!(_flags & GFL_CREATED)) {
 		PrintLine(__FILE__, __FUNCTION__, __LINE__, "The grid has not been created");
@@ -693,7 +714,7 @@ void InteractiveGrid::compute_inaccessible_cells(unsigned int start_cell_index) 
 	       all cells and calculates paths for each, which can be slow
            for large grids.
 
-  Last Modified: October 06, 2025
+  Last Modified: October 07, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
 	if (start_cell_index >= (_rows * _columns)) {
@@ -709,11 +730,10 @@ void InteractiveGrid::compute_inaccessible_cells(unsigned int start_cell_index) 
 				godot::PackedInt64Array path = get_path(start_cell_index, index);
 
 				if (path.is_empty()) {
-					bool walkable = (_cells.at(index)->flags & CFL_WALKABLE) != 0;
+					bool walkable = is_cell_selected(index);
 
 					if (walkable) {
-						_cells.at(index)->flags |= CFL_INACCESSIBLE;
-						_multimesh->set_instance_custom_data(index, _inaccessible_color);
+						set_cell_inaccesible(index, true);
 					}
 				}
 			}
@@ -729,7 +749,7 @@ void InteractiveGrid::hide_distant_cells(unsigned int start_cell_index, float di
 		   visual representation of distant cells to fully transparent 
 		   and marks them as non-walkable.
 
-  Last Modified: October 06, 2025
+  Last Modified: October 07, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
 	if (start_cell_index >= (_rows * _columns)) {
@@ -747,8 +767,7 @@ void InteractiveGrid::hide_distant_cells(unsigned int start_cell_index, float di
 				godot::Vector3 index_cell_position = _cells.at(index)->global_xform.origin;
 
 				if (start_cell_position.distance_to(index_cell_position) > distance) {
-					godot::Color invisible = godot::Color(0.0, 0.0, 0.0, 0.0); // Invisible.
-					_multimesh->set_instance_custom_data(index, invisible);
+					set_cell_visible(index, false);
 					_cells.at(index)->flags &= ~CFL_WALKABLE;
 				}
 			}
@@ -766,24 +785,159 @@ bool InteractiveGrid::is_grid_created() const {
 	return (_flags & GFL_CREATED) != 0;
 }
 
-void InteractiveGrid::set_cell_walkable(unsigned int cell_index, bool is_walkable) {
+bool InteractiveGrid::is_cell_walkable(unsigned int cell_index) const {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Returns true if the cell at the specified index is currently 
+           marked as walkable.
+
+  Last Modified: October 07, 2025
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+	return (_cells.at(cell_index)->flags & CFL_WALKABLE) != 0;
+}
+
+bool InteractiveGrid::is_cell_inaccesible(unsigned int cell_index) const {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Returns true if the cell at the specified index is currently 
+           marked as inaccesible.
+
+  Last Modified: October 07, 2025
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+	return (_cells.at(cell_index)->flags & CFL_INACCESSIBLE) != 0;
+}
+
+bool InteractiveGrid::is_cell_hovered(unsigned int cell_index) const {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Returns true if the cell at the specified index is currently 
+           marked as hovered.
+
+  Last Modified: October 07, 2025
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+	return (_cells.at(cell_index)->flags & CFL_HOVERED) != 0;
+}
+
+bool InteractiveGrid::is_cell_selected(unsigned int cell_index) const {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Returns true if the cell at the specified index is currently 
+           marked as selected
+
+  Last Modified: October 07, 2025
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+	return (_cells.at(cell_index)->flags & CFL_SELECTED) != 0;
+}
+
+bool InteractiveGrid::is_cell_visible(unsigned int cell_index) const {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Returns true if the cell at the specified index is currently
+           marked as visible.
+
+  Last Modified: October 07, 2025
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+	return (_cells.at(cell_index)->flags & CFL_VISIBLE) != 0;
+}
+
+void InteractiveGrid::set_cell_walkable(const unsigned int cell_index, bool is_walkable) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
   Summary: Sets whether a specific cell is walkable or not.
 
-  Last Modified: October 05, 2025
+  Last Modified: October 07, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
-	if (cell_index >= (_rows * _columns)) {
-		PrintError(__FILE__, __FUNCTION__, __LINE__, "Cell index out of bounds.");
-		return;
+	if (is_cell_index_out_of_bounds(__FILE__, __FUNCTION__, __LINE__, cell_index)) {
+		return; // ! Exit.
 	}
 
 	if (is_walkable) {
 		_cells.at(cell_index)->flags |= CFL_WALKABLE;
-		_multimesh->set_instance_custom_data(cell_index, _valid_color);
+
+		set_cell_color(cell_index, _walkable_color);
 	} else if (!is_walkable) {
 		_cells.at(cell_index)->flags &= ~CFL_WALKABLE;
-		_multimesh->set_instance_custom_data(cell_index, _unvalid_color);
+		set_cell_color(cell_index, _unwalkable_color);
+	}
+}
+
+void InteractiveGrid::set_cell_inaccesible(unsigned int cell_index, bool is_inaccesible) {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Sets whether a given grid cell (cell_index) is inaccessible.
+
+  Last Modified: October 07, 2025
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+	if (is_cell_index_out_of_bounds(__FILE__, __FUNCTION__, __LINE__, cell_index)) {
+		return; // ! Exit.
+	}
+
+	if (is_inaccesible) {
+		_cells.at(cell_index)->flags |= CFL_INACCESSIBLE;
+		set_cell_color(cell_index, _inaccessible_color);
+	} else if (!is_inaccesible) {
+		_cells.at(cell_index)->flags &= ~CFL_INACCESSIBLE;
+	}
+}
+
+void InteractiveGrid::set_cell_hovered(unsigned int cell_index, bool is_hovered) {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Sets whether a particular grid cell (cell_index) is hovered.
+
+  Last Modified: October 07, 2025
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+	if (is_cell_index_out_of_bounds(__FILE__, __FUNCTION__, __LINE__, cell_index)) {
+		return; // ! Exit.
+	}
+
+	if (is_hovered) {
+		_cells.at(cell_index)->flags |= CFL_HOVERED;
+		set_cell_color(_hovered_cell_index, _hovered_color);
+	} else if (!is_hovered) {
+		_cells.at(cell_index)->flags &= ~CFL_HOVERED;
+	}
+}
+
+void InteractiveGrid::set_cell_selected(unsigned int cell_index, bool is_selected) {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Sets whether a specific grid cell (cell_index) is marked as 
+           selected.
+
+  Last Modified: October 07, 2025
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+	if (is_cell_index_out_of_bounds(__FILE__, __FUNCTION__, __LINE__, cell_index)) {
+		return; // ! Exit.
+	}
+
+	if (is_selected) {
+		_cells.at(cell_index)->flags |= CFL_SELECTED;
+		set_cell_color(cell_index, _selected_color);
+	} else if (!is_selected) {
+		_cells.at(cell_index)->flags &= ~CFL_SELECTED;
+	}
+}
+
+void InteractiveGrid::set_cell_visible(unsigned int cell_index, bool is_visible) {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Sets the visibility of a grid cell identified by cell_index.
+
+  Last Modified: October 07, 2025
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+	if (is_cell_index_out_of_bounds(__FILE__, __FUNCTION__, __LINE__, cell_index)) {
+		return; // ! Exit.
+	}
+
+	godot::Color current_cell_color = _cells.at(cell_index)->color;
+
+	if (is_visible) {
+		_cells.at(cell_index)->flags |= CFL_VISIBLE;
+		set_cell_color(cell_index, current_cell_color);
+	} else if (!is_visible) {
+		current_cell_color.a = 0.0;
+		_multimesh->set_instance_custom_data(cell_index, current_cell_color);
+		_cells.at(cell_index)->flags &= ~CFL_VISIBLE;
 	}
 }
 
@@ -807,6 +961,19 @@ void InteractiveGrid::InteractiveGrid::reset_cells_state() {
 	_flags &= ~GFL_CELL_DISTANT_HIDDEN; // Reset.
 
 	_selected_cells.clear();
+}
+
+void InteractiveGrid::set_cell_color(unsigned int cell_index, godot::Color color) {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Sets the collision masks used by the interactive grid to 
+           detect obstacles. These masks define which objects are 
+		   considered as obstacles when checking for collisions.
+
+  Last Modified: October 07, 2025
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+	_cells.at(cell_index)->color = color;
+	_multimesh->set_instance_custom_data(cell_index, color);
 }
 
 void InteractiveGrid::set_obstacles_collision_masks(unsigned int masks) {
@@ -857,7 +1024,7 @@ void InteractiveGrid::select_cell(const godot::Vector3 global_position) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
   Summary: Selects a grid cell based on a world‑space position.
 
-  Last Modified: September 26, 2025
+  Last Modified: October 07, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
 	// If the grid isn’t visible, exit early.
@@ -872,19 +1039,14 @@ void InteractiveGrid::select_cell(const godot::Vector3 global_position) {
 	// If the index is valid.
 	if (closest_index != -1) {
 		//6) Skip inaccessible cells.
-		bool inaccessible = (_cells.at(closest_index)->flags & CFL_INACCESSIBLE) != 0;
+		bool inaccessible = is_cell_inaccesible(closest_index);
 		if (inaccessible) {
 			return;
 		}
 
-		bool walkable = (_cells.at(closest_index)->flags & CFL_WALKABLE) != 0;
-
+		bool walkable = is_cell_walkable(closest_index);
 		if (walkable) {
-			// Change its color.
-			_multimesh->set_instance_custom_data(closest_index, _selected_color);
-
-			// Mark the cell as selected.
-			_cells.at(closest_index)->flags |= CFL_SELECTED;
+			set_cell_selected(closest_index, true);
 			_selected_cells.push_back(closest_index);
 		}
 	}
@@ -921,16 +1083,16 @@ godot::PackedInt64Array InteractiveGrid::get_path(unsigned int start_cell_index,
 		   configures the A* algorithm according to the selected movement
 		   type (orthogonal or diagonal).
 
-  Last Modified: September 27, 2025
+  Last Modified: October 07, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 	godot::PackedInt64Array path;
 
-	// Ajouter tous les points et gérer obstacles
+	// Register all grid points and mark obstacles.
 	for (int i = 0; i < _rows; i++) {
 		for (int j = 0; j < _columns; j++) {
 			const int index = i * _columns + j;
-			bool walkable = (_cells.at(index)->flags & CFL_WALKABLE) != 0;
 
+			bool walkable = is_cell_walkable(index);
 			_astar->add_point(index, godot::Vector2(j, i), 1.0);
 			_astar->set_point_disabled(index, !walkable);
 		}
@@ -977,7 +1139,7 @@ void InteractiveGrid::configure_astar_diagonal() {
            the pathfinding algorithm to move in all directions across
            the grid.
 
-  Last Modified: September 30, 2025
+  Last Modified: October 07, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 	// Create 8-direction connections.
 	for (int i = 0; i < _rows; i++) {
@@ -996,7 +1158,7 @@ void InteractiveGrid::configure_astar_diagonal() {
 						int neighbor_index = ny * _columns + nx;
 
 						// Check if the neighbor is walkable before connecting.
-						bool neighbor_walkable = (_cells.at(neighbor_index)->flags & CFL_WALKABLE) != 0;
+						bool neighbor_walkable = is_cell_walkable(neighbor_index);
 						if (neighbor_walkable) {
 							_astar->connect_points(index, neighbor_index);
 						}
@@ -1017,7 +1179,7 @@ void InteractiveGrid::configure_astar_orthogonal() {
 
   Last Modified: September 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	// Create the four-direction connections
+	// Create the four-direction connections.
 	for (int i = 0; i < _rows; i++) {
 		for (int j = 0; j < _columns; j++) {
 			const int index = i * _columns + j;
@@ -1095,7 +1257,8 @@ void InteractiveGrid::init_multi_mesh() {
 
 			// Position and color all cells.
 			_multimesh->set_instance_transform(index, xform);
-			_multimesh->set_instance_custom_data(index, _valid_color);
+
+			_multimesh->set_instance_custom_data(index, _walkable_color);
 
 			// Save the metadata.
 			_cells.push_back(new Cell); // init.
@@ -1453,14 +1616,14 @@ void InteractiveGrid::scan_environnement_obstacles() {
 
 						// Mark the grid cell as invalid (obstructed).
 						_cells.at(index)->flags &= ~CFL_WALKABLE;
-						_multimesh->set_instance_custom_data(index, _unvalid_color);
+						_multimesh->set_instance_custom_data(index, _unwalkable_color);
 					}
 				}
 			} else {
 				// If no collisions were detected, mark the grid cell as valid
 				// (walkable).
 				_cells.at(index)->flags |= CFL_WALKABLE;
-				_multimesh->set_instance_custom_data(index, _valid_color);
+				_multimesh->set_instance_custom_data(index, _walkable_color);
 			}
 		}
 	}
@@ -1508,7 +1671,7 @@ void InteractiveGrid::set_cells_visible(bool visible_param) {
 					i * _columns + j; // Index in the 2D array stored as 1D.
 
 			if (visible_param == true) {
-				_multimesh->set_instance_custom_data(index, _valid_color); // Visible.
+				_multimesh->set_instance_custom_data(index, _walkable_color); // Visible.
 			} else {
 				_multimesh->set_instance_custom_data(
 						index, godot::Color(0.0, 0.0, 0.0, 0.0)); // Invisible.
@@ -1579,4 +1742,22 @@ int InteractiveGrid::get_cell_index_from_global_position(
 	}
 
 	return closest_index;
+}
+
+bool InteractiveGrid::is_cell_index_out_of_bounds(const godot::String &file,
+		const godot::String &func, const int &line, const unsigned int &cell_index) {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: 
+
+  Last Modified: October 07, 2025
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+	bool is_out_of_bounds = false;
+
+	if (cell_index >= (_rows * _columns)) {
+		PrintError(file, func, line, "Cell index out of bounds.");
+		is_out_of_bounds = true;
+	}
+
+	return is_out_of_bounds;
 }

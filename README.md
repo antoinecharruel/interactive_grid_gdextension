@@ -1,4 +1,4 @@
-[![Interactive Grid GDExtension Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=Interactive%20Grid%20GDExtension&color=478CBF&message=1.0.4)](https://godotengine.org/asset-library/asset/4372)
+[![Interactive Grid GDExtension Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=Interactive%20Grid%20GDExtension&color=478CBF&message=1.1.0)](https://godotengine.org/asset-library/asset/4372)
 [![Patreon](https://img.shields.io/badge/Patreon-Vivensoft-F96854?logo=patreon&logoColor=white)](https://www.patreon.com/c/vivensoft/)  
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-AntoineCharruel-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/antoinecharruel)  
 [![Instagram](https://img.shields.io/badge/Instagram-VSFT%20GameDev-E4405F?logo=instagram&logoColor=white)](https://www.instagram.com/vsftgamedev/)
@@ -36,12 +36,12 @@ InteractiveGrid is a Godot 4.5 GDExtension that allows player interaction with a
 #
 # Node: InteractiveGrid (InteractiveGrid).
 #
-# Last modified: October 06, 2025
+# Last modified: October 08, 2025
 #
 # This file is part of the InteractiveGrid GDExtension Source Code.
 # Repository: https://github.com/antoinecharruel/interactive_grid_gdextension
 #
-# Version InteractiveGrid: 1.0.4
+# Version InteractiveGrid: 1.1.0
 # Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 #
 # Author: Antoine Charruel
@@ -96,15 +96,19 @@ func _input(event):
 				
 				var index_cell_pawn: int = self.get_cell_index_from_global_position(pawn.global_position)
 				
-				# Manually set cells as unwalkable.
-				#set_cell_walkable(158, 0);
-				#set_cell_walkable(175, 0);
-				#set_cell_walkable(192, 0);
-
- 				# Hides distant cells.
-				self.hide_distant_cells(index_cell_pawn, 6)
+				# Manually set cell as unwalkable.
+				set_cell_walkable(75, false);
 				
+				# Check if the cell is walkable
+				print("Cell 75 is walkable ? : ", is_cell_walkable(75))
+				
+ 				# Hides distant cells.
+				self.hide_distant_cells(index_cell_pawn, 6)	
 				self.compute_inaccessible_cells(index_cell_pawn)
+				
+				# Manually set cell color.
+				var couleur_cell = Color(0.3, 0.4, 0.9)
+				self.set_cell_color(65, couleur_cell)
 		else:
 			print("Right button was released")
 
@@ -145,7 +149,7 @@ func _input(event):
 	# ----------------------------------------------------------------------------------------F-F*/	
 ```
 
-## TODO
+## TODO Minor
 
 - [ ] Define hexagonal layout method.
 - [ ] Add vaultable cells

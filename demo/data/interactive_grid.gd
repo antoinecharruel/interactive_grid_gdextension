@@ -5,12 +5,12 @@
 #
 # Node: InteractiveGrid (InteractiveGrid).
 #
-# Last modified: October 06, 2025
+# Last modified: October 08, 2025
 #
 # This file is part of the InteractiveGrid GDExtension Source Code.
 # Repository: https://github.com/antoinecharruel/interactive_grid_gdextension
 #
-# Version InteractiveGrid: 1.0.4
+# Version InteractiveGrid: 1.1.0
 # Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 #
 # Author: Antoine Charruel
@@ -65,15 +65,19 @@ func _input(event):
 				
 				var index_cell_pawn: int = self.get_cell_index_from_global_position(pawn.global_position)
 				
-				# Manually set cells as unwalkable.
-				#set_cell_walkable(158, 0);
-				#set_cell_walkable(175, 0);
-				#set_cell_walkable(192, 0);
-
- 				# Hides distant cells.
-				self.hide_distant_cells(index_cell_pawn, 6)
+				# Manually set cell as unwalkable.
+				set_cell_walkable(75, false);
 				
+				# Check if the cell is walkable
+				print("Cell 75 is walkable ? : ", is_cell_walkable(75))
+				
+ 				# Hides distant cells.
+				self.hide_distant_cells(index_cell_pawn, 6)	
 				self.compute_inaccessible_cells(index_cell_pawn)
+				
+				# Manually set cell color.
+				var couleur_cell = Color(0.3, 0.4, 0.9)
+				self.set_cell_color(65, couleur_cell)
 		else:
 			print("Right button was released")
 
