@@ -10,7 +10,7 @@ Last Modified: October 08, 2025
 This file is part of the InteractiveGrid GDExtension Source Code.
 Repository: https://github.com/antoinecharruel/interactive_grid
 
-Version InteractiveGrid: 1.1.0
+Version InteractiveGrid: 1.1.1
 Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 
 Author: Antoine Charruel
@@ -730,7 +730,7 @@ void InteractiveGrid::compute_inaccessible_cells(unsigned int start_cell_index) 
 				godot::PackedInt64Array path = get_path(start_cell_index, index);
 
 				if (path.is_empty()) {
-					bool walkable = is_cell_selected(index);
+					bool walkable = is_cell_walkable(index);
 
 					if (walkable) {
 						set_cell_inaccesible(index, true);
@@ -953,7 +953,7 @@ void InteractiveGrid::InteractiveGrid::reset_cells_state() {
 	for (int i = 0; i < _rows; i++) {
 		for (int j = 0; j < _columns; j++) {
 			const int index = i * _columns + j;
-			_cells.at(index)->flags = 0;
+			_cells.at(index)->flags = 0; // Reset.
 		}
 	}
 

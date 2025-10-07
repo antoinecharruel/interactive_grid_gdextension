@@ -10,7 +10,7 @@
 # This file is part of the InteractiveGrid GDExtension Source Code.
 # Repository: https://github.com/antoinecharruel/interactive_grid_gdextension
 #
-# Version InteractiveGrid: 1.1.0
+# Version InteractiveGrid: 1.1.1
 # Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 #
 # Author: Antoine Charruel
@@ -73,11 +73,12 @@ func _input(event):
 				
  				# Hides distant cells.
 				self.hide_distant_cells(index_cell_pawn, 6)	
-				self.compute_inaccessible_cells(index_cell_pawn)
 				
 				# Manually set cell color.
 				var couleur_cell = Color(0.3, 0.4, 0.9)
 				self.set_cell_color(65, couleur_cell)
+				
+				self.compute_inaccessible_cells(index_cell_pawn)
 		else:
 			print("Right button was released")
 

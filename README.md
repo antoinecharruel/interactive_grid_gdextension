@@ -1,4 +1,4 @@
-[![Interactive Grid GDExtension Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=Interactive%20Grid%20GDExtension&color=478CBF&message=1.1.0)](https://godotengine.org/asset-library/asset/4372)
+[![Interactive Grid GDExtension Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=Interactive%20Grid%20GDExtension&color=478CBF&message=1.1.1)](https://godotengine.org/asset-library/asset/4372)
 [![Patreon](https://img.shields.io/badge/Patreon-Vivensoft-F96854?logo=patreon&logoColor=white)](https://www.patreon.com/c/vivensoft/)  
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-AntoineCharruel-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/antoinecharruel)  
 [![Instagram](https://img.shields.io/badge/Instagram-VSFT%20GameDev-E4405F?logo=instagram&logoColor=white)](https://www.instagram.com/vsftgamedev/)
@@ -41,7 +41,7 @@ InteractiveGrid is a Godot 4.5 GDExtension that allows player interaction with a
 # This file is part of the InteractiveGrid GDExtension Source Code.
 # Repository: https://github.com/antoinecharruel/interactive_grid_gdextension
 #
-# Version InteractiveGrid: 1.1.0
+# Version InteractiveGrid: 1.1.1
 # Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 #
 # Author: Antoine Charruel
