@@ -1,6 +1,16 @@
 #pragma once
 
-#include <strings.h>
+#ifdef _WIN32
+#include <string.h> // Windows equivalent
+#define strcasecmp _stricmp
+#define strncasecmp _strnicmp
+#else
+#include <strings.h> // POSIX systems
+#endif
+
+#include <array>
+#include <sstream>
+#include <vector>
 
 #include <array>
 #include <sstream>
