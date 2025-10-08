@@ -10,7 +10,7 @@ Last Modified: October 08, 2025
 This file is part of the InteractiveGrid GDExtension Source Code.
 Repository: https://github.com/antoinecharruel/interactive_grid
 
-Version InteractiveGrid: 1.1.1
+Version InteractiveGrid: 1.1.2
 Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 
 Author: Antoine Charruel
@@ -151,7 +151,7 @@ void InteractiveGrid::_bind_methods() {
 			&InteractiveGrid::get_layout);
 	ADD_PROPERTY(godot::PropertyInfo(
 						 godot::Variant::INT, "layout", godot::PROPERTY_HINT_ENUM,
-						 "SQUARE, HEXAGONAL_NOT_WORKING"), // TODO ADD HEXAGONAL
+						 "SQUARE, HEXAGONAL_COMING_SOON "), // TODO
 			"set_layout", "get_layout");
 
 	// --- Grid visibility.
@@ -658,7 +658,7 @@ void InteractiveGrid::center(const godot::Vector3 center_position) {
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
 	reset_cells_state();
-	layout_cells_as_square_grid(center_position);
+	layout(center_position);
 	align_cells_with_floor();
 	scan_environnement_obstacles();
 }
@@ -1139,33 +1139,46 @@ void InteractiveGrid::configure_astar_diagonal() {
            the pathfinding algorithm to move in all directions across
            the grid.
 
+		   ref: https://www.redblobgames.com/grids/hexagons/#neighbors
+
   Last Modified: October 07, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	// Create 8-direction connections.
-	for (int i = 0; i < _rows; i++) {
-		for (int j = 0; j < _columns; j++) {
-			const int index = i * _columns + j;
 
-			for (int dy = -1; dy <= 1; ++dy) {
-				for (int dx = -1; dx <= 1; ++dx) {
-					if (dx == 0 && dy == 0)
-						continue; // Do not connect to itself.
+	switch (_layout) {
+		case LAYOUT::SQUARE:
 
-					int nx = j + dx;
-					int ny = i + dy;
+			// Create 8-direction connections.
+			for (int i = 0; i < _rows; i++) {
+				for (int j = 0; j < _columns; j++) {
+					const int index = i * _columns + j;
 
-					if (nx >= 0 && nx < _columns && ny >= 0 && ny < _rows) {
-						int neighbor_index = ny * _columns + nx;
+					for (int dy = -1; dy <= 1; ++dy) {
+						for (int dx = -1; dx <= 1; ++dx) {
+							if (dx == 0 && dy == 0)
+								continue; // Do not connect to itself.
 
-						// Check if the neighbor is walkable before connecting.
-						bool neighbor_walkable = is_cell_walkable(neighbor_index);
-						if (neighbor_walkable) {
-							_astar->connect_points(index, neighbor_index);
+							int nx = j + dx;
+							int ny = i + dy;
+
+							if (nx >= 0 && nx < _columns && ny >= 0 && ny < _rows) {
+								int neighbor_index = ny * _columns + nx;
+
+								// Check if the neighbor is walkable before connecting.
+								bool neighbor_walkable = is_cell_walkable(neighbor_index);
+								if (neighbor_walkable) {
+									_astar->connect_points(index, neighbor_index);
+								}
+							}
 						}
 					}
 				}
 			}
-		}
+
+			break;
+
+		case LAYOUT::HEXAGONAL:
+			// TODO
+			break;
 	}
 }
 
@@ -1177,23 +1190,36 @@ void InteractiveGrid::configure_astar_orthogonal() {
 		   pathfinding algorithm to move only in orthogonal directions 
 		   across the grid.
 
+		   ref: https://www.redblobgames.com/grids/hexagons/#neighbors
+
   Last Modified: September 30, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	// Create the four-direction connections.
-	for (int i = 0; i < _rows; i++) {
-		for (int j = 0; j < _columns; j++) {
-			const int index = i * _columns + j;
-			// Connect to the right.
-			if (j + 1 < _columns) {
-				int right = i * _columns + (j + 1);
-				_astar->connect_points(index, right);
+
+	switch (_layout) {
+		case LAYOUT::SQUARE:
+
+			// Create the four-direction connections.
+			for (int i = 0; i < _rows; i++) {
+				for (int j = 0; j < _columns; j++) {
+					const int index = i * _columns + j;
+
+					// Connect to the right.
+					if (j + 1 < _columns) {
+						int right = i * _columns + (j + 1);
+						_astar->connect_points(index, right);
+					}
+					// Connect to the left.
+					if (i + 1 < _rows) {
+						int down = (i + 1) * _columns + j;
+						_astar->connect_points(index, down);
+					}
+				}
 			}
-			// Connect to the left.
-			if (i + 1 < _rows) {
-				int down = (i + 1) * _columns + j;
-				_astar->connect_points(index, down);
-			}
-		}
+
+			break;
+		case LAYOUT::HEXAGONAL:
+			// TODO
+			break;
 	}
 }
 
@@ -1207,7 +1233,7 @@ void InteractiveGrid::create() {
 	if (!(_flags & GFL_CREATED)) {
 		init_multi_mesh();
 		init_astar();
-		layout_cells_as_square_grid(godot::Vector3(0, 0, 0));
+		layout(godot::Vector3(0, 0, 0));
 
 		_flags |= GFL_CREATED; // Mark as created to avoid duplication.
 
@@ -1287,6 +1313,22 @@ void InteractiveGrid::init_astar() {
 	_astar.instantiate(); // Create the AStar2D instance
 }
 
+void InteractiveGrid::layout(const godot::Vector3 center_position) {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: ...
+
+  Last Modified: October 07, 2025
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+	switch (_layout) {
+		case LAYOUT::SQUARE:
+			layout_cells_as_square_grid(center_position);
+			break;
+		case LAYOUT::HEXAGONAL:
+			layout_cells_as_hexagonal_grid(center_position); // ** TEMP
+			break;
+	}
+}
+
 void InteractiveGrid::layout_cells_as_square_grid(const godot::Vector3 center_position) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
   Summary: This method arranges the cells of the grid into a 
@@ -1314,10 +1356,10 @@ void InteractiveGrid::layout_cells_as_square_grid(const godot::Vector3 center_po
 					i * _columns + j; // Index in the 2D array stored as 1D.
 
 			// Calculate the cell's position.
-			const float cell_pos_x = _grid_offset.x + j * _cell_size.x;
-			const float cell_pos_y = center_position.y;
-			const float cell_pos_z = _grid_offset.z + i * _cell_size.y;
-			const godot::Vector3 cell_pos(cell_pos_x, cell_pos_y, cell_pos_z);
+			float cell_pos_x = _grid_offset.x + j * _cell_size.x;
+			float cell_pos_y = center_position.y;
+			float cell_pos_z = _grid_offset.z + i * _cell_size.y;
+			godot::Vector3 cell_pos(cell_pos_x, cell_pos_y, cell_pos_z);
 
 			// Apply the position (global, not local).
 			godot::Transform3D global_xform =
@@ -1353,6 +1395,82 @@ void InteractiveGrid::layout_cells_as_hexagonal_grid(const godot::Vector3 center
 
   Last Modified: October 05, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+	reset_cells_state();
+
+	_grid_center_position = center_position;
+
+	// Calculate the distances between the center and the grid's edges.
+	const float pawn_to_grid_edge_x = (_columns / 2) * _cell_size.x;
+	const float pawn_to_grid_edge_z = (_rows / 2) * _cell_size.y;
+
+	//  Initialize the member `grid_offset_`.
+	_grid_offset.x = center_position.x - pawn_to_grid_edge_x;
+	_grid_offset.z = center_position.z - pawn_to_grid_edge_z;
+
+	// Iterate through the cells.
+	for (int i = 0; i < _rows; i++) {
+		for (int j = 0; j < _columns; j++) {
+			const int index =
+					i * _columns + j; // Index in the 2D array stored as 1D.
+
+			// if (17 % 2) != 0:
+			// 	print("impaire")
+			// else:
+			// 	print("paire")
+
+			bool is_even_num = (i % 2) == 0;
+
+			float cell_pos_x{ 0.0 };
+			float cell_pos_y{ 0.0 };
+			float cell_pos_z{ 0.0 };
+			godot::Vector3 cell_pos(cell_pos_x, cell_pos_y, cell_pos_z);
+
+			// Calculate the cell's position.
+			if (is_even_num) { // is_paire
+				cell_pos_x = _grid_offset.x + j * _cell_size.x;
+				cell_pos_y = center_position.y;
+				cell_pos_z = _grid_offset.z + i * _cell_size.y;
+
+				cell_pos.x = cell_pos_x;
+				cell_pos.y = cell_pos_y;
+				cell_pos.z = cell_pos_z;
+			} else {
+				// Offset by (_cell_size.x / 2).
+				cell_pos_x = _grid_offset.x + j * _cell_size.x + (_cell_size.x / 2);
+				cell_pos_y = center_position.y;
+				cell_pos_z = _grid_offset.z + i * _cell_size.y;
+
+				cell_pos.x = cell_pos_x;
+				cell_pos.y = cell_pos_y;
+				cell_pos.z = cell_pos_z;
+			}
+
+			// Apply the position (global, not local).
+			godot::Transform3D global_xform =
+					_multimesh_instance->get_global_transform();
+			godot::Transform3D local_xform =
+					global_xform.affine_inverse(); // Inverse du global.
+
+			// Convert the global position to local:
+			godot::Vector3 local_pos = local_xform.xform(cell_pos);
+
+			// Then, apply the local position.
+			godot::Transform3D xform;
+			xform.origin = local_pos;
+
+			_multimesh->set_instance_transform(index, xform);
+
+			// Save cell's metadata.
+			_cells.at(index)->local_xform =
+					_multimesh->get_instance_transform(index);
+			_cells.at(index)->global_xform =
+					_multimesh_instance->get_global_transform() *
+					_multimesh->get_instance_transform(index);
+		}
+	}
+
+	PrintLine(__FILE__, __FUNCTION__, __LINE__,
+			"The grid cells have been laid out as a square grid.");
 }
 
 void InteractiveGrid::align_cells_with_floor() {

@@ -1,0 +1,98 @@
+name: Build GDExtension
+on:
+  workflow_call:
+  push:
+  pull_request:
+  merge_group:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          [
+            { platform: linux, arch: x86_64, os: ubuntu-22.04 },
+            { platform: linux, arch: x86_32, os: ubuntu-22.04 },
+            { platform: linux, arch: arm64, os: ubuntu-22.04-arm },
+            { platform: linux, arch: arm32, os: ubuntu-22.04-arm },
+            { platform: windows, arch: x86_64, os: windows-latest },
+            { platform: windows, arch: x86_32, os: windows-latest },
+            { platform: windows, arch: arm64, os: windows-latest },
+            { platform: macos, arch: universal, os: macos-latest },
+            { platform: android, arch: x86_64, os: ubuntu-22.04 },
+            { platform: android, arch: x86_32, os: ubuntu-22.04 },
+            { platform: android, arch: arm64, os: ubuntu-22.04 },
+            { platform: android, arch: arm32, os: ubuntu-22.04 },
+            { platform: ios, arch: arm64, os: macos-latest },
+            { platform: web, arch: wasm32, os: ubuntu-22.04 },
+          ]
+        target-type: [template_debug, template_release]
+        float-precision: [single, double]
+
+    runs-on: ${{ matrix.target.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install multilib support
+        if: ${{ matrix.target.platform == 'linux' && matrix.target.arch == 'x86_32' }}
+        run: |
+          sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib
+
+      - name: Setup godot-cpp
+        uses: ./godot-cpp/.github/actions/setup-godot-cpp
+        with:
+          platform: ${{ matrix.target.platform }}
+          em-version: 3.1.62
+
+      - name: Restore .scons_cache
+        uses: ./godot-cpp/.github/actions/godot-cache-restore
+        with:
+          scons-cache: ${{ github.workspace }}/.scons-cache/
+          cache-name: ${{ matrix.target.platform }}_${{ matrix.target.arch }}_${{ matrix.float-precision }}_${{ matrix.target-type }}
+
+      - name: Build GDExtension
+        shell: sh
+        env:
+          SCONS_CACHE: ${{ github.workspace }}/.scons-cache/
+        run: |
+          scons target=${{ matrix.target-type }} platform=${{ matrix.target.platform }} arch=${{ matrix.target.arch }} precision=${{ matrix.float-precision }}
+
+      - name: Save .scons_cache
+        uses: ./godot-cpp/.github/actions/godot-cache-save
+        with:
+          scons-cache: ${{ github.workspace }}/.scons-cache/
+          cache-name: ${{ matrix.target.platform }}_${{ matrix.target.arch }}_${{ matrix.float-precision }}_${{ matrix.target-type }}
+
+      - name: Move compiled libraries to addons/interactive-grid
+        shell: bash
+        run: |
+          mkdir -p ${{ github.workspace }}/addons/interactive-grid
+          cp -r ${{ github.workspace }}/bin/* ${{ github.workspace }}/addons/interactive-grid/
+
+      - name: Windows - Delete compilation files
+        if: ${{ matrix.target.platform == 'windows' }}
+        shell: pwsh
+        run: |
+          Remove-Item bin/* -Include *.exp,*.lib,*.pdb -Force
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: interactive-grid-${{ matrix.target.platform }}-${{ matrix.target.arch }}-${{ matrix.float-precision }}-${{ matrix.target-type }}
+          path: |
+            ${{ github.workspace }}/addons/interactive-grid/**
+
+  merge:
+    runs-on: ubuntu-22.04
+    needs: build
+    steps:
+      - name: Merge Artifacts
+        uses: actions/upload-artifact/merge@v4
+        with:
+          name: interactive-grid
+          pattern: interactive-grid-*
+          delete-merged: true

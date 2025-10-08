@@ -9,7 +9,7 @@
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_ak1kh"]
 
-[sub_resource type="BoxMesh" id="BoxMesh_x8n0i"]
+[sub_resource type="BoxMesh" id="BoxMesh_7xyhs"]
 size = Vector3(0.8, 0.1, 0.8)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7xyhs"]
@@ -36,7 +36,7 @@ script = ExtResource("2_x8n0i")
 [node name="InteractiveGrid" type="InteractiveGrid" parent="."]
 _rows = 17
 _columns = 17
-_cell_mesh = SubResource("BoxMesh_x8n0i")
+_cell_mesh = SubResource("BoxMesh_7xyhs")
 "inaccessible color" = Color(1, 1, 1, 0)
 _material_override = SubResource("ShaderMaterial_7xyhs")
 movement = 1

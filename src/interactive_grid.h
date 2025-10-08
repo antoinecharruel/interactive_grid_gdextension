@@ -10,7 +10,7 @@ Last Modified: October 08, 2025
 This file is part of the InteractiveGrid GDExtension Source Code.
 Repository: https://github.com/antoinecharruel/interactive_grid
 
-Version InteractiveGrid: 1.1.1
+Version InteractiveGrid: 1.1.2
 Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 
 Author: Antoine Charruel
@@ -205,6 +205,7 @@ private:
 
 	// --- Grid layout.
 
+	void layout(const godot::Vector3 center_position);
 	void layout_cells_as_square_grid(const godot::Vector3 center_position);
 	void layout_cells_as_hexagonal_grid(const godot::Vector3 center_position);
 
