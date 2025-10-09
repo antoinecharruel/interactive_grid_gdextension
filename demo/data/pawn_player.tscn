@@ -37,8 +37,8 @@ transform = Transform3D(0.70710677, -0.49999997, 0.49999997, 0, 0.70710677, 0.70
 script = ExtResource("2_x8n0i")
 
 [node name="InteractiveGrid" type="InteractiveGrid" parent="."]
-_rows = 24
-_columns = 24
+_rows = 17
+_columns = 17
 _cell_mesh = SubResource("CylinderMesh_7xyhs")
 "inaccessible color" = Color(1, 1, 1, 0)
 _material_override = SubResource("ShaderMaterial_7xyhs")

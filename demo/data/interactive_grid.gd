@@ -72,7 +72,7 @@ func _input(event):
 				print("Cell 75 is walkable ? : ", is_cell_walkable(75))
 				
  				# Hides distant cells.
-				self.hide_distant_cells(index_cell_pawn, 6)	
+				self.hide_distant_cells(index_cell_pawn, 4)	
 				
 				# Manually set cell color.
 				var couleur_cell = Color(0.3, 0.4, 0.9)
