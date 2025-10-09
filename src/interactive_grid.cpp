@@ -10,7 +10,7 @@ Last Modified: October 08, 2025
 This file is part of the InteractiveGrid GDExtension Source Code.
 Repository: https://github.com/antoinecharruel/interactive_grid
 
-Version InteractiveGrid: 1.3.0
+Version InteractiveGrid: 1.3.1
 Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 
 Author: Antoine Charruel
@@ -1140,13 +1140,13 @@ void InteractiveGrid::configure_astar_4_dir() {
            Each cell is connected to its four immediate neighbors (up, 
 		   down, left, right) if they exist.
 
-  Last Modified: September 30, 2025
+  Last Modified: October 09, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
 	// Create the four-direction connections.
 	for (int row = 0; row < _rows; row++) {
 		for (int column = 0; column < _columns; column++) {
-			const int index = column * _columns + column;
+			const int index = row * _columns + column;
 
 			// Connect to the right.
 			if (column + 1 < _columns) {

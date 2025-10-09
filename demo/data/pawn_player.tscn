@@ -10,8 +10,8 @@
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_ak1kh"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_7xyhs"]
-top_radius = 0.3
-bottom_radius = 0.3
+top_radius = 0.4
+bottom_radius = 0.4
 height = 0.2
 radial_segments = 6
 
