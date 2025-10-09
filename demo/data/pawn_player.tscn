@@ -9,8 +9,11 @@
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_ak1kh"]
 
-[sub_resource type="BoxMesh" id="BoxMesh_7xyhs"]
-size = Vector3(0.8, 0.1, 0.8)
+[sub_resource type="CylinderMesh" id="CylinderMesh_7xyhs"]
+top_radius = 0.3
+bottom_radius = 0.3
+height = 0.2
+radial_segments = 6
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7xyhs"]
 render_priority = 0
@@ -34,10 +37,11 @@ transform = Transform3D(0.70710677, -0.49999997, 0.49999997, 0, 0.70710677, 0.70
 script = ExtResource("2_x8n0i")
 
 [node name="InteractiveGrid" type="InteractiveGrid" parent="."]
-_rows = 17
-_columns = 17
-_cell_mesh = SubResource("BoxMesh_7xyhs")
+_rows = 24
+_columns = 24
+_cell_mesh = SubResource("CylinderMesh_7xyhs")
 "inaccessible color" = Color(1, 1, 1, 0)
 _material_override = SubResource("ShaderMaterial_7xyhs")
+layout = 1
 movement = 1
 script = ExtResource("3_hc0jp")

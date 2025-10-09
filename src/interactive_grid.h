@@ -10,7 +10,7 @@ Last Modified: October 08, 2025
 This file is part of the InteractiveGrid GDExtension Source Code.
 Repository: https://github.com/antoinecharruel/interactive_grid
 
-Version InteractiveGrid: 1.1.2
+Version InteractiveGrid: 1.3.0
 Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 
 Author: Antoine Charruel
@@ -28,8 +28,9 @@ public:
 	};
 
 	enum MOVEMENT {
-		ORTHOGONAL = 0,
-		DIAGONAL = 1,
+		FOUR_DIRECTIONS = 0,
+		SIX_DIRECTIONS = 1,
+		EIGH_DIRECTIONS = 2,
 	};
 
 	InteractiveGrid(); // CONSTRUCTOR.
@@ -62,8 +63,9 @@ public:
 
 	void set_movement(unsigned int value);
 	unsigned int get_movement() const;
-	void configure_astar_orthogonal();
-	void configure_astar_diagonal();
+	void configure_astar_4_dir();
+	void configure_astar_6_dir();
+	void configure_astar_8_dir();
 
 	// --- Grid colors.
 
@@ -249,7 +251,7 @@ private:
 
 	// --- colors.
 
-	godot::Color _walkable_color{ godot::Color(0.9411765, 1, 0.9411765, (240.0 / 255.0)) }; // HONEYDEW
+	godot::Color _walkable_color{ godot::Color(0.9411765, 1, 0.9411765, (80.0 / 255.0)) }; // HONEYDEW
 	godot::Color _unwalkable_color{
 		godot::Color(0.8039216, 0.36078432, 0.36078432, (241.0 / 255.0))
 	}; // INDIAN_RED

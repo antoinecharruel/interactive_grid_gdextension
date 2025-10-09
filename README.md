@@ -1,4 +1,4 @@
-[![Interactive Grid GDExtension Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=Interactive%20Grid%20GDExtension&color=478CBF&message=1.1.2)](https://godotengine.org/asset-library/asset/4372)
+[![Interactive Grid GDExtension Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=Interactive%20Grid%20GDExtension&color=478CBF&message=1.3.0)](https://godotengine.org/asset-library/asset/4372)
 [![Patreon](https://img.shields.io/badge/Patreon-Vivensoft-F96854?logo=patreon&logoColor=white)](https://www.patreon.com/c/vivensoft/)  
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-AntoineCharruel-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/antoinecharruel)  
 [![Instagram](https://img.shields.io/badge/Instagram-VSFT%20GameDev-E4405F?logo=instagram&logoColor=white)](https://www.instagram.com/vsftgamedev/)
@@ -11,16 +11,20 @@ InteractiveGrid is a Godot 4.5 GDExtension that allows player interaction with a
 
 ## Features
 
-- Fully compatible with Godot 4.5.
 - Highlight cells when hovering the mouse over them.
 - Select individual cells.
 - Detect obstacles (collision mask configurable from the editor).
 - Align cells with the floor (collision mask configurable from the editor).
 - Hide distant cells to focus on the relevant area.
 - Calculate paths from a global position to selected cells using [AStar2D](https://docs.godotengine.org/en/stable/classes/class_astar2d.html).
-- Choose movement type: orthogonal (4 directions) or diagonal (8 directions) directly from the editor.
+- Choose movement type: 4 directions, 6 directions, 8 directions, directly from the editor.
 - Customize the grid from the editor: grid size, cell size, mesh, colors, and shaders.
 - High performance using [MultiMeshInstance3D](https://docs.godotengine.org/en/4.4/classes/class_multimeshinstance3d.html) for efficient rendering of multiple cells.
+
+## Compatibility:
+
+- Fully compatible with Godot 4.5.
+- Cross-platform support (Linux, Windows, macOS, Android, iOS, Web/HTML5).
 
 📄 [Download the full Interactive Grid GDExtension demo PDF](https://raw.githubusercontent.com/antoinecharruel/interactive_grid_gdextension/main/addons/interactive-grid/demo.pdf)
 
@@ -151,15 +155,27 @@ func _input(event):
 
 ## TODO Minor
 
-- [ ] Define hexagonal layout method.
+- [X] Define hexagonal layout method.
+- [ ] godot::Array get_neighbors(cell_index)
+- [ ] void clear_path(path)
 - [ ] Add vaultable cells
   + [ ] A Define `CFL_VAULT` flag for cells that can be vaulted/climbed.
   + [ ] Assign vaultable cells to a specific collision layer checked by `scan_environnement_obstacles` method.
   + [ ] Add a visual indicator (color) for vaultable cells using `ADD_PROPERTY`.
 
-## Acknowledgments
+## Acknowledgments & References (Videos & Websites)
 
-A big thank you to the creators whose YouTube videos helped me during this project:
+A big thank you to the creators of the YouTube tutorials and websites that guided me during this project:
 
 - BornCG. (2024, August 4). Godot 4 3D Platformer Lesson #13: Align Player with Ground! [Video]. YouTube. https://www.youtube.com/watch?v=Y5OiChOukfg
 - jitspoe. (2022, May 11). Godot 3D Spatial Shaders: Getting started [Video]. YouTube. https://www.youtube.com/watch?v=6-eIEFPcvrU
+- jmbiv. (2021, October 5). How to make a 3D hexagon grid in Godot
+        (Tutorial) [Video]. YouTube. 
+		https://www.youtube.com/watch?v=3Lt2TfP8WEw
+- Patel, A. J. (2013). Hexagonal grids. 
+  	   https://www.redblobgames.com/grids/hexagons/#neighbors
+
+
+## Great Videos on Grid-Based Game Design
+
+- Chaff Games. (2025, July 23). I remade Final Fantasy Tactics in Godot [Video]. YouTube. https://www.youtube.com/watch?v=iXnKYtTZrAo

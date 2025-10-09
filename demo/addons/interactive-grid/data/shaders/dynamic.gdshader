@@ -12,8 +12,8 @@ varying vec4 instance_c;
 // In Godot shaders, each instance has limited properties like INSTANCE_CUSTOM
 // or INSTANCE_COLOR (vec4). Storing extra data per instance can be costly,
 // so using the alpha channel as a flag is a lightweight solution.
-const float valid_alpha         = 240.0 / 255.0;
-const float unvalid_alpha       = 241.0 / 255.0;
+const float walkable_alpha         = 80.0 / 255.0;
+const float unwalkable_alpha       = 241.0 / 255.0;
 const float inaccessible_alpha  = 0.0 / 255.0;
 const float selected_alpha      = 243.0 / 255.0;
 const float path_alpha          = 244.0 / 255.0;
@@ -23,7 +23,7 @@ void vertex() {
     instance_c = INSTANCE_CUSTOM;
 
     // Red pulse for invalid.
-    if (abs(instance_c.a - unvalid_alpha) < 0.001) {
+    if (abs(instance_c.a - unwalkable_alpha) < 0.001) {
         float float_speed = 4.0;
         float color_min = 0.3;
         float color_max = 0.8;
