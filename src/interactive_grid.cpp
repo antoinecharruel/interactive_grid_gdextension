@@ -164,10 +164,10 @@ void InteractiveGrid::_bind_methods() {
 			&InteractiveGrid::compute_inaccessible_cells);
 	godot::ClassDB::bind_method(godot::D_METHOD("hide_distant_cells"),
 			&InteractiveGrid::hide_distant_cells);
-	godot::ClassDB::bind_method(godot::D_METHOD("set_hover_disabled"),
-			&InteractiveGrid::set_hover_disabled);
-	godot::ClassDB::bind_method(godot::D_METHOD("is_hover_disabled"),
-			&InteractiveGrid::is_hover_disabled);
+	godot::ClassDB::bind_method(godot::D_METHOD("set_hover_enabled"),
+			&InteractiveGrid::set_hover_enabled);
+	godot::ClassDB::bind_method(godot::D_METHOD("is_hover_enabled"),
+			&InteractiveGrid::is_hover_enabled);
 
 	// --- Grid state.
 
@@ -535,7 +535,7 @@ void InteractiveGrid::highlight_on_hover(const godot::Vector3 global_position) {
 		return; // !Exit do not hover if the grid is not centered.
 	}
 
-	if (is_hover_disabled() == true) {
+	if (is_hover_enabled() == false) {
 		return; // !Exit
 	}
 
@@ -665,14 +665,14 @@ void InteractiveGrid::center(const godot::Vector3 center_position) {
 
 	_flags &= ~GFL_CENTERED; // Reset
 
-	set_hover_disabled(true); // Prevent hover during grid recentering.
+	set_hover_enabled(false); // Prevent hover during grid recentering.
 
 	reset_cells_state();
 	layout(center_position);
 	align_cells_with_floor();
 	scan_environnement_obstacles();
 
-	set_hover_disabled(false);
+	set_hover_enabled(true);
 	_flags |= GFL_CENTERED;
 }
 
@@ -789,7 +789,7 @@ void InteractiveGrid::hide_distant_cells(unsigned int start_cell_index, float di
 	}
 }
 
-void InteractiveGrid::set_hover_disabled(bool disabled) {
+void InteractiveGrid::set_hover_enabled(bool disabled) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
 	Summary: Enables or disables hover functionality on the grid.
 
@@ -802,20 +802,20 @@ void InteractiveGrid::set_hover_disabled(bool disabled) {
 	}
 
 	if (disabled) {
-		_flags |= GFL_HOVER_DISABLED; // Set the flag
+		_flags |= GFL_HOVER_ENABLED; // Set the flag
 	} else {
-		_flags &= ~GFL_HOVER_DISABLED; // Clear the flag
+		_flags &= ~GFL_HOVER_ENABLED; // Clear the flag
 	}
 }
 
-bool InteractiveGrid::is_hover_disabled() const {
+bool InteractiveGrid::is_hover_enabled() const {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
   Summary:  Checks whether hover functionality is currently disabled
 	        on the grid.
 
   Last Modified: October 10, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	return (_flags & GFL_HOVER_DISABLED) != 0;
+	return (_flags & GFL_HOVER_ENABLED) != 0;
 }
 
 bool InteractiveGrid::is_created() const {

@@ -122,8 +122,8 @@ public:
 	bool get_grid_visible() const;
 	void compute_inaccessible_cells(unsigned int start_cell_index);
 	void hide_distant_cells(unsigned int start_cell_index, float distance);
-	void set_hover_disabled(bool disabled);
-	bool is_hover_disabled() const;
+	void set_hover_enabled(bool enabled);
+	bool is_hover_enabled() const;
 
 	// --- Grid state.
 
@@ -186,7 +186,7 @@ private:
 	static constexpr int GFL_VISIBLE = 1 << 3;
 	static constexpr int GFL_CELL_INACCESSIBLE_HIDDEN = 1 << 4;
 	static constexpr int GFL_CELL_DISTANT_HIDDEN = 1 << 5;
-	static constexpr int GFL_HOVER_DISABLED = 1 << 6;
+	static constexpr int GFL_HOVER_ENABLED = 1 << 6;
 
 	// Cell flags.
 
