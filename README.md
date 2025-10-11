@@ -1,6 +1,7 @@
-[![Interactive Grid GDExtension Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=Interactive%20Grid%20GDExtension&color=478CBF&message=1.3.1)](https://godotengine.org/asset-library/asset/4372)
+[![Interactive Grid GDExtension Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=Interactive%20Grid%20GDExtension&color=478CBF&message=1.4.0)](https://godotengine.org/asset-library/asset/4372)
 [![Patreon](https://img.shields.io/badge/Patreon-Vivensoft-F96854?logo=patreon&logoColor=white)](https://www.patreon.com/c/vivensoft/)  
-[![Ko-fi](https://img.shields.io/badge/Ko--fi-AntoineCharruel-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/antoinecharruel)  
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-AntoineCharruel-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/antoinecharruel)
+[![AntoineCharruel on Itch.io](https://img.shields.io/badge/Itch.io-AntoineCharruel-FF5E5B?logo=itch.io&logoColor=white)](https://antoine-charruel.itch.io/)
 [![Instagram](https://img.shields.io/badge/Instagram-VSFT%20GameDev-E4405F?logo=instagram&logoColor=white)](https://www.instagram.com/vsftgamedev/)
 
 # Interactive Grid GDExtension
@@ -26,11 +27,21 @@ InteractiveGrid is a Godot 4.5 GDExtension that allows player interaction with a
 - Fully compatible with Godot 4.5.
 - Cross-platform support (Linux, Windows, macOS, Android, iOS, Web/HTML5).
 
-📄 [Download the full Interactive Grid GDExtension demo PDF](https://raw.githubusercontent.com/antoinecharruel/interactive_grid_gdextension/main/addons/interactive-grid/demo.pdf)
+## Try the demo on Itch.io! 🎮
 
-![Custom shader demonstration](addons/interactive-grid/preview/custom_grid_shader_demo.gif)
+![](addons/interactive-grid/preview/demo.gif)
+<div style="text-align:center;">
+  <a href="https://ahappypapabear.itch.io/interactive-grid-gdextension" target="_blank" style="text-decoration:none;background-color:#28a745;color:white;padding:5px 12px;border-radius:5px;">
+    🎮 Play on Itch.io
+  </a>
+</div>
 
-## Demo Example GDScript
+
+
+## Minimal Demo Example in GDScript
+
+📄 [Download the full Interactive Grid GDExtension Minimal demo PDF](https://raw.githubusercontent.com/antoinecharruel/interactive_grid_gdextension/main/addons/interactive-grid/demo.pdf)
+
 
 ```python
 # =================================================================================================
