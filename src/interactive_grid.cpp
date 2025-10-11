@@ -1116,11 +1116,11 @@ godot::PackedInt64Array InteractiveGrid::get_path(unsigned int start_cell_index,
 			configure_astar_4_dir();
 			break;
 		case MOVEMENT::SIX_DIRECTIONS:
-			configure_astar_6_dir();
+			configure_astar_8_dir();
+			// configure_astar_6_dir(); // Hexagonal
 			break;
 		case MOVEMENT::EIGH_DIRECTIONS:
-			configure_astar_6_dir(); // ** tmp
-			// configure_astar_8_dir();
+			configure_astar_8_dir();
 			break;
 	}
 
@@ -1187,38 +1187,6 @@ void InteractiveGrid::configure_astar_6_dir() {
 
   Last Modified: October 09, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-
-	for (int row = 0; row < _rows; row++) {
-		for (int column = 0; column < _columns; column++) {
-			const int index = row * _columns + column;
-
-			// Voisins selon la parité de la ligne
-			std::vector<std::pair<int, int>> neighbors;
-			if (row % 2 == 0) {
-				neighbors = {
-					{ row, column - 1 }, { row, column + 1 },
-					{ row - 1, column - 1 }, { row - 1, column },
-					{ row + 1, column - 1 }, { row + 1, column }
-				};
-			} else {
-				neighbors = {
-					{ row, column - 1 }, { row, column + 1 },
-					{ row - 1, column }, { row - 1, column + 1 },
-					{ row + 1, column }, { row + 1, column + 1 }
-				};
-			}
-
-			for (auto [ny, nx] : neighbors) {
-				if (nx >= 0 && nx < _columns && ny >= 0 && ny < _rows) {
-					int neighbor_index = ny * _columns + nx;
-
-					if (is_cell_walkable(neighbor_index)) {
-						_astar->connect_points(index, neighbor_index);
-					}
-				}
-			}
-		}
-	}
 }
 
 void InteractiveGrid::configure_astar_8_dir() {
@@ -1229,7 +1197,32 @@ void InteractiveGrid::configure_astar_8_dir() {
 
   Last Modified: October 09, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+	// Create 8-direction connections.
+	for (int row = 0; row < _rows; row++) {
+		for (int column = 0; column < _columns; column++) {
+			const int index = row * _columns + column;
 
+			for (int row_offset = -1; row_offset <= 1; ++row_offset) {
+				for (int col_offset = -1; col_offset <= 1; ++col_offset) {
+					if (col_offset == 0 && row_offset == 0)
+						continue; // Do not connect to itself.
+
+					int nx = column + col_offset;
+					int ny = row + row_offset;
+
+					if (nx >= 0 && nx < _columns && ny >= 0 && ny < _rows) {
+						int neighbor_index = ny * _columns + nx;
+
+						// Check if the neighbor is walkable before connecting.
+						bool neighbor_walkable = is_cell_walkable(neighbor_index);
+						if (neighbor_walkable) {
+							_astar->connect_points(index, neighbor_index);
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 void InteractiveGrid::create() {
@@ -1417,7 +1410,6 @@ void InteractiveGrid::layout_cells_as_hexagonal_grid(const godot::Vector3 center
 
   Last Modified: October 09, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-
 }
 
 void InteractiveGrid::align_cells_with_floor() {
