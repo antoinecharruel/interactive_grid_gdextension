@@ -5,12 +5,12 @@ Summary: InteractiveGrid is a Godot 4.5 GDExtension that allows player
          interaction with a 3D grid, including cell selection,
 		 pathfinding, and hover highlights.
 
-Last Modified: October 08, 2025
+Last Modified: October 10, 2025
 
 This file is part of the InteractiveGrid GDExtension Source Code.
 Repository: https://github.com/antoinecharruel/interactive_grid
 
-Version InteractiveGrid: 1.3.1
+Version InteractiveGrid: 1.4.0
 Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 
 Author: Antoine Charruel
@@ -164,11 +164,15 @@ void InteractiveGrid::_bind_methods() {
 			&InteractiveGrid::compute_inaccessible_cells);
 	godot::ClassDB::bind_method(godot::D_METHOD("hide_distant_cells"),
 			&InteractiveGrid::hide_distant_cells);
+	godot::ClassDB::bind_method(godot::D_METHOD("set_hover_disabled"),
+			&InteractiveGrid::set_hover_disabled);
+	godot::ClassDB::bind_method(godot::D_METHOD("is_hover_disabled"),
+			&InteractiveGrid::is_hover_disabled);
 
 	// --- Grid state.
 
 	godot::ClassDB::bind_method(godot::D_METHOD("is_grid_created"),
-			&InteractiveGrid::is_grid_created);
+			&InteractiveGrid::is_created);
 	godot::ClassDB::bind_method(godot::D_METHOD("reset_cells_state"),
 			&InteractiveGrid::reset_cells_state);
 
@@ -189,12 +193,6 @@ void InteractiveGrid::_bind_methods() {
 			&InteractiveGrid::set_cell_walkable);
 	godot::ClassDB::bind_method(godot::D_METHOD("set_cell_inaccesible"),
 			&InteractiveGrid::set_cell_inaccesible);
-	godot::ClassDB::bind_method(godot::D_METHOD("set_cell_hovered"),
-			&InteractiveGrid::set_cell_hovered);
-	godot::ClassDB::bind_method(godot::D_METHOD("set_cell_selected"),
-			&InteractiveGrid::set_cell_selected);
-	godot::ClassDB::bind_method(godot::D_METHOD("set_cell_visible"),
-			&InteractiveGrid::set_cell_visible);
 
 	// --- Cell color.
 	godot::ClassDB::bind_method(godot::D_METHOD("set_cell_color"),
@@ -525,7 +523,7 @@ void InteractiveGrid::highlight_on_hover(const godot::Vector3 global_position) {
            clears any previous hover, and applies the hover colour
            unless the cell is already selected.
 
-  Last Modified: October 07, 2025
+  Last Modified: October 10, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
 	// If the grid isn’t visible, exit early.
@@ -533,12 +531,20 @@ void InteractiveGrid::highlight_on_hover(const godot::Vector3 global_position) {
 		return; // !Exit
 	}
 
+	if (is_centered() == false) {
+		return; // !Exit do not hover if the grid is not centered.
+	}
+
+	if (is_hover_disabled() == true) {
+		return; // !Exit
+	}
+
 	// Retrieve the index of the cell that corresponds to the supplied
 	// global position.
 	int closest_index = get_cell_index_from_global_position(global_position);
 
-	// 1) No cell under the mouse: clean the previously hovered cell (if any).
-	if (closest_index == -1) {
+	// No cell under the mouse: clean the previously hovered cell (if any).
+	if (closest_index == -1 || !is_cell_visible(closest_index)) {
 		if (_hovered_cell_index > -1) {
 			set_cell_hovered(_hovered_cell_index, false);
 
@@ -553,15 +559,15 @@ void InteractiveGrid::highlight_on_hover(const godot::Vector3 global_position) {
 		return;
 	}
 
-	// 2) Already hovering over the same cell: nothing to do.
+	// Already hovering over the same cell: nothing to do.
 	if (closest_index == _hovered_cell_index) {
 		return;
 	}
 
-	// 3) Check whether the new cell is already selected.
+	// Check whether the new cell is already selected.
 	bool new_is_selected = is_cell_selected(closest_index);
 
-	// 4) Clear the previously hovered cell (if it exists).
+	// Clear the previously hovered cell (if it exists).
 	if (_hovered_cell_index > -1) {
 		bool old_is_selected = is_cell_selected(_hovered_cell_index);
 
@@ -574,19 +580,19 @@ void InteractiveGrid::highlight_on_hover(const godot::Vector3 global_position) {
 		_hovered_cell_index = -1;
 	}
 
-	// 5) Skip non-walkable cells: only allow hovering on walkable cells.
+	// Skip non-walkable cells: only allow hovering on walkable cells.
 	bool walkable = is_cell_walkable(closest_index);
 	if (!walkable) {
 		return;
 	}
 
-	//6) Skip inaccessible cells.
+	// Skip inaccessible cells.
 	bool inaccessible = is_cell_inaccesible(closest_index);
 	if (inaccessible) {
 		return;
 	}
 
-	// 7) If the new cell is not selected, mark it as hovered.
+	// If the new cell is not selected, mark it as hovered.
 	if (!new_is_selected) {
 		_hovered_cell_index = closest_index;
 		set_cell_hovered(_hovered_cell_index, true);
@@ -654,13 +660,20 @@ void InteractiveGrid::center(const godot::Vector3 center_position) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
   Summary: Called to re-center the grid.
 
-  Last Modified: September 19, 2025
+  Last Modified: October 10, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+	_flags &= ~GFL_CENTERED; // Reset
+
+	set_hover_disabled(true); // Prevent hover during grid recentering.
 
 	reset_cells_state();
 	layout(center_position);
 	align_cells_with_floor();
 	scan_environnement_obstacles();
+
+	set_hover_disabled(false);
+	_flags |= GFL_CENTERED;
 }
 
 void InteractiveGrid::set_grid_visible(bool visible_param) {
@@ -776,13 +789,52 @@ void InteractiveGrid::hide_distant_cells(unsigned int start_cell_index, float di
 	}
 }
 
-bool InteractiveGrid::is_grid_created() const {
+void InteractiveGrid::set_hover_disabled(bool disabled) {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+	Summary: Enables or disables hover functionality on the grid.
+
+	Last Modified: October 10, 2025
+	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+	if (!(_flags & GFL_CREATED)) {
+		PrintLine(__FILE__, __FUNCTION__, __LINE__, "The grid has not been created");
+		return; // !Exit.
+	}
+
+	if (disabled) {
+		_flags |= GFL_HOVER_DISABLED; // Set the flag
+	} else {
+		_flags &= ~GFL_HOVER_DISABLED; // Clear the flag
+	}
+}
+
+bool InteractiveGrid::is_hover_disabled() const {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary:  Checks whether hover functionality is currently disabled
+	        on the grid.
+
+  Last Modified: October 10, 2025
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+	return (_flags & GFL_HOVER_DISABLED) != 0;
+}
+
+bool InteractiveGrid::is_created() const {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
   Summary: Checks if the grid has been created.
 
   Last Modified: May 03, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 	return (_flags & GFL_CREATED) != 0;
+}
+
+bool InteractiveGrid::is_centered() const {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Checks whether the grid is currently centered. Returns true
+	       if the GFL_CENTERED flag is set, false otherwise.
+
+  Last Modified: October 10, 2025
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+	return (_flags & GFL_CENTERED) != 0;
 }
 
 bool InteractiveGrid::is_cell_walkable(unsigned int cell_index) const {
@@ -805,6 +857,16 @@ bool InteractiveGrid::is_cell_inaccesible(unsigned int cell_index) const {
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
 	return (_cells.at(cell_index)->flags & CFL_INACCESSIBLE) != 0;
+}
+
+bool InteractiveGrid::is_cell_in_void(unsigned int cell_index) const {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Checks whether a specific cell is marked as "in void".
+
+  Last Modified: October 10, 2025
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+	return (_cells.at(cell_index)->flags & CFL_IN_VOID) != 0;
 }
 
 bool InteractiveGrid::is_cell_hovered(unsigned int cell_index) const {
@@ -861,63 +923,6 @@ void InteractiveGrid::set_cell_walkable(const unsigned int cell_index, bool is_w
 	}
 }
 
-void InteractiveGrid::set_cell_inaccesible(unsigned int cell_index, bool is_inaccesible) {
-	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Sets whether a given grid cell (cell_index) is inaccessible.
-
-  Last Modified: October 07, 2025
-  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-
-	if (is_cell_index_out_of_bounds(__FILE__, __FUNCTION__, __LINE__, cell_index)) {
-		return; // ! Exit.
-	}
-
-	if (is_inaccesible) {
-		_cells.at(cell_index)->flags |= CFL_INACCESSIBLE;
-		set_cell_color(cell_index, _inaccessible_color);
-	} else if (!is_inaccesible) {
-		_cells.at(cell_index)->flags &= ~CFL_INACCESSIBLE;
-	}
-}
-
-void InteractiveGrid::set_cell_hovered(unsigned int cell_index, bool is_hovered) {
-	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Sets whether a particular grid cell (cell_index) is hovered.
-
-  Last Modified: October 07, 2025
-  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	if (is_cell_index_out_of_bounds(__FILE__, __FUNCTION__, __LINE__, cell_index)) {
-		return; // ! Exit.
-	}
-
-	if (is_hovered) {
-		_cells.at(cell_index)->flags |= CFL_HOVERED;
-		set_cell_color(_hovered_cell_index, _hovered_color);
-	} else if (!is_hovered) {
-		_cells.at(cell_index)->flags &= ~CFL_HOVERED;
-	}
-}
-
-void InteractiveGrid::set_cell_selected(unsigned int cell_index, bool is_selected) {
-	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Sets whether a specific grid cell (cell_index) is marked as 
-           selected.
-
-  Last Modified: October 07, 2025
-  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-
-	if (is_cell_index_out_of_bounds(__FILE__, __FUNCTION__, __LINE__, cell_index)) {
-		return; // ! Exit.
-	}
-
-	if (is_selected) {
-		_cells.at(cell_index)->flags |= CFL_SELECTED;
-		set_cell_color(cell_index, _selected_color);
-	} else if (!is_selected) {
-		_cells.at(cell_index)->flags &= ~CFL_SELECTED;
-	}
-}
-
 void InteractiveGrid::set_cell_visible(unsigned int cell_index, bool is_visible) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
   Summary: Sets the visibility of a grid cell identified by cell_index.
@@ -946,7 +951,7 @@ void InteractiveGrid::InteractiveGrid::reset_cells_state() {
   Summary: Resets the state of all cells in the grid to their default 
            flags.
 
-  Last Modified: October 09, 2025
+  Last Modified: October 10, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
 	// Iterate through the cells.
@@ -954,12 +959,14 @@ void InteractiveGrid::InteractiveGrid::reset_cells_state() {
 		for (int column = 0; column < _columns; column++) {
 			const int index = row * _columns + column;
 			_cells.at(index)->flags = 0; // Reset.
+			//set_cell_visible(index, false);
 		}
 	}
 
 	_flags &= ~GFL_CELL_INACCESSIBLE_HIDDEN; // Reset.
 	_flags &= ~GFL_CELL_DISTANT_HIDDEN; // Reset.
 
+	_hovered_cell_index = -1;
 	_selected_cells.clear();
 }
 
@@ -1038,7 +1045,13 @@ void InteractiveGrid::select_cell(const godot::Vector3 global_position) {
 
 	// If the index is valid.
 	if (closest_index != -1) {
-		//6) Skip inaccessible cells.
+		// Skip invisible
+		bool visible = is_cell_visible(closest_index);
+		if (!visible) {
+			return;
+		}
+
+		// Skip inaccessible cells.
 		bool inaccessible = is_cell_inaccesible(closest_index);
 		if (inaccessible) {
 			return;
@@ -1403,6 +1416,8 @@ void InteractiveGrid::layout_cells_as_square_grid(const godot::Vector3 center_po
 			_cells.at(index)->global_xform =
 					_multimesh_instance->get_global_transform() *
 					_multimesh->get_instance_transform(index);
+
+			set_cell_visible(index, false);
 		}
 	}
 
@@ -1506,7 +1521,7 @@ void InteractiveGrid::align_cells_with_floor() {
   		Align Player with Ground! [Video]. YouTube.
 		https://www.youtube.com/watch?v=Y5OiChOukfg
 
-  Last Modified: October 09, 2025
+  Last Modified: October 10, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
 	if (_flags & GFL_CREATED) {
@@ -1630,8 +1645,13 @@ void InteractiveGrid::align_cells_with_floor() {
 							_multimesh_instance->get_global_transform() *
 							_multimesh->get_instance_transform(index);
 
+					set_cell_walkable(index, true);
+					set_cell_visible(index, true);
+
 					// Optional debug:
 					// godot::print_line("New transformation of the cell: ", xform);
+				} else {
+					set_cell_in_void(index, true);
 				}
 			}
 		}
@@ -1653,7 +1673,7 @@ void InteractiveGrid::scan_environnement_obstacles() {
 		   provide information about the collision results.
 
 
-  Last Modified: October 09, 2025
+  Last Modified: October 10, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
 	if (!(_flags & GFL_VISIBLE)) {
@@ -1752,15 +1772,18 @@ void InteractiveGrid::scan_environnement_obstacles() {
 						// 				" (Class: " + collider->get_class() + ")");
 
 						// Mark the grid cell as invalid (obstructed).
-						_cells.at(index)->flags &= ~CFL_WALKABLE;
-						_multimesh->set_instance_custom_data(index, _unwalkable_color);
+
+						/*
+							Prevent cells that are above empty space and touching an obstacle
+							from being displayed.
+						*/
+						bool is_in_void = is_cell_in_void(index);
+
+						if (!is_in_void) {
+							set_cell_walkable(index, false);
+						}
 					}
 				}
-			} else {
-				// If no collisions were detected, mark the grid cell as valid
-				// (walkable).
-				_cells.at(index)->flags |= CFL_WALKABLE;
-				_multimesh->set_instance_custom_data(index, _walkable_color);
 			}
 		}
 	}
@@ -1817,6 +1840,85 @@ void InteractiveGrid::set_cells_visible(bool visible_param) {
 	}
 
 	apply_material(_material_override);
+}
+
+void InteractiveGrid::set_cell_inaccesible(unsigned int cell_index, bool is_inaccesible) {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Sets whether a given grid cell (cell_index) is inaccessible.
+
+  Last Modified: October 07, 2025
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+	if (is_cell_index_out_of_bounds(__FILE__, __FUNCTION__, __LINE__, cell_index)) {
+		return; // ! Exit.
+	}
+
+	if (is_inaccesible) {
+		_cells.at(cell_index)->flags |= CFL_INACCESSIBLE;
+		set_cell_color(cell_index, _inaccessible_color);
+	} else if (!is_inaccesible) {
+		_cells.at(cell_index)->flags &= ~CFL_INACCESSIBLE;
+	}
+}
+
+void InteractiveGrid::set_cell_in_void(unsigned int cell_index, bool is_in_void) {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Marks a cell as being "in void" or not. If a cell is in void,
+	       it is hidden and flagged accordingly. Used to prevent cells
+	       above empty space or near obstacles from being displayed.
+
+  Last Modified: October 10, 2025
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+	if (is_cell_index_out_of_bounds(__FILE__, __FUNCTION__, __LINE__, cell_index)) {
+		return; // ! Exit.
+	}
+
+	if (is_in_void) {
+		_cells.at(cell_index)->flags |= CFL_IN_VOID;
+		set_cell_visible(cell_index, false);
+	} else if (!is_in_void) {
+		_cells.at(cell_index)->flags &= ~CFL_IN_VOID;
+	}
+}
+
+void InteractiveGrid::set_cell_hovered(unsigned int cell_index, bool is_hovered) {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Sets whether a particular grid cell (cell_index) is hovered.
+
+  Last Modified: October 07, 2025
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+	if (is_cell_index_out_of_bounds(__FILE__, __FUNCTION__, __LINE__, cell_index)) {
+		return; // ! Exit.
+	}
+
+	if (is_hovered) {
+		_cells.at(cell_index)->flags |= CFL_HOVERED;
+		set_cell_color(_hovered_cell_index, _hovered_color);
+	} else if (!is_hovered) {
+		_cells.at(cell_index)->flags &= ~CFL_HOVERED;
+	}
+}
+
+void InteractiveGrid::set_cell_selected(unsigned int cell_index, bool is_selected) {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Sets whether a specific grid cell (cell_index) is marked as 
+           selected.
+
+  Last Modified: October 07, 2025
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+	if (is_cell_index_out_of_bounds(__FILE__, __FUNCTION__, __LINE__, cell_index)) {
+		return; // ! Exit.
+	}
+
+	if (is_selected) {
+		_cells.at(cell_index)->flags |= CFL_SELECTED;
+		set_cell_color(cell_index, _selected_color);
+	} else if (!is_selected) {
+		_cells.at(cell_index)->flags &= ~CFL_SELECTED;
+	}
 }
 
 int InteractiveGrid::get_cell_index_from_global_position(

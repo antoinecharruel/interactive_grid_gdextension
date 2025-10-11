@@ -5,12 +5,12 @@ Summary: InteractiveGrid is a Godot 4.5 GDExtension that allows player
 interaction with a 3D grid, including cell selection, pathfinding, and
 hover highlights.
 
-Last Modified: October 08, 2025
+Last Modified: October 10, 2025
 
 This file is part of the InteractiveGrid GDExtension Source Code.
 Repository: https://github.com/antoinecharruel/interactive_grid
 
-Version InteractiveGrid: 1.3.0
+Version InteractiveGrid: 1.4.0
 Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 
 Author: Antoine Charruel
@@ -122,25 +122,26 @@ public:
 	bool get_grid_visible() const;
 	void compute_inaccessible_cells(unsigned int start_cell_index);
 	void hide_distant_cells(unsigned int start_cell_index, float distance);
+	void set_hover_disabled(bool disabled);
+	bool is_hover_disabled() const;
 
 	// --- Grid state.
 
-	bool is_grid_created() const;
+	bool is_created() const;
+	bool is_centered() const;
 
 	// --- Cell state.
 
-	// Getters
+	// Public Getters
 	bool is_cell_walkable(unsigned int cell_index) const;
 	bool is_cell_inaccesible(unsigned int cell_index) const;
+	bool is_cell_in_void(unsigned int cell_index) const;
 	bool is_cell_hovered(unsigned int cell_index) const;
 	bool is_cell_selected(unsigned int cell_index) const;
 	bool is_cell_visible(unsigned int cell_index) const;
 
-	// Setters
+	// Public Setters
 	void set_cell_walkable(unsigned int cell_index, bool is_walkable);
-	void set_cell_inaccesible(unsigned int cell_index, bool is_inaccesible);
-	void set_cell_hovered(unsigned int cell_index, bool is_hovered);
-	void set_cell_selected(unsigned int cell_index, bool is_selected);
 	void set_cell_visible(unsigned int cell_index, bool is_visible);
 
 	void reset_cells_state();
@@ -181,17 +182,20 @@ private:
 
 	static constexpr int GFL_DEBUG = 1 << 0;
 	static constexpr int GFL_CREATED = 1 << 1;
-	static constexpr int GFL_VISIBLE = 1 << 2;
-	static constexpr int GFL_CELL_INACCESSIBLE_HIDDEN = 1 << 3;
-	static constexpr int GFL_CELL_DISTANT_HIDDEN = 1 << 4;
+	static constexpr int GFL_CENTERED = 1 << 2;
+	static constexpr int GFL_VISIBLE = 1 << 3;
+	static constexpr int GFL_CELL_INACCESSIBLE_HIDDEN = 1 << 4;
+	static constexpr int GFL_CELL_DISTANT_HIDDEN = 1 << 5;
+	static constexpr int GFL_HOVER_DISABLED = 1 << 6;
 
 	// Cell flags.
 
 	static constexpr int CFL_WALKABLE = 1 << 0;
 	static constexpr int CFL_INACCESSIBLE = 1 << 1;
-	static constexpr int CFL_HOVERED = 1 << 2;
-	static constexpr int CFL_SELECTED = 1 << 3;
-	static constexpr int CFL_VISIBLE = 1 << 4;
+	static constexpr int CFL_IN_VOID = 1 << 2;
+	static constexpr int CFL_HOVERED = 1 << 3;
+	static constexpr int CFL_SELECTED = 1 << 4;
+	static constexpr int CFL_VISIBLE = 1 << 5;
 
 	void create();
 
@@ -219,6 +223,14 @@ private:
 
 	void set_cells_visible(bool visible_param);
 
+	// --- Cell state.
+
+	// Private Setters
+	void set_cell_inaccesible(unsigned int cell_index, bool is_inaccesible);
+	void set_cell_in_void(unsigned int cell_index, bool is_in_void);
+	void set_cell_hovered(unsigned int cell_index, bool is_hovered);
+	void set_cell_selected(unsigned int cell_index, bool is_selected);
+
 	/*--------------------------------------------------------------------
     Grid data members.
   --------------------------------------------------------------------*/
@@ -228,6 +240,7 @@ private:
 	unsigned int _rows{ 9 }; // ROWS.
 	unsigned int _columns{ 9 }; // COLUMNS.
 	uint32_t _flags = 0; // FLAGS.
+
 	godot::Vector3 _grid_center_position = godot::Vector3(0.0f, 0.0f, 0.0f);
 	godot::Vector3 _grid_offset = godot::Vector3(0.0f, 0.0f, 0.0f);
 	godot::Ref<godot::AStar2D> _astar;
