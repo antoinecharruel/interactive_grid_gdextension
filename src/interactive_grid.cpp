@@ -151,7 +151,7 @@ void InteractiveGrid::_bind_methods() {
 			&InteractiveGrid::get_layout);
 	ADD_PROPERTY(godot::PropertyInfo(
 						 godot::Variant::INT, "layout", godot::PROPERTY_HINT_ENUM,
-						 "SQUARE, HEXAGONAL"),
+						 "SQUARE, HEXAGONAL_WORK_IN_PROGRESS"),
 			"set_layout", "get_layout");
 
 	// --- Grid visibility.
@@ -1119,7 +1119,8 @@ godot::PackedInt64Array InteractiveGrid::get_path(unsigned int start_cell_index,
 			configure_astar_6_dir();
 			break;
 		case MOVEMENT::EIGH_DIRECTIONS:
-			configure_astar_8_dir();
+			configure_astar_6_dir(); // ** tmp
+			// configure_astar_8_dir();
 			break;
 	}
 
@@ -1229,32 +1230,6 @@ void InteractiveGrid::configure_astar_8_dir() {
   Last Modified: October 09, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
-	// Create 8-direction connections.
-	for (int row = 0; row < _rows; row++) {
-		for (int column = 0; column < _columns; column++) {
-			const int index = row * _columns + column;
-
-			for (int row_offset = -1; row_offset <= 1; ++row_offset) {
-				for (int col_offset = -1; col_offset <= 1; ++col_offset) {
-					if (col_offset == 0 && row_offset == 0)
-						continue; // Do not connect to itself.
-
-					int nx = column + col_offset;
-					int ny = row + row_offset;
-
-					if (nx >= 0 && nx < _columns && ny >= 0 && ny < _rows) {
-						int neighbor_index = ny * _columns + nx;
-
-						// Check if the neighbor is walkable before connecting.
-						bool neighbor_walkable = is_cell_walkable(neighbor_index);
-						if (neighbor_walkable) {
-							_astar->connect_points(index, neighbor_index);
-						}
-					}
-				}
-			}
-		}
-	}
 }
 
 void InteractiveGrid::create() {
@@ -1358,7 +1333,8 @@ void InteractiveGrid::layout(const godot::Vector3 center_position) {
 			layout_cells_as_square_grid(center_position);
 			break;
 		case LAYOUT::HEXAGONAL:
-			layout_cells_as_hexagonal_grid(center_position);
+			layout_cells_as_square_grid(center_position); // ** tmp
+			//layout_cells_as_hexagonal_grid(center_position);
 			break;
 	}
 }
@@ -1442,69 +1418,6 @@ void InteractiveGrid::layout_cells_as_hexagonal_grid(const godot::Vector3 center
   Last Modified: October 09, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
-	reset_cells_state(); // reset
-
-	_grid_center_position = center_position;
-
-	//Calculate the distances between the center and the grid's edges.
-	const float pawn_to_grid_edge_x = (_columns / 2) * _cell_size.x;
-	const float pawn_to_grid_edge_z = (_rows / 2) * _cell_size.y;
-
-	const float x_spacing = _cell_size.x * 0.75f; // horizontal spacing between columns
-	const float z_spacing = _cell_size.y * godot::Math::cos(godot::Math::deg_to_rad(60.0f));
-
-	_grid_offset.x = center_position.x - (x_spacing * (_columns - 1) / 2.0f);
-	_grid_offset.z = center_position.z - (z_spacing * (_rows - 1) / 2.0f);
-
-	// Iterate through the cells.
-	for (int row = 0; row < _rows; row++) {
-		for (int column = 0; column < _columns; column++) {
-			const int index =
-					row * _columns + column; // Index in the 2D array stored as 1D.
-
-			godot::Vector3 cell_pos(0.0, 0.0, 0.0);
-
-			bool is_even_num = (row % 2) == 0;
-
-			// Calculate the cell's position.
-			if (is_even_num) {
-				cell_pos = godot::Vector3(
-						_grid_offset.x + column * x_spacing,
-						center_position.y,
-						_grid_offset.z + row * z_spacing);
-			} else {
-				cell_pos = godot::Vector3(
-						_grid_offset.x + column * x_spacing + x_spacing / 2.0f,
-						center_position.y,
-						_grid_offset.z + row * z_spacing);
-			}
-
-			// Apply the position (global, not local).
-			godot::Transform3D global_xform =
-					_multimesh_instance->get_global_transform();
-			godot::Transform3D local_xform =
-					global_xform.affine_inverse(); // Inverse du global.
-
-			// Convert the global position to local:
-			godot::Vector3 local_pos = local_xform.xform(cell_pos);
-
-			// Then, apply the local position.
-			godot::Transform3D xform;
-			xform.origin = local_pos;
-
-			_multimesh->set_instance_transform(index, xform);
-
-			// Save cell's metadata.
-			_cells.at(index)->local_xform =
-					_multimesh->get_instance_transform(index);
-			_cells.at(index)->global_xform =
-					_multimesh_instance->get_global_transform() *
-					_multimesh->get_instance_transform(index);
-		}
-	}
-
-	PrintLine(__FILE__, __FUNCTION__, __LINE__,
-			"The grid cells have been laid out as a square grid.");
 }
 
 void InteractiveGrid::align_cells_with_floor() {

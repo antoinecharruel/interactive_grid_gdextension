@@ -1,4 +1,4 @@
-[![Interactive Grid GDExtension Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=Interactive%20Grid%20GDExtension&color=478CBF&message=1.4.0)](https://godotengine.org/asset-library/asset/4372)
+[![Interactive Grid GDExtension Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=Interactive%20Grid%20GDExtension&color=478CBF&message=1.5.0)](https://godotengine.org/asset-library/asset/4372)
 [![Patreon](https://img.shields.io/badge/Patreon-Vivensoft-F96854?logo=patreon&logoColor=white)](https://www.patreon.com/c/vivensoft/)  
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-AntoineCharruel-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/antoinecharruel)
 [![AntoineCharruel on Itch.io](https://img.shields.io/badge/Itch.io-AntoineCharruel-FF5E5B?logo=itch.io&logoColor=white)](https://antoine-charruel.itch.io/)
@@ -166,7 +166,7 @@ func _input(event):
 
 ## TODO Minor
 
-- [X] Define hexagonal layout method.
+- [ ] Define hexagonal layout method.
 - [ ] godot::Array get_neighbors(cell_index)
 - [ ] void clear_path(path)
 - [ ] Add vaultable cells
