@@ -1,0 +1,38 @@
+[gd_scene load_steps=7 format=3 uid="uid://causf6bjt06hi"]
+
+[ext_resource type="Shader" uid="uid://dc4oav4wip1yi" path="res://data/shaders/dynamic.gdshader" id="2_vbr7t"]
+[ext_resource type="PackedScene" uid="uid://cg8gsg3iyhmeu" path="res://data/ui/try_me.tscn" id="4_2qaj2"]
+[ext_resource type="Script" uid="uid://cnxwc4e8vdiox" path="res://data/scripts/interactive_grid.gd" id="4_w868w"]
+[ext_resource type="PackedScene" uid="uid://dbna5exmjhbhp" path="res://data/scenes/pawn_player.tscn" id="5_dxyxo"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_yeeyf"]
+size = Vector3(0.8, 0.15, 0.8)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_yeeyf"]
+render_priority = 0
+shader = ExtResource("2_vbr7t")
+
+[node name="Main" type="Node3D"]
+
+[node name="PawnPlayer" parent="." instance=ExtResource("5_dxyxo")]
+
+[node name="RayCastFromMouse" parent="PawnPlayer" index="2"]
+exclude_parent = false
+collision_mask = 0
+
+[node name="InteractiveGrid" type="InteractiveGrid" parent="."]
+_rows = 17
+_columns = 17
+_cell_mesh = SubResource("BoxMesh_yeeyf")
+"walkable color" = Color(0.41632217, 0.70856404, 0.83264434, 0.3137255)
+"inaccessible color" = Color(1, 1, 1, 0)
+_material_override = SubResource("ShaderMaterial_yeeyf")
+movement = 2
+script = ExtResource("4_w868w")
+
+[node name="TryMe" parent="." instance=ExtResource("4_2qaj2")]
+
+[connection signal="button_down" from="TryMe/Button" to="InteractiveGrid" method="_on_button_button_down"]
+
+[editable path="PawnPlayer"]
+[editable path="TryMe"]

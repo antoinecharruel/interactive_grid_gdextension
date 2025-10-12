@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="InteractiveGrid" inherits="Node3D" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		InteractiveGrid is a Godot 4.5 GDExtension that allows player interaction with a 3D grid, including cell selection, pathfinding, and hover highlights.
+	</brief_description>
+	<description>
+		— Highlight cells when hovering the mouse over them.
+		— Select individual cells.
+		— Detect obstacles (collision mask configurable from the editor).
+		— Align cells with the floor (collision mask configurable from the editor).
+		— Hide distant cells to focus on the relevant area.
+		— Calculate paths from a global position to selected cells using AStar2D.
+		— Choose movement type: 4 directions, 6 directions, 8 directions, directly from the editor.
+		— Customize the grid from the editor: grid size, cell size, mesh, colors, and shaders.
+		— High performance using MultiMeshInstance3D for efficient rendering of multiple cells.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="center">
+			<return type="void" />
+			<param index="0" name="center_position" type="Vector3" />
+			<description>
+				Called to re-center the grid. This also resets the grid state.
+			</description>
+		</method>
+		<method name="compute_inaccessible_cells">
+			<return type="void" />
+			<param index="0" name="start_cell_index" type="int" />
+			<description>
+				Iterates over all grid cells and marks as inaccessible those cells that cannot be reached from the specified start cell. Updates the visual representation of inaccessible cells by applying the _inaccessible_color to the grid's multimesh.
+				Note:
+				— Inaccessible cells are not marked as unwalkable.
+				— Current implementation iterates through all cells and calculates paths for each, which can be slow for large grids.
+			</description>
+		</method>
+		<method name="get_cell_golbal_position" qualifiers="const">
+			<return type="Vector3" />
+			<param index="0" name="cell_index" type="int" />
+			<description>
+				Returns the global world‑space position of the cell identified by index.
+			</description>
+		</method>
+		<method name="get_cell_index_from_global_position">
+			<return type="int" />
+			<param index="0" name="global_position" type="Vector3" />
+			<description>
+				Returns the linear index of the grid cell that is closest to the supplied world‑space position.
+			</description>
+		</method>
+		<method name="get_grid_center_global_position" qualifiers="const">
+			<return type="Vector3" />
+			<description>
+				Returns the central position of the interactive grid in world coordinates.
+			</description>
+		</method>
+		<method name="get_latest_selected">
+			<return type="int" />
+			<description>
+				Returns the most recently selected cell.
+			</description>
+		</method>
+		<method name="get_path">
+			<return type="PackedInt64Array" />
+			<param index="0" name="start_cell_index" type="int" />
+			<param index="1" name="target_cell_index" type="int" />
+			<description>
+				Computes a path between two cells on the grid using A* pathfinding.
+			</description>
+		</method>
+		<method name="get_selected_cells">
+			<return type="Array" />
+			<description>
+				Returns an array of all cells currently marked as selected.
+			</description>
+		</method>
+		<method name="hide_distant_cells">
+			<return type="void" />
+			<param index="0" name="start_cell_index" type="int" />
+			<param index="1" name="distance" type="float" />
+			<description>
+				Iterates over all grid cells and hides those located farther than the specified distance from the start cell. Marks them as non-walkable.
+			</description>
+		</method>
+		<method name="highlight_on_hover">
+			<return type="void" />
+			<param index="0" name="global_position" type="Vector3" />
+			<description>
+				Updates the hover highlight state based on the specified global position. Identifies the corresponding cell, clears any previous hover, and applies the hover color unless the cell is already selected.
+			</description>
+		</method>
+		<method name="highlight_path">
+			<return type="void" />
+			<param index="0" name="path" type="PackedInt64Array" />
+			<description>
+				Highlights a given path on the grid by changing the color of each cell along the path to the predefined path color.
+			</description>
+		</method>
+		<method name="is_cell_hovered" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="cell_index" type="int" />
+			<description>
+				Returns true if the cell at the specified index is currently marked as hovered.
+			</description>
+		</method>
+		<method name="is_cell_inaccesible" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="cell_index" type="int" />
+			<description>
+				Returns true if the cell at the specified index is currently marked as inaccesible.
+			</description>
+		</method>
+		<method name="is_cell_selected" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="cell_index" type="int" />
+			<description>
+				Returns true if the cell at the specified index is currently marked as selected.
+			</description>
+		</method>
+		<method name="is_cell_visible" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="cell_index" type="int" />
+			<description>
+				Returns true if the cell at the specified index is currently marked as visible.
+			</description>
+		</method>
+		<method name="is_cell_walkable" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="cell_index" type="int" />
+			<description>
+				Returns true if the cell at the specified index is currently marked as walkable.
+			</description>
+		</method>
+		<method name="is_grid_created" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Checks if the grid has been created.
+			</description>
+		</method>
+		<method name="is_hover_enabled" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Checks whether hover functionality is currently disabled on the grid.
+			</description>
+		</method>
+		<method name="is_visible" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Checks whether the grid is currently visible in the scene.
+			</description>
+		</method>
+		<method name="reset_cells_state">
+			<return type="void" />
+			<description>
+				Resets the state of all cells in the grid to their default flags.
+			</description>
+		</method>
+		<method name="select_cell">
+			<return type="void" />
+			<param index="0" name="global_position" type="Vector3" />
+			<description>
+				Selects a grid cell based on a world‑space position.
+			</description>
+		</method>
+		<method name="set_cell_color">
+			<return type="void" />
+			<param index="0" name="cell_index" type="int" />
+			<param index="1" name="color" type="Color" />
+			<description>
+				Sets the color of a specific cell in the interactive grid.
+			</description>
+		</method>
+		<method name="set_cell_inaccesible">
+			<return type="void" />
+			<param index="0" name="cell_index" type="int" />
+			<param index="1" name="set_cell_inaccesible" type="bool" />
+			<description>
+				Sets whether a given grid cell (cell_index) is inaccessible.
+			</description>
+		</method>
+		<method name="set_cell_walkable">
+			<return type="void" />
+			<param index="0" name="cell_index" type="int" />
+			<param index="1" name="is_walkable" type="bool" />
+			<description>
+				Sets whether a specific cell is walkable or not.
+			</description>
+		</method>
+		<method name="set_hover_enabled">
+			<return type="void" />
+			<param index="0" name="enabled" type="bool" />
+			<description>
+				Enables or disables hover functionality on the grid.
+			</description>
+		</method>
+		<method name="set_visible">
+			<return type="void" />
+			<param index="0" name="visible" type="bool" />
+			<description>
+				Sets the visibility of the grid.
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="_cell_mesh" type="Mesh" setter="set_cell_mesh" getter="get_cell_mesh">
+		</member>
+		<member name="_columns" type="int" setter="set_columns" getter="get_columns" default="9">
+		</member>
+		<member name="_material_override" type="Material" setter="set_material_override" getter="get_material_override">
+		</member>
+		<member name="_rows" type="int" setter="set_rows" getter="get_rows" default="9">
+		</member>
+		<member name="cell_size" type="Vector2" setter="set_cell_size" getter="get_cell_size" default="Vector2(1, 1)">
+		</member>
+		<member name="enable_alpha_pass" type="bool" setter="enable_alpha_pass" getter="is_alpha_pass_enabled" default="false">
+		</member>
+		<member name="floor_collision_masks" type="int" setter="set_grid_floor_collision_masks" getter="get_grid_floor_collision_masks" default="16384">
+		</member>
+		<member name="hovered color" type="Color" setter="set_hovered_color" getter="get_hovered_color" default="Color(1, 0.84313726, 0, 255)">
+		</member>
+		<member name="inaccessible color" type="Color" setter="set_inaccessible_color" getter="get_inaccessible_color" default="Color(1, 1, 1, 255)">
+		</member>
+		<member name="layout" type="int" setter="set_layout" getter="get_layout" default="0">
+		</member>
+		<member name="movement" type="int" setter="set_movement" getter="get_movement" default="0">
+		</member>
+		<member name="obstacles_collision_masks" type="int" setter="set_obstacles_collision_masks" getter="get_obstacles_collision_masks" default="8192">
+		</member>
+		<member name="path color" type="Color" setter="set_path_color" getter="get_path_color" default="Color(0.5647059, 0.93333334, 0.5647059, 255)">
+		</member>
+		<member name="selected color" type="Color" setter="set_selected_color" getter="get_selected_color" default="Color(0.8784314, 1, 1, 255)">
+		</member>
+		<member name="unwalkable color" type="Color" setter="set_unwalkable_color" getter="get_unwalkable_color" default="Color(0.8039216, 0.36078432, 0.36078432, 0.94509804)">
+		</member>
+		<member name="walkable color" type="Color" setter="set_walkable_color" getter="get_walkable_color" default="Color(0.9411765, 1, 0.9411765, 0.3137255)">
+		</member>
+	</members>
+</class>

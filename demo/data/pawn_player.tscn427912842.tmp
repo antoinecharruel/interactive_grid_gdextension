@@ -1,0 +1,43 @@
+[gd_scene load_steps=9 format=3 uid="uid://dbna5exmjhbhp"]
+
+[ext_resource type="Script" uid="uid://1118fnkm8r3g" path="res://data/pawn.gd" id="1_ak1kh"]
+[ext_resource type="Script" uid="uid://dwabf7i2a8d4o" path="res://data/ray_cast_from_mouse.gd" id="2_x8n0i"]
+[ext_resource type="Shader" uid="uid://dc4oav4wip1yi" path="res://data/shaders/dynamic.gdshader" id="3_7xyhs"]
+[ext_resource type="Script" uid="uid://cnxwc4e8vdiox" path="res://data/interactive_grid.gd" id="3_hc0jp"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_8yhgy"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_ak1kh"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_x8n0i"]
+size = Vector3(0.8, 0.1, 0.8)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7xyhs"]
+render_priority = 0
+shader = ExtResource("3_7xyhs")
+
+[node name="PawnPlayer" type="CharacterBody3D"]
+script = ExtResource("1_ak1kh")
+
+[node name="Pawn" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_8yhgy")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_ak1kh")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(0.70710677, -0.49999997, 0.49999997, 0, 0.70710677, 0.70710677, -0.70710677, -0.49999997, 0.49999997, 6, 8, 6)
+
+[node name="RayCastFromMouse" type="RayCast3D" parent="."]
+script = ExtResource("2_x8n0i")
+
+[node name="InteractiveGrid" type="InteractiveGrid" parent="."]
+_rows = 17
+_columns = 17
+_cell_mesh = SubResource("BoxMesh_x8n0i")
+"inaccessible color" = Color(1, 1, 1, 0)
+_material_override = SubResource("ShaderMaterial_7xyhs")
+movement = 1
+script = ExtResource("3_hc0jp")
