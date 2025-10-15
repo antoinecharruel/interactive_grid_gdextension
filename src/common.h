@@ -29,10 +29,6 @@ Author: Antoine Charruel
 #include <sstream>
 #include <vector>
 
-#include <array>
-#include <sstream>
-#include <vector>
-
 // GODOT.
 #include <godot_cpp/classes/a_star2d.hpp>
 #include <godot_cpp/classes/area3d.hpp>

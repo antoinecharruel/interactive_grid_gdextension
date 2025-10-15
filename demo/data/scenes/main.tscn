@@ -27,6 +27,7 @@ _cell_mesh = SubResource("BoxMesh_yeeyf")
 "walkable color" = Color(0.17129207, 0.6589929, 0.839433, 0.3137255)
 enable_alpha_pass = true
 _material_override = SubResource("ShaderMaterial_pbhab")
+movement = 1
 script = ExtResource("4_w868w")
 
 [node name="TryMe" parent="." instance=ExtResource("4_2qaj2")]

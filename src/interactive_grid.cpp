@@ -1371,8 +1371,7 @@ void InteractiveGrid::layout(const godot::Vector3 center_position) {
 			layout_cells_as_square_grid(center_position);
 			break;
 		case LAYOUT::HEXAGONAL:
-			layout_cells_as_square_grid(center_position); // ** tmp
-			//layout_cells_as_hexagonal_grid(center_position);
+			layout_cells_as_hexagonal_grid(center_position);
 			break;
 	}
 }
@@ -1453,7 +1452,69 @@ void InteractiveGrid::layout_cells_as_hexagonal_grid(const godot::Vector3 center
 
   Last Modified: October 09, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	// TODO
+	_grid_center_position = center_position;
+
+	// Calculate the distances between the center and the grid's edges.
+	const float pawn_to_grid_edge_x = (_columns / 2) * _cell_size.x;
+	const float pawn_to_grid_edge_z = (_rows / 2) * _cell_size.y;
+
+	//  Initialize the member `grid_offset_`.
+	_grid_offset.x = center_position.x - pawn_to_grid_edge_x;
+	_grid_offset.z = center_position.z - pawn_to_grid_edge_z;
+
+	// Iterate through the cells.
+	for (int row = 0; row < _rows; row++) {
+		for (int column = 0; column < _columns; column++) {
+			const int index =
+					row * _columns + column; // Index in the 2D array stored as 1D.
+
+			// Compute columns.
+			float cell_pos_x {0.0f};
+
+			bool is_even_row = (row % 2) == 0;
+			
+			if (is_even_row)
+				cell_pos_x = _grid_offset.x + column * _cell_size.x;
+			else
+				cell_pos_x = _grid_offset.x + (_cell_size.x / 2) + column * _cell_size.x;
+
+			// Compute height.
+			float cell_pos_y = center_position.y;
+
+			// Compute rows..
+			float cell_pos_z = _grid_offset.z + row * _cell_size.y + _cell_size.y * godot::Math::cos(godot::Math::deg_to_rad(30.0f));
+
+			// Apply final position.
+			godot::Vector3 cell_pos(cell_pos_x, cell_pos_y, cell_pos_z);
+
+			// Apply the position (global, not local).
+			godot::Transform3D global_xform =
+					_multimesh_instance->get_global_transform();
+			godot::Transform3D local_xform =
+					global_xform.affine_inverse(); // Inverse du global.
+
+			// Convert the global position to local:
+			godot::Vector3 local_pos = local_xform.xform(cell_pos);
+
+			// Then, apply the local position.
+			godot::Transform3D xform;
+			xform.origin = local_pos;
+
+			_multimesh->set_instance_transform(index, xform);
+
+			// Save cell's metadata.
+			_cells.at(index)->local_xform =
+					_multimesh->get_instance_transform(index);
+			_cells.at(index)->global_xform =
+					_multimesh_instance->get_global_transform() *
+					_multimesh->get_instance_transform(index);
+
+			set_cell_visible(index, false);
+		}
+	}
+
+	PrintLine(__FILE__, __FUNCTION__, __LINE__,
+			"The grid cells have been laid out as a hexagonal grid.");
 }
 
 void InteractiveGrid::align_cells_with_floor() {
