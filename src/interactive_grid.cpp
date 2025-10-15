@@ -5,7 +5,7 @@ Summary: InteractiveGrid is a Godot 4.5 GDExtension that allows player
          interaction with a 3D grid, including cell selection,
 		 pathfinding, and hover highlights.
 
-Last Modified: October 12, 2025
+Last Modified: October 15, 2025
 
 This file is part of the InteractiveGrid GDExtension Source Code.
 Repository: https://github.com/antoinecharruel/interactive_grid
@@ -1450,7 +1450,7 @@ void InteractiveGrid::layout_cells_as_hexagonal_grid(const godot::Vector3 center
   		Patel, A. J. (2013). Hexagonal grids. 
   		https://www.redblobgames.com/grids/hexagons/#neighbors
 
-  Last Modified: October 09, 2025
+  Last Modified: October 15, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 	_grid_center_position = center_position;
 
