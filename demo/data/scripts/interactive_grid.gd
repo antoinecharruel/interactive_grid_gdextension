@@ -10,7 +10,7 @@
 # This file is part of the InteractiveGrid GDExtension Source Code.
 # Repository: https://github.com/antoinecharruel/interactive_grid_gdextension
 #
-# Version InteractiveGrid: 1.0.0
+# Version InteractiveGrid: 1.1.0
 # Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 #
 # Author: Antoine Charruel
@@ -22,8 +22,6 @@ extends InteractiveGrid
 @onready var player_pawn_collision_shape_3d: CollisionShape3D = $"../PawnPlayer/PlayerPawnCollisionShape3D"
 
 @onready var ray_cast_from_mouse: RayCast3D = $"../PawnPlayer/RayCastFromMouse"
-@onready var camera_3d: Camera3D = $"../PawnPlayer/Camera3D"
-
 @onready var try_me: Control = $"../TryMe"
 
 var _is_grid_open: bool = false
@@ -63,6 +61,8 @@ func open_grid():
 				# Centers the grid.
 				# ! Info: every time center is called, the state of the cells is reset.
 				self.center(round(player_pawn_collision_shape_3d.global_position))
+				var index_cell_pawn: int = self.get_cell_index_from_global_position(self.get_grid_center_global_position())
+				self.hide_distant_cells(index_cell_pawn, 6)
 				
 				_is_grid_open = true
 				try_me.visible = false
@@ -102,11 +102,12 @@ func _input(event):
 			if self.get_selected_cells().is_empty():
 				return
 			
-			var index_pawn_cell: int = self.get_cell_index_from_global_position(self.get_grid_center_global_position())
-
+			var index_cell_pawn: int = self.get_cell_index_from_global_position(self.get_grid_center_global_position())
+			self.set_cell_walkable(index_cell_pawn, true)
+			
 			# Retrieve the path.
 			var path: PackedInt64Array
-			path = self.get_path(index_pawn_cell, selected_cells[0]) # only the first one.
+			path = self.get_path(index_cell_pawn, selected_cells[0]) # only the first one.
 			print("Last selected cell:", self.get_latest_selected())
 			print("Path:", path)
 

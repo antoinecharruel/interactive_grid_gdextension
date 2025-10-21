@@ -10,7 +10,7 @@
 # This file is part of the InteractiveGrid GDExtension Source Code.
 # Repository: https://github.com/antoinecharruel/interactive_grid_gdextension
 #
-# Version InteractiveGrid: 1.0.0
+# Version InteractiveGrid: 1.1.0
 # Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 #
 # Author: Antoine Charruel
@@ -120,12 +120,12 @@ func reaching_cell_target(path: PackedInt64Array)-> void:
 	# Summary: Moves the player along the given path toward the target cell.
 	#          Updates the number of cells traveled as the player progresses.
 	#
-	# Last Modified: October 10, 2025
+	# Last Modified: October 21, 2025
 	
 	# Get how many cells have been traveled.
 	var cells_traveled: int = get_how_many_cells_traveled()
 	
-	if path.size() > 0 and cells_traveled < path.size():
+	if path.size() > 1 and cells_traveled < path.size():
 	
 		var next_cell_index: int = path[cells_traveled+1]
 		var next_cell_global_position: Vector3 = interactive_grid.get_cell_golbal_position(next_cell_index)
@@ -135,6 +135,9 @@ func reaching_cell_target(path: PackedInt64Array)-> void:
 
 		if self.global_position.distance_to(next_cell_global_position) <= _DISTANCE_THRESHOLD:
 			set_how_many_cells_traveled(cells_traveled + 1) # Increment the count.
+	
+	else:
+		target_reached()
 	# ----------------------------------------------------------------------------------------F-F*/
 	
 func target_reached()-> void:
@@ -143,7 +146,7 @@ func target_reached()-> void:
 	#          Stops the player, resets traveled cells, recenters the grid, and updates
 	#          the grid.
 	#
-	# Last Modified: October 10, 2025
+	# Last Modified: October 21, 2025
 	
 	self.velocity = Vector3.ZERO
 	set_how_many_cells_traveled(0)
@@ -151,15 +154,17 @@ func target_reached()-> void:
 	if self.velocity == Vector3.ZERO:
 		
 		# Recenter and reset the grid.
-		interactive_grid.center(round(self.player_pawn_collision_shape_3d.global_position))
+		interactive_grid.center(self.player_pawn_collision_shape_3d.global_position)
 		
 		var index_cell_pawn: int = interactive_grid.get_cell_index_from_global_position(self.player_pawn_collision_shape_3d.global_position)
 		
 		# To prevent the player from getting stuck.
 		interactive_grid.set_cell_walkable(index_cell_pawn, true)
 		
-		interactive_grid.hide_distant_cells(index_cell_pawn, 9)
+		interactive_grid.hide_distant_cells(index_cell_pawn, 6)
 		interactive_grid.compute_inaccessible_cells(index_cell_pawn)
+		
+		interactive_grid.set_cell_color(index_cell_pawn, Color(0.6, 0.8, 0.18, 1))
 	# ----------------------------------------------------------------------------------------F-F*/
 	
 func is_on_target_cell()-> bool:
@@ -186,6 +191,7 @@ func get_how_many_cells_traveled()-> int:
 	# Summary: Returns the number of cells the player has traveled.
 	#
 	# Last Modified: October 10, 2025
+	
 	return _nb_cell_traveled
 	# ----------------------------------------------------------------------------------------F-F*/
 	
@@ -194,5 +200,6 @@ func set_how_many_cells_traveled(count:int)-> void:
 	# Summary: Updates the number of cells the player has traveled.
 	#
 	# Last Modified: October 10, 2025
+	
 	_nb_cell_traveled = count
 	# ----------------------------------------------------------------------------------------F-F*/

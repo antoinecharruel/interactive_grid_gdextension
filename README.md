@@ -1,4 +1,4 @@
-[![Interactive Grid GDExtension Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=Interactive%20Grid%20GDExtension&color=478CBF&message=1.0.0)](https://godotengine.org/asset-library/asset/4372)
+[![Interactive Grid GDExtension Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=Interactive%20Grid%20GDExtension&color=478CBF&message=1.1.0)](https://godotengine.org/asset-library/asset/4372)
 [![Patreon](https://img.shields.io/badge/Patreon-Vivensoft-F96854?logo=patreon&logoColor=white)](https://www.patreon.com/c/vivensoft/)  
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-AntoineCharruel-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/antoinecharruel)
 [![AntoineCharruel on Itch.io](https://img.shields.io/badge/Itch.io-AntoineCharruel-FF5E5B?logo=itch.io&logoColor=white)](https://antoine-charruel.itch.io/)
@@ -18,8 +18,8 @@ InteractiveGrid is a Godot 4.5 GDExtension that allows player interaction with a
 - Align cells with the floor (collision mask configurable from the editor).
 - Hide distant cells to focus on the relevant area.
 - Calculate paths from a global position to selected cells using [AStar2D](https://docs.godotengine.org/en/stable/classes/class_astar2d.html).
-- Choose movement type: 4 directions, 8 directions, directly from the editor.
-- Customize the grid from the editor: grid size, cell size, mesh, colors, and shaders.
+- Choose movement type: 4 directions, 6 directions, 8 directions, directly from the editor.
+- Customize the grid from the editor: grid size, grid layout (square, hexagonal), cell size, mesh, colors, and shaders.
 - High performance using [MultiMeshInstance3D](https://docs.godotengine.org/en/4.4/classes/class_multimeshinstance3d.html) for efficient rendering of multiple cells.
 
 ⚠️ Work in progress : Everything is subject to change.
@@ -245,13 +245,16 @@ void fragment() {
 }
 ```
 
+## Use different layouts: square and hexagonal
+
+![Square layout](/docs/preview/square_layout.png)
+![Hexagonal layout](/docs/preview/hexagonal_layout.png)
 
 ## TODO Minor
 
-- [ ] Define hexagonal layout method.
-- [ ] godot::Array get_neighbors(cell_index)
-- [ ] void clear_path(path)
-- [ ] Add vaultable cells
+- [ ] godot::Array get_neighbors(cell_index).
+- [ ] void clear_path(path).
+- [ ] Add vaultable cells.
   + [ ] A Define `CFL_VAULT` flag for cells that can be vaulted/climbed.
   + [ ] Assign vaultable cells to a specific collision layer checked by `scan_environnement_obstacles` method.
   + [ ] Add a visual indicator (color) for vaultable cells using `ADD_PROPERTY`.

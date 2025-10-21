@@ -4,7 +4,7 @@ File: common.cpp
 Summary: This file provides utility functions and common includes 
          used across the InteractiveGrid Godot GDExtension project.
 
-Last Modified: October 11, 2025
+Last Modified: October 21, 2025
 
 This file is part of the InteractiveGrid GDExtension Source Code.
 Repository: https://github.com/antoinecharruel/interactive_grid
@@ -24,10 +24,6 @@ Author: Antoine Charruel
 #else
 #include <strings.h> // POSIX systems
 #endif
-
-#include <array>
-#include <sstream>
-#include <vector>
 
 #include <array>
 #include <sstream>
@@ -63,44 +59,65 @@ Author: Antoine Charruel
 #include <godot_cpp/core/object.hpp>
 #include <godot_cpp/core/type_info.hpp>
 #include <godot_cpp/variant/callable.hpp>
+#include <godot_cpp/variant/utility_functions.hpp>
 
-inline bool PrintError(const godot::String &file, const godot::String &func,
-		const int &line, const godot::String &str) {
+inline void PrintError(const godot::String &file, const godot::String &func,
+		const int &line, const godot::Variant &p_variant) {
 	/*F+F+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    Summary: Prints an error message to the Godot console with the specified
-  file, function, line number, and error message string. This function is useful
-  for debugging and logging errors in Godot scripts.
+  Summary: Prints an error message to the Godot console with the specified
+  file, function, line number, and error message string.
 
-                     The format of the error message is:
-                     [file@function:line] error_message
+  ref : godot_cpp/core/print_string.hpp
 
-                     Example usage:
-                     PrintError(__FILE__, __FUNCTION__, __LINE__, "An error
-  occurred");
-
-    Last Modified: September 21, 2025
+  Last Modified: October 21, 2025
   -----------------------------------------------------------------F-F*/
-	godot::print_error(godot::String("[") + file + "@" + func + ":" +
-			godot::itos(line) + "] " + str);
-	return false;
+
+	godot::String line_str = godot::String("[") + file + "@" + func + ":" + godot::itos(line) + "] " + godot::String(p_variant);
+	godot::UtilityFunctions::printerr(line_str);
 }
 
-inline bool PrintLine(const godot::String &file, const godot::String &func,
-		const int &line, const godot::String &str) {
+template <typename... Args>
+// ref : godot_cpp/core/print_string.hpp
+void PrintError(const godot::String &file, const godot::String &func,
+		const int &line, const godot::Variant &p_variant, Args... p_args) {
 	/*F+F+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    Summary: Prints an log message to the Godot console with the specified file,
-                     function, line number, and log message string. This
-  function is useful for debugging and logging in Godot scripts.
+  Summary: Prints an error message to the Godot console with the specified
+  file, function, line number, and error message string with args.
 
-                     The format of the log message is:
-                     [file@function:line] error_message
+  ref : godot_cpp/core/print_string.hpp
 
-                     Example usage:
-                     PrintLine(__FILE__, __FUNCTION__, __LINE__, "log");
-
-    Last Modified: September 20, 2025
+  Last Modified: October 21, 2025
   -----------------------------------------------------------------F-F*/
-	godot::print_line(godot::String("[") + file + "@" + func + ":" +
-			godot::itos(line) + "] " + str);
-	return false;
+
+	godot::String line_str = godot::String("[") + file + "@" + func + ":" + godot::itos(line) + "] " + godot::String(p_variant);
+	godot::UtilityFunctions::printerr(line_str, p_args...);
+}
+
+inline void PrintLine(const godot::String &file, const godot::String &func,
+		const int &line, const godot::Variant &p_variant) {
+	/*F+F+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Summary: Prints an log message to the Godot console with the specified file,
+                    function, line number, and log message string.
+
+  Last Modified: October 21, 2025
+  -----------------------------------------------------------------F-F*/
+	godot::String line_str = godot::String("[") + file + "@" + func + ":" + godot::itos(line) + "] " + godot::String(p_variant);
+	godot::UtilityFunctions::print(line_str);
+}
+
+template <typename... Args>
+// ref : godot_cpp/core/print_string.hpp
+void PrintLine(const godot::String &file, const godot::String &func,
+		const int &line, const godot::Variant &p_variant, Args... p_args) {
+	/*F+F+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Summary: Prints an log message to the Godot console with the specified
+  file, function, line number, and error message string with args.
+
+  ref : godot_cpp/core/print_string.hpp
+
+  Last Modified: October 21, 2025
+  -----------------------------------------------------------------F-F*/
+
+	godot::String line_str = godot::String("[") + file + "@" + func + ":" + godot::itos(line) + "] " + godot::String(p_variant);
+	godot::UtilityFunctions::print(line_str, p_args...);
 }

@@ -5,7 +5,7 @@ Summary: InteractiveGrid is a Godot 4.5 GDExtension that allows player
          interaction with a 3D grid, including cell selection,
 		 pathfinding, and hover highlights.
 
-Last Modified: October 12, 2025
+Last Modified: October 21, 2025
 
 This file is part of the InteractiveGrid GDExtension Source Code.
 Repository: https://github.com/antoinecharruel/interactive_grid
@@ -159,7 +159,7 @@ void InteractiveGrid::_bind_methods() {
 			&InteractiveGrid::get_layout);
 	ADD_PROPERTY(godot::PropertyInfo(
 						 godot::Variant::INT, "layout", godot::PROPERTY_HINT_ENUM,
-						 "SQUARE, HEXAGONAL_WORK_IN_PROGRESS"),
+						 "SQUARE, HEXAGONAL"),
 			"set_layout", "get_layout");
 
 	// --- Grid visibility.
@@ -761,9 +761,8 @@ void InteractiveGrid::compute_inaccessible_cells(unsigned int start_cell_index) 
   Last Modified: October 09, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
-	if (start_cell_index >= (_rows * _columns)) {
-		PrintError(__FILE__, __FUNCTION__, __LINE__, "Cell index out of bounds.");
-		return;
+	if (is_cell_index_out_of_bounds(__FILE__, __FUNCTION__, __LINE__, start_cell_index)) {
+		return; // ! Exit.
 	}
 
 	if ((_flags & GFL_VISIBLE) && !(_flags & GFL_CELL_INACCESSIBLE_HIDDEN)) {
@@ -795,9 +794,8 @@ void InteractiveGrid::hide_distant_cells(unsigned int start_cell_index, float di
   Last Modified: October 09, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
-	if (start_cell_index >= (_rows * _columns)) {
-		PrintError(__FILE__, __FUNCTION__, __LINE__, "Cell index out of bounds.");
-		return;
+	if (is_cell_index_out_of_bounds(__FILE__, __FUNCTION__, __LINE__, start_cell_index)) {
+		return; // ! Exit.
 	}
 
 	if ((_flags & GFL_VISIBLE) && !(_flags & GFL_CELL_DISTANT_HIDDEN)) {
@@ -1018,6 +1016,10 @@ void InteractiveGrid::set_cell_color(unsigned int cell_index, godot::Color color
   Last Modified: October 11, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
+	if (is_cell_index_out_of_bounds(__FILE__, __FUNCTION__, __LINE__, cell_index)) {
+		return; // ! Exit.
+	}
+
 	if (_alpha_pass) {
 		uint32_t cell_flags = _cells.at(cell_index)->flags;
 		godot::Color new_cell_color{ color.r, color.g, color.b, static_cast<float>(cell_flags) };
@@ -1140,9 +1142,11 @@ godot::PackedInt64Array InteractiveGrid::get_path(unsigned int start_cell_index,
 		   configures the A* algorithm according to the selected movement
 		   type (orthogonal or diagonal).
 
-  Last Modified: October 09, 2025
+  Last Modified: October 21, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 	godot::PackedInt64Array path;
+
+	_astar->clear();
 
 	// Register all grid points and mark obstacles.
 	for (int row = 0; row < _rows; row++) {
@@ -1160,8 +1164,7 @@ godot::PackedInt64Array InteractiveGrid::get_path(unsigned int start_cell_index,
 			configure_astar_4_dir();
 			break;
 		case MOVEMENT::SIX_DIRECTIONS:
-			configure_astar_8_dir(); // ** tmp
-			// configure_astar_6_dir(); // Hexagonal
+			configure_astar_6_dir(); // Hexagonal
 			break;
 		case MOVEMENT::EIGH_DIRECTIONS:
 			configure_astar_8_dir();
@@ -1222,16 +1225,63 @@ void InteractiveGrid::configure_astar_4_dir() {
 
 void InteractiveGrid::configure_astar_6_dir() {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Configures the A* pathfinding graph for six directions movement.
-           Each cell is connected to its six immediate neighbors if they
-		   exist.
+	  Summary: Configures the A* pathfinding graph for six directions 
+	           movement (hexagonal grid). Each cell is connected to its 
+			   six immediate neighbors if they exist and are walkable.
 
-  ref: Patel, A. J. (2013). Hexagonal grids. 
-  	   https://www.redblobgames.com/grids/hexagons/#neighbors
+	  Reference: Patel, A. J. (2013). Hexagonal grids. 
+	             https://www.redblobgames.com/grids/hexagons/#neighbors
 
-  Last Modified: October 09, 2025
-  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	// TODO
+	  Last Modified: October 21, 2025
+	  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+	const int even_directions[6][2] = {
+		{ +1, 0 }, // East
+		{ -1, 0 }, // West
+		{ 0, -1 }, // North-East
+		{ -1, -1 }, // North-West
+		{ 0, +1 }, // South-East
+		{ -1, +1 } // South-West
+	};
+
+	const int odd_directions[6][2] = {
+		{ +1, 0 }, // East
+		{ -1, 0 }, // West
+		{ +1, -1 }, // North-East
+		{ 0, -1 }, // North-West
+		{ +1, +1 }, // South-East
+		{ 0, +1 } // South-West
+	};
+
+	for (int row = 0; row < _rows; row++) {
+		for (int column = 0; column < _columns; column++) {
+			const int index = row * _columns + column;
+
+			if (!is_cell_walkable(index))
+				continue;
+
+			const int(*dirs)[2] = (row % 2 == 0) ? even_directions : odd_directions;
+
+			// Iterate over the 6 directions.
+			for (int d = 0; d < 6; d++) {
+				int nx = column + dirs[d][0];
+				int ny = row + dirs[d][1];
+
+				if (nx >= 0 && nx < _columns && ny >= 0 && ny < _rows) {
+					int neighbor_index = ny * _columns + nx;
+
+					if (is_cell_walkable(neighbor_index)) {
+						// Add the neighbor if it doesn't already exist.
+						if (!_astar->has_point(neighbor_index)) {
+							_astar->add_point(neighbor_index, godot::Vector2(nx, ny));
+						}
+
+						_astar->connect_points(index, neighbor_index);
+					}
+				}
+			}
+		}
+	}
 }
 
 void InteractiveGrid::configure_astar_8_dir() {
@@ -1242,6 +1292,7 @@ void InteractiveGrid::configure_astar_8_dir() {
 
   Last Modified: October 09, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
 	// Create 8-direction connections.
 	for (int row = 0; row < _rows; row++) {
 		for (int column = 0; column < _columns; column++) {
@@ -1334,11 +1385,11 @@ void InteractiveGrid::init_multi_mesh() {
 			_multimesh->set_instance_custom_data(index, _walkable_color);
 
 			// Save the metadata.
-			_cells.push_back(new Cell); // init.
-			_cells.at(index)->index = index; // init.
-			_cells.at(index)->local_xform = xform; // init.
-			_cells.at(index)->global_xform = xform; // init.
-			_cells.at(index)->flags |= CFL_WALKABLE; // init.
+			_cells.push_back(new Cell); // Init
+			_cells.at(index)->index = index; // Init
+			_cells.at(index)->local_xform = xform; // Init
+			_cells.at(index)->global_xform = xform; // Init
+			_cells.at(index)->flags |= CFL_WALKABLE; // Init
 		}
 	}
 
@@ -1371,8 +1422,7 @@ void InteractiveGrid::layout(const godot::Vector3 center_position) {
 			layout_cells_as_square_grid(center_position);
 			break;
 		case LAYOUT::HEXAGONAL:
-			layout_cells_as_square_grid(center_position); // ** tmp
-			//layout_cells_as_hexagonal_grid(center_position);
+			layout_cells_as_hexagonal_grid(center_position);
 			break;
 	}
 }
@@ -1451,9 +1501,71 @@ void InteractiveGrid::layout_cells_as_hexagonal_grid(const godot::Vector3 center
   		Patel, A. J. (2013). Hexagonal grids. 
   		https://www.redblobgames.com/grids/hexagons/#neighbors
 
-  Last Modified: October 09, 2025
+  Last Modified: October 21, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	// TODO
+	_grid_center_position = center_position;
+
+	// Calculate the distances between the center and the grid's edges.
+	const float pawn_to_grid_edge_x = (_columns / 2) * _cell_size.x;
+	const float pawn_to_grid_edge_z = (_rows / 2) * _cell_size.y;
+
+	//  Initialize the member `grid_offset_`.
+	_grid_offset.x = center_position.x - pawn_to_grid_edge_x - _cell_size.x / 2;
+	_grid_offset.z = center_position.z - pawn_to_grid_edge_z - _cell_size.y;
+
+	// Iterate through the cells.
+	for (int row = 0; row < _rows; row++) {
+		for (int column = 0; column < _columns; column++) {
+			const int index =
+					row * _columns + column; // Index in the 2D array stored as 1D.
+
+			// Compute columns.
+			float cell_pos_x{ 0.0f };
+
+			bool is_even_row = (row % 2) == 0;
+
+			if (is_even_row)
+				cell_pos_x = _grid_offset.x + column * _cell_size.x;
+			else
+				cell_pos_x = _grid_offset.x + (_cell_size.x / 2) + column * _cell_size.x;
+
+			// Compute height.
+			float cell_pos_y = center_position.y;
+
+			// Compute rows..
+			float cell_pos_z = _grid_offset.z + row * _cell_size.y + _cell_size.y * godot::Math::cos(godot::Math::deg_to_rad(30.0f));
+
+			// Apply final position.
+			godot::Vector3 cell_pos(cell_pos_x, cell_pos_y, cell_pos_z);
+
+			// Apply the position (global, not local).
+			godot::Transform3D global_xform =
+					_multimesh_instance->get_global_transform();
+			godot::Transform3D local_xform =
+					global_xform.affine_inverse(); // Inverse du global.
+
+			// Convert the global position to local:
+			godot::Vector3 local_pos = local_xform.xform(cell_pos);
+
+			// Then, apply the local position.
+			godot::Transform3D xform;
+			xform.origin = local_pos;
+
+			_multimesh->set_instance_transform(index, xform);
+
+			// Save cell's metadata.
+			_cells.at(index)->local_xform =
+					_multimesh->get_instance_transform(index);
+			_cells.at(index)->global_xform =
+					_multimesh_instance->get_global_transform() *
+					_multimesh->get_instance_transform(index);
+
+			set_cell_visible(index, false);
+		}
+	}
+
+	PrintLine(__FILE__, __FUNCTION__, __LINE__,
+			"The grid cells have been laid out as a hexagonal grid.");
 }
 
 void InteractiveGrid::align_cells_with_floor() {
@@ -1896,7 +2008,7 @@ int InteractiveGrid::get_cell_index_from_global_position(
   Summary: Returns the linear index of the grid cell that is closest to
 		   the supplied world‑space position.
 
-  Last Modified: September 26, 2025
+  Last Modified: October 21, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
 	if (!(_flags & GFL_CREATED)) {
@@ -1911,23 +2023,71 @@ int InteractiveGrid::get_cell_index_from_global_position(
 		return -1;
 	}
 
-	// Calculate the distances between the center and the grid's edges.
-	const float center_edge_x =
-			((_columns / 2) * _cell_size.x) + (_cell_size.x / 2);
-	const float center_edge_z = ((_rows / 2) * _cell_size.y) + (_cell_size.y / 2);
+	float center_to_edge_x{ 0.0f }, center_to_edge_z{ 0.0f };
+	bool is_even_row = (_rows % 2) == 0;
 
-	//  Initialize the member `grid_offset_`.
-	_grid_offset.x = _grid_center_position.x - center_edge_x;
-	_grid_offset.z = _grid_center_position.z - center_edge_z;
+	switch (_layout) {
+		case LAYOUT::SQUARE:
 
-	if (global_position.x > (_grid_center_position.x + center_edge_x) ||
-			global_position.x < (_grid_center_position.x - center_edge_x)) {
-		return -1;
-	}
+			// Calculate the distances between the center and the grid's edges.
+			center_to_edge_x = (_columns / 2) * _cell_size.x + _cell_size.x / 2;
+			center_to_edge_z = (_rows / 2) * _cell_size.y + _cell_size.y / 2;
 
-	if (global_position.z > (_grid_center_position.z + center_edge_z) ||
-			global_position.z < ((_grid_center_position.z - center_edge_z))) {
-		return -1;
+			//  Initialize the member `grid_offset_`.
+			_grid_offset.x = _grid_center_position.x - center_to_edge_x;
+			_grid_offset.z = _grid_center_position.z - center_to_edge_z;
+
+			if (is_even_row) {
+				if (global_position.x > (_grid_center_position.x + center_to_edge_x - _cell_size.x) ||
+						global_position.x < (_grid_center_position.x - center_to_edge_x)) {
+					return -1;
+				}
+				if (global_position.z > (_grid_center_position.z + center_to_edge_z - _cell_size.y) ||
+						global_position.z < (_grid_center_position.z - center_to_edge_z)) {
+					return -1;
+				}
+			} else {
+				if (global_position.x > (_grid_center_position.x + center_to_edge_x) ||
+						global_position.x < (_grid_center_position.x - center_to_edge_x)) {
+					return -1;
+				}
+				if (global_position.z > (_grid_center_position.z + center_to_edge_z) ||
+						global_position.z < (_grid_center_position.z - center_to_edge_z)) {
+					return -1;
+				}
+			}
+			break;
+		case LAYOUT::HEXAGONAL:
+
+			// Calculate the distances between the center and the grid's edges.
+			center_to_edge_x = (_columns / 2) * _cell_size.x;
+			center_to_edge_z = (_rows / 2) * _cell_size.y;
+
+			//  Initialize the member `grid_offset_`.
+			_grid_offset.x = _grid_center_position.x - center_to_edge_x;
+			_grid_offset.z = _grid_center_position.z - center_to_edge_z;
+
+			if (is_even_row) {
+				if (global_position.x > (_grid_center_position.x + center_to_edge_x - (_cell_size.x / 2)) ||
+						global_position.x < (_grid_center_position.x - center_to_edge_x - _cell_size.x)) {
+					return -1;
+				}
+				if (global_position.z > (_grid_center_position.z + center_to_edge_z - (_cell_size.y / 2)) ||
+						global_position.z < (_grid_center_position.z - center_to_edge_z - _cell_size.y)) {
+					return -1;
+				}
+			} else {
+				if (global_position.x > (_grid_center_position.x + center_to_edge_x + (_cell_size.x / 2)) ||
+						global_position.x < (_grid_center_position.x - center_to_edge_x - _cell_size.x)) {
+					return -1;
+				}
+
+				if (global_position.z > (_grid_center_position.z + center_to_edge_z + (_cell_size.y / 2)) ||
+						global_position.z < (_grid_center_position.z - center_to_edge_z - _cell_size.y)) {
+					return -1;
+				}
+			}
+			break;
 	}
 
 	float closest_distance = std::numeric_limits<float>::max();
@@ -1955,15 +2115,16 @@ int InteractiveGrid::get_cell_index_from_global_position(
 bool InteractiveGrid::is_cell_index_out_of_bounds(const godot::String &file,
 		const godot::String &func, const int &line, const unsigned int &cell_index) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: 
+  Summary: Checks whether the specified cell index exceeds the valid 
+           grid bounds.
 
-  Last Modified: October 07, 2025
+  Last Modified: October 21, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
 	bool is_out_of_bounds = false;
 
 	if (cell_index >= (_rows * _columns)) {
-		PrintError(file, func, line, "Cell index out of bounds.");
+		PrintError(file, func, line, "Cell index out of bounds: ", cell_index, " >= ", (_rows * _columns));
 		is_out_of_bounds = true;
 	}
 

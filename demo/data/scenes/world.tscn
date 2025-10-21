@@ -46,6 +46,16 @@ collision_layer = 16385
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Floor/StaticBody3D"]
 shape = SubResource("ConvexPolygonShape3D_hkud5")
 
+[node name="Floor2" type="MeshInstance3D" parent="."]
+transform = Transform3D(20, 0, 0, 0, 20, 0, 0, 0, 20, -45, 0, 0)
+mesh = SubResource("PlaneMesh_ffaha")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Floor2"]
+collision_layer = 16385
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor2/StaticBody3D"]
+shape = SubResource("ConvexPolygonShape3D_hkud5")
+
 [node name="Rampe" type="Node3D" parent="."]
 
 [node name="MeshInstance3D15" type="MeshInstance3D" parent="Rampe"]
@@ -416,6 +426,7 @@ collision_layer = 16385
 polygon = PackedVector2Array(-4, 0, -2, 1, 1, 1, 3, 0)
 
 [node name="Main" parent="." instance=ExtResource("1_fh8d7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05067444, 0, 0)
 
 [node name="GridMap" type="GridMap" parent="."]
 mesh_library = SubResource("MeshLibrary_fh8d7")
