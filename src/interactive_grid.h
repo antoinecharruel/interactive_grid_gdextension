@@ -5,12 +5,12 @@ Summary: InteractiveGrid is a Godot 4.5 GDExtension that allows player
          interaction with a 3D grid, including cell selection, 
 		 pathfinding, and hover highlights.
 
-Last Modified: October 21, 2025
+Last Modified: October 25, 2025
 
 This file is part of the InteractiveGrid GDExtension Source Code.
 Repository: https://github.com/antoinecharruel/interactive_grid
 
-Version InteractiveGrid: 1.0.0
+Version InteractiveGrid: 1.1.1
 Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 
 Author: Antoine Charruel
@@ -37,7 +37,6 @@ public:
 	~InteractiveGrid(); // DESTRUCTOR.
 
 	// GODOT.
-	static void _bind_methods();
 	virtual void _ready() override;
 	virtual void _physics_process(double p_delta) override;
 
@@ -171,6 +170,9 @@ public:
 	godot::PackedInt64Array get_path(unsigned int start_cell_index,
 			unsigned int target_cell_index);
 
+protected:
+	static void _bind_methods();
+
 private:
 	GDCLASS(InteractiveGrid, Node3D);
 
@@ -271,19 +273,19 @@ private:
 
 	// --- colors.
 
-	godot::Color _walkable_color{ godot::Color(0.9411765, 1, 0.9411765, (80.0 / 255.0)) }; // HONEYDEW
+	godot::Color _walkable_color{ godot::Color(0.0, 0.0, 1.0, 1) }; // BLUE
 	godot::Color _unwalkable_color{
-		godot::Color(0.8039216, 0.36078432, 0.36078432, (241.0 / 255.0))
+		godot::Color(0.8039216, 0.36078432, 0.36078432, 1.0)
 	}; // INDIAN_RED
 	godot::Color _inaccessible_color{
-		godot::Color(1, 1, 1, 255)
+		godot::Color(1.0, 1.0, 1.0, 1.0)
 	}; // #ffffff00
 	godot::Color _selected_color{
-		godot::Color(0.8784314, 1, 1, 255)
+		godot::Color(0.8784314, 1.0, 1.0, 1.0)
 	}; // LIGHT_CYAN
-	godot::Color _path_color{ godot::Color(0.5647059, 0.93333334, 0.5647059, 255) };
+	godot::Color _path_color{ godot::Color(0.5647059, 0.93333334, 0.5647059, 1) };
 	godot::Color _hovered_color{
-		godot::Color(1, 0.84313726, 0, 255)
+		godot::Color(1.0, 0.84313726, 0, 1.0)
 	};
 
 	// --- material.

@@ -5,12 +5,12 @@ Summary: InteractiveGrid is a Godot 4.5 GDExtension that allows player
          interaction with a 3D grid, including cell selection,
 		 pathfinding, and hover highlights.
 
-Last Modified: October 21, 2025
+Last Modified: October 25, 2025
 
 This file is part of the InteractiveGrid GDExtension Source Code.
 Repository: https://github.com/antoinecharruel/interactive_grid
 
-Version InteractiveGrid: 1.0.0
+Version InteractiveGrid: 1.1.1
 Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 
 Author: Antoine Charruel
@@ -253,7 +253,7 @@ void InteractiveGrid::_physics_process(double p_delta) {
   Summary: Called every frame. 'delta' is the elapsed time since the 
            previous frame.
 
-  Last Modified: 03 May 2025
+  Last Modified: May 03, 2025
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 	create(); // Create the grid at startup.
 }

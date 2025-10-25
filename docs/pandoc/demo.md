@@ -1,7 +1,7 @@
 ```{=latex}
 
 \begin{center}
-    \textbf{\Huge{Interactive Grid GDExtension demo project}}
+    \textbf{\Huge{Interactive Grid GDExtension minimal demo project}}
 \end{center}
 
 \begin{center}
@@ -45,7 +45,7 @@ Launch Godot, create a new project, choose a location, and give it a name.
 
 - Add the floor.
   - Select World, Click +, choose MeshInstance3D.
-  - Rename it Floor.
+  - Rename it "Floor".
   - In the Mesh property, select PlaneMesh.
   - Set Transform → Scale to 20, 20, 1.
 
@@ -89,26 +89,31 @@ Launch Godot, create a new project, choose a location, and give it a name.
 
 - Create the player scene.
   - Click +, select 3D Scene.
-  - Add a CharacterBody3D.
-  - Choose "Make Scene Root".
-  - Rename it PlayerPawn.
+  - Choose Node3D
+  - Rename it PawnPlayer.
 
 - Add the player body.
-  - Select PawnPlayer, click +, choose CharacterBody3D.
+  - Select PawnPlayer (Node3D) node, click +, choose CharacterBody3D.
   - Rename it Pawn.
   - Add a visual mesh.
     - With Pawn selected, click +, choose MeshInstance3D.
     - In the Mesh property, select CapsuleShape3D.
+    - Hold the Control key and move the CapsuleShape3D up.
+
+- Attach a CollisionShape3D to the player.
+  - Select the Pawn (CharacterBody3D) node, click +, and add a CollisionShape3D node.
+  - In the Mesh property, select CapsuleShape3D.
+  - Hold the Control key and move the CapsuleShape3D up.
 
 - Attach a Camera3D to the player.
   - Select the Pawn (CharacterBody3D) node, click +, and add a Camera3D node.
-  - Set the Transform → Position to 6, 8, 6.
+  - Set the Transform → Position to 8, 12, 8.
   - Set Rotation X to -45° and Rotation Y to 45°.
 
 - Moving the player with code.
   - Attach a script to the player.
     - Select the Pawn (CharacterBody3D) node.
-    - Click Attach Script.
+    - Click on the Attach Script icon.
     - Choose the template CharacterBody3D.gd.
     - Confirm to attach it.
 
@@ -158,7 +163,7 @@ func _physics_process(delta: float) -> void:
 
 - Attach the script.
   - Select RayCastFromMouse.
-  - Click Attach Script.
+  - Click on the Attach Script icon.
   - Choose the script ray_cast_from_mouse.gd.
   - Fill in the script
 
@@ -273,15 +278,15 @@ Don’t worry—this is normal. It simply means that the InteractiveGrid node do
 \begin{lstlisting}[language=python]
 extends InteractiveGrid
 
-@onready var pawn: CollisionShape3D = $"../Pawn"
-@onready var ray_cast_from_mouse: RayCast3D = $"../RayCastFromMouse"
+@onready var pawn: CharacterBody3D = $".."
+@onready var ray_cast_from_mouse: RayCast3D = $"../../RayCastFromMouse"
 @onready var camera_3d: Camera3D = $"../Camera3D"
 
 func _ready() -> void:
 	pass
 
 func _process(delta: float) -> void:
-	if pawn != null:
+	if pawn && ray_cast_from_mouse:
 		# Highlight the cell under the mouse.
 		if self.get_selected_cells().is_empty():
 			self.highlight_on_hover(ray_cast_from_mouse.get_ray_intersection_position())
@@ -294,7 +299,7 @@ func _input(event):
 		if event.pressed:
 			print("Right button is held down at ", event.position)
 			
-			if pawn != null:
+			if pawn && ray_cast_from_mouse:
 				# Makes the grid visible.
 				self.set_visible(true)
 				# Centers the grid.
@@ -304,18 +309,18 @@ func _input(event):
 				var index_cell_pawn: int = self.get_cell_index_from_global_position(pawn.global_position)
 				
 				# Manually set cell as unwalkable.
-				set_cell_walkable(75, false);
+				# set_cell_walkable(75, false);
 				
 				# Check if the cell is walkable
-				print("Cell 75 is walkable ? : ", is_cell_walkable(75))
+				# print("Cell 75 is walkable ? : ", is_cell_walkable(75))
 				
  				# Hides distant cells.
 				self.hide_distant_cells(index_cell_pawn, 6)	
 				self.compute_inaccessible_cells(index_cell_pawn)
 				
 				# Manually set cell color.
-				var color_cell = Color(0.3, 0.4, 0.9)
-				self.set_cell_color(65, color_cell)
+				# var color_cell = Color(0.3, 0.4, 0.9)
+				# self.set_cell_color(65, color_cell)
 		else:
 			print("Right button was released")
 
@@ -327,7 +332,7 @@ func _input(event):
 		if event.pressed:
 			print("Left button is held down at ", event.position)
 			
-			if pawn != null:
+			if pawn && ray_cast_from_mouse:
 				# Select a cell.
 				if self.get_selected_cells().is_empty():
 					self.select_cell(ray_cast_from_mouse.get_ray_intersection_position())
@@ -336,9 +341,9 @@ func _input(event):
 				var selected_cells: Array = self.get_selected_cells()
 				if selected_cells.size() > 0:
 					
-					get_cell_golbal_position(selected_cells[0]))
+					get_cell_golbal_position(selected_cells[0])
 
-					var index_cell_pawn = self.get_cell_index_from_global_position(self.get_grid_center_position())
+					var index_cell_pawn = self.get_cell_index_from_global_position(self.get_grid_center_global_position())
 					print("Pawn index: ", index_cell_pawn)
 					
 					# Retrieve the path.
@@ -355,22 +360,17 @@ func _input(event):
 \end{lstlisting}
 ```
 
-```{=latex}
-\begin{center}
-    \includegraphics[width=0.25\textwidth]{data/s6.1.png}
-\end{center}
-```
-
 ## 7 - Setup World Scene for interactive grid addons
 
 - Create a wall.
-  - Add a parent node for walls.
-  - Click +, select Node3D.
-  - Rename it Walls.
-  - Add the wall mesh
-  - Select Walls, click +, choose MeshInstance3D.
-  - In the Mesh property, select CubeMesh.
-  - Set Transform → Scale to 3.0, 3.0, 0.5.
+  - Add a parent node for the walls.
+    - Click +, select Node3D.
+    - Rename it "Walls".
+
+  - Add the wall mesh.
+    - Select Walls, click +, choose MeshInstance3D.
+    - In the Mesh property, select CubeMesh.
+    - Set Transform → Scale to 3.0, 3.0, 0.5.
 
 - Add collision
   - In the Inspector, check Use Collision.
@@ -386,7 +386,7 @@ func _input(event):
 - Create a ramp.
   - Add a parent node for ramps.
     - Click +, select Node3D.
-    - Rename it Rampes.
+    - Rename it "Rampes".
 
   - Add the ramp mesh.
     - Select Rampes, click +, choose MeshInstance3D.
@@ -395,6 +395,7 @@ func _input(event):
 
   - Add collision.
     - In the Inspector, check Use Collision.
+    - Set the Collision Shape Type to Single Convex.
     - Assign it to Collision Layer 15 (same as the floor).
 
 ```{=latex}
