@@ -5,7 +5,7 @@
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
 
-#include "interactive_grid.h"
+#include "interactive_grid_3d.h"
 
 using namespace godot;
 
@@ -13,7 +13,7 @@ void initialize_gdextension_types(ModuleInitializationLevel p_level) {
 	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
 		return;
 	}
-	GDREGISTER_CLASS(InteractiveGrid);
+	GDREGISTER_CLASS(InteractiveGrid3D);
 }
 
 void uninitialize_gdextension_types(ModuleInitializationLevel p_level) {

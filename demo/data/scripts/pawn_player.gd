@@ -18,7 +18,7 @@
 
 extends CharacterBody3D
 
-@onready var interactive_grid: InteractiveGrid = $"../InteractiveGrid"
+@onready var interactive_grid_3d: InteractiveGrid3D = $"../InteractiveGrid3D"
 @onready var animation_player: AnimationPlayer = $model/AnimationPlayer
 @onready var player_pawn_collision_shape_3d: CollisionShape3D = $PlayerPawnCollisionShape3D
 @onready var model: Node3D = $model
@@ -129,7 +129,7 @@ func reaching_cell_target(path: PackedInt64Array)-> void:
 	if path.size() > 1 and cells_traveled < path.size():
 	
 		var next_cell_index: int = path[cells_traveled+1]
-		var next_cell_global_position: Vector3 = interactive_grid.get_cell_golbal_position(next_cell_index)
+		var next_cell_global_position: Vector3 = interactive_grid_3d.get_cell_global_position(next_cell_index)
 		
 		# Move the player toward the target cell.
 		move_player_to(next_cell_global_position.x, next_cell_global_position.z)
@@ -155,18 +155,18 @@ func target_reached()-> void:
 	if self.velocity == Vector3.ZERO:
 		
 		# Recenter and reset the grid.
-		interactive_grid.center(self.player_pawn_collision_shape_3d.global_position)
+		interactive_grid_3d.center(self.player_pawn_collision_shape_3d.global_position)
 		
-		var index_pawn_cell: int = interactive_grid.get_cell_index_from_global_position(self.player_pawn_collision_shape_3d.global_position)
+		var index_pawn_cell: int = interactive_grid_3d.get_cell_index_from_global_position(self.player_pawn_collision_shape_3d.global_position)
 
 		# To prevent the player from getting stuck.
-		interactive_grid.set_cell_walkable(index_pawn_cell, true)
-		interactive_grid.set_cell_reachable(index_pawn_cell, true)
+		interactive_grid_3d.set_cell_walkable(index_pawn_cell, true)
+		interactive_grid_3d.set_cell_reachable(index_pawn_cell, true)
 		
-		interactive_grid.hide_distant_cells(index_pawn_cell, 6)
-		interactive_grid.compute_unreachable_cells(index_pawn_cell)
+		interactive_grid_3d.hide_distant_cells(index_pawn_cell, 6)
+		interactive_grid_3d.compute_unreachable_cells(index_pawn_cell)
 				
-		interactive_grid.set_cell_color(index_pawn_cell, Color(0.6, 0.8, 0.18, 1))
+		interactive_grid_3d.set_cell_color(index_pawn_cell, Color(0.6, 0.8, 0.18, 1))
 		
 		_is_target_reached = true
 	# ----------------------------------------------------------------------------------------F-F*/
@@ -179,10 +179,10 @@ func is_on_target_cell()-> bool:
 	
 	var is_on_target: bool = false
 	var target_cell: Vector3
-	var selected_cells: Array = interactive_grid.get_selected_cells()
+	var selected_cells: Array = interactive_grid_3d.get_selected_cells()
 	
 	if selected_cells.size() > 0:
-		target_cell = interactive_grid.get_cell_golbal_position(selected_cells[0])
+		target_cell = interactive_grid_3d.get_cell_global_position(selected_cells[0])
 	
 	if self.global_position.distance_to(target_cell) <= _DISTANCE_THRESHOLD:
 		is_on_target = true

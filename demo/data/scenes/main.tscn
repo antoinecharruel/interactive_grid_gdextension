@@ -1,12 +1,17 @@
-[gd_scene load_steps=5 format=3 uid="uid://causf6bjt06hi"]
+[gd_scene load_steps=7 format=3 uid="uid://causf6bjt06hi"]
 
+[ext_resource type="Shader" uid="uid://dc4oav4wip1yi" path="res://data/shaders/dynamic.gdshader" id="2_yeeyf"]
 [ext_resource type="PackedScene" uid="uid://cg8gsg3iyhmeu" path="res://data/ui/try_me.tscn" id="4_2qaj2"]
-[ext_resource type="Script" uid="uid://cnxwc4e8vdiox" path="res://data/scripts/interactive_grid.gd" id="4_w868w"]
+[ext_resource type="Script" uid="uid://cnxwc4e8vdiox" path="res://data/scripts/interactive_grid_3d.gd" id="4_w868w"]
 [ext_resource type="PackedScene" uid="uid://dbna5exmjhbhp" path="res://data/scenes/pawn_player.tscn" id="5_dxyxo"]
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_yeeyf"]
+[sub_resource type="CylinderMesh" id="CylinderMesh_dkjo2"]
 height = 0.1
 radial_segments = 6
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_pbhab"]
+render_priority = 0
+shader = ExtResource("2_yeeyf")
 
 [node name="Main" type="Node3D"]
 
@@ -16,19 +21,17 @@ radial_segments = 6
 exclude_parent = false
 collision_mask = 0
 
-[node name="InteractiveGrid" type="InteractiveGrid" parent="."]
+[node name="TryMe" parent="." instance=ExtResource("4_2qaj2")]
+
+[node name="InteractiveGrid3D" type="InteractiveGrid3D" parent="."]
 _rows = 17
 _columns = 17
-cell_size = Vector2(1, 0.866)
-_cell_mesh = SubResource("CylinderMesh_yeeyf")
-enable_alpha_pass = true
+cell_size = Vector2(1, 0.86)
+_cell_mesh = SubResource("CylinderMesh_dkjo2")
+_material_override = SubResource("ShaderMaterial_pbhab")
 layout = 1
 movement = 1
-print_logs_enabled = true
-print_execution_time = true
 script = ExtResource("4_w868w")
-
-[node name="TryMe" parent="." instance=ExtResource("4_2qaj2")]
 
 [editable path="PawnPlayer"]
 [editable path="TryMe"]
