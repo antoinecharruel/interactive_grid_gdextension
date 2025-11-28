@@ -5,12 +5,12 @@
 #
 # Node: PlayerPawn (CharacterBody3D).
 #
-# Last modified: November 20, 2025
+# Last modified: November 28, 2025
 #
 # This file is part of the InteractiveGrid GDExtension Source Code.
 # Repository: https://github.com/antoinecharruel/interactive_grid_gdextension
 #
-# Version InteractiveGrid: 1.2.2
+# Version InteractiveGrid: 1.6.0
 # Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 #
 # Author: Antoine Charruel
@@ -57,7 +57,8 @@ func _physics_process(delta: float) -> void:
 	
 	# Add the gravity.
 	if not is_on_floor():
-		self.velocity += get_gravity() * delta
+		velocity += get_gravity() * delta
+		move_and_slide()
 	
 	if self.velocity == Vector3.ZERO:
 		if _pawn_curent_movements_states != _pawn_movements_states.IDLE:
@@ -97,8 +98,15 @@ func move_player_to(x:float, z:float)-> void:
 		else:
 			animation_player.play("run", 0.2)
 
+		# direction vers la cible
+		var dir = (target_global_position - model.global_position)
+		dir.y = 0  # ignore la hauteur
+		dir = dir.normalized()
+
+		var target_rot = atan2(-dir.x, -dir.z)
+		model.rotation.y = lerp_angle(model.rotation.y, target_rot, 0.2)
+
 		move_and_slide()
-		model.look_at(direction + position)
 	# ----------------------------------------------------------------------------------------F-F*/
 	
 func move_player_along_path(path: PackedInt64Array)-> void:
@@ -165,9 +173,7 @@ func target_reached()-> void:
 		
 		interactive_grid_3d.hide_distant_cells(index_pawn_cell, 6)
 		interactive_grid_3d.compute_unreachable_cells(index_pawn_cell)
-				
-		interactive_grid_3d.set_cell_color(index_pawn_cell, Color(0.6, 0.8, 0.18, 1))
-		
+
 		_is_target_reached = true
 	# ----------------------------------------------------------------------------------------F-F*/
 	

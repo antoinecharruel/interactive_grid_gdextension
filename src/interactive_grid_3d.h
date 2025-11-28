@@ -5,12 +5,12 @@ Summary: InteractiveGrid is a Godot 4.5 GDExtension that allows player
          interaction with a 3D grid, including cell selection, 
 		 pathfinding, and hover highlights.
 
-Last Modified: November 25, 2025
+Last Modified: November 28, 2025
 
 This file is part of the InteractiveGrid GDExtension Source Code.
 Repository: https://github.com/antoinecharruel/interactive_grid
 
-Version InteractiveGrid: 1.5.0
+Version InteractiveGrid: 1.6.0
 Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 
 Author: Antoine Charruel
@@ -69,7 +69,7 @@ private:
 		uint32_t flags = 0;
 	} Cell;
 
-	// Grid flags
+	// Grid flags.
 
 	static constexpr int GFL_DEBUG = 1 << 0;
 	static constexpr int GFL_CREATED = 1 << 1;
@@ -79,7 +79,7 @@ private:
 	static constexpr int GFL_CELL_DISTANT_HIDDEN = 1 << 5;
 	static constexpr int GFL_HOVER_ENABLED = 1 << 6;
 
-	// Cell flags
+	// Cell flags.
 
 	static constexpr int CFL_WALKABLE = 1 << 0;
 	static constexpr int CFL_REACHABLE = 1 << 1;
@@ -90,38 +90,47 @@ private:
 	static constexpr int CFL_VISIBLE = 1 << 6;
 
 	void _create();
-	void _destroy();
+	void _delete();
 
-	// --- Grid initialization
+	// Grid initialization.
 
 	void _init_multi_mesh();
 	void _init_astar();
 
-	// --- Grid position
+	// Grid position.
 
 	void _align_cells_with_floor();
 	void _scan_environnement_obstacles();
 
-	// --- Grid layout
+	// Grid layout.
 
 	void _layout(godot::Vector3 center_position);
 	void _layout_cells_as_square_grid(godot::Vector3 center_position);
 	void _layout_cells_as_hexagonal_grid(godot::Vector3 center_position);
 
-	// --- Grid materials
+	// Grid materials.
 
 	void _apply_material(const godot::Ref<godot::Material> &p_material);
 
-	// --- Grid visibility
+	// Grid visibility.
 
 	void _set_cells_visible(bool visible);
 
-	// --- Cell state
+	// Cell state.
 
 	void _set_cell_in_void(unsigned int cell_index, bool is_in_void);
 	void _set_cell_hovered(unsigned int cell_index, bool is_hovered);
 	void _set_cell_selected(unsigned int cell_index, bool is_selected);
 	void _set_cell_on_path(unsigned int cell_index, bool is_on_path);
+
+	// Astar.
+
+	void _configure_astar();
+	void _configure_astar_4_dir();
+	void _configure_astar_6_dir();
+	void _configure_astar_8_dir();
+
+	void _breadth_first_search(unsigned int start_cell_index);
 
 	/*--------------------------------------------------------------------
     Grid data members
@@ -134,8 +143,9 @@ private:
 		unsigned int columns{ 9 };
 		uint32_t flags = 0;
 
-		godot::Vector3 grid_center_position = godot::Vector3(0.0f, 0.0f, 0.0f);
-		godot::Vector3 grid_offset = godot::Vector3(0.0f, 0.0f, 0.0f);
+		godot::Vector3 center_global_position = godot::Vector3(0.0f, 0.0f, 0.0f);
+		godot::Vector3 top_left_global_position = godot::Vector3(0.0f, 0.0f, 0.0f);
+
 		godot::Ref<godot::AStar2D> astar;
 
 		unsigned int layout_index{ 0 };
@@ -248,6 +258,7 @@ public:
 	godot::Vector3 get_cell_global_position(unsigned int cell_index) const;
 	int get_cell_index_from_global_position(godot::Vector3 global_position);
 	godot::Vector3 get_grid_center_global_position() const;
+	godot::Vector3 get_top_left_global_position() const;
 	void center(godot::Vector3 center_position);
 
 	// --- Grid layout
@@ -260,17 +271,9 @@ public:
 	void set_visible(bool visible);
 	bool is_visible() const;
 
-	// --- Astar
-
-	void configure_astar();
-	void configure_astar_4_dir();
-	void configure_astar_6_dir();
-	void configure_astar_8_dir();
-
 	// --- Compute
 
 	void compute_unreachable_cells(unsigned int start_cell_index);
-	void breadth_first_search(unsigned int start_cell_index);
 
 	void hide_distant_cells(unsigned int start_cell_index, float distance);
 	void set_hover_enabled(bool enabled);

@@ -1,0 +1,38 @@
+[gd_scene load_steps=8 format=3 uid="uid://dxuyyb410gqj5"]
+
+[ext_resource type="Material" uid="uid://ctctalvhwcg1q" path="res://data/ressources/materials/tools/ReflectiveGuideSpheres.tres" id="1_wr0of"]
+[ext_resource type="SphereMesh" uid="uid://bhob0228s6p16" path="res://data/ressources/materials/tools/BlackGuideSpheres.tres" id="2_u3xlc"]
+[ext_resource type="PackedScene" uid="uid://bsmylho6kqlws" path="res://data/ressources/third_party_assets/Macbeth_Chart_Color_Checker_3D_Model_Free/macbeth_chart_color_checker_3d_model_free.glb" id="3_1aa3f"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_0pdws"]
+material = ExtResource("1_wr0of")
+
+[sub_resource type="SphereMesh" id="SphereMesh_3xsfa"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_0pdws"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0pdws"]
+albedo_color = Color(0.45882353, 0.45882353, 0.45882353, 1)
+roughness = 0.75
+
+[node name="LightningTools" type="Node3D"]
+
+[node name="ReflectiveSphere" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 0)
+mesh = SubResource("SphereMesh_0pdws")
+
+[node name="WhiteSphere" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
+mesh = SubResource("SphereMesh_3xsfa")
+
+[node name="BlackSphere" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = ExtResource("2_u3xlc")
+
+[node name="GreyCard" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 2, 2, 0)
+mesh = SubResource("PlaneMesh_0pdws")
+surface_material_override/0 = SubResource("StandardMaterial3D_0pdws")
+
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("3_1aa3f")]
+transform = Transform3D(3, 0, 0, 0, -1.3113416e-07, -3, 0, 3, -1.3113416e-07, 2, 4, 0)

@@ -3901,6 +3901,21 @@ shape = SubResource("CapsuleShape3D_8yhgy")
 [node name="Camera3D_Iso" type="Camera3D" parent="."]
 transform = Transform3D(0.70710677, 0.49999997, -0.49999997, 0, 0.70710677, 0.70710677, 0.70710677, -0.49999997, 0.49999997, -6, 12, 6)
 
+[node name="SpotLight3D" type="SpotLight3D" parent="Camera3D_Iso"]
+transform = Transform3D(0.9999615, 0.007917404, 0.0037746131, -0.008580297, 0.9722788, 0.23366728, -0.001819998, -0.23369059, 0.9723093, 0.058933496, 1.2201958, -5.202504)
+layers = 0
+light_color = Color(0.6264199, 0.762033, 1, 1)
+light_energy = 10.0
+light_indirect_energy = 10.0
+light_volumetric_fog_energy = 5.0
+light_size = 1.0
+light_cull_mask = 4293918720
+shadow_enabled = true
+shadow_caster_mask = 4293918720
+distance_fade_enabled = true
+spot_range = 24.603949
+spot_angle = 15.72687
+
 [node name="RayCastFromMouse" type="RayCast3D" parent="."]
 script = ExtResource("2_x8n0i")
 

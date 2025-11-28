@@ -5,12 +5,12 @@
 #
 # Node: InteractiveGrid (InteractiveGrid).
 #
-# Last modified: October 11, 2025
+# Last modified: November 28, 2025
 #
 # This file is part of the InteractiveGrid GDExtension Source Code.
 # Repository: https://github.com/antoinecharruel/interactive_grid_gdextension
 #
-# Version InteractiveGrid: 1.1.0
+# Version InteractiveGrid: 1.6.0
 # Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 #
 # Author: Antoine Charruel
@@ -24,6 +24,8 @@ extends InteractiveGrid3D
 @onready var ray_cast_from_mouse: RayCast3D = $"../PawnPlayer/RayCastFromMouse"
 @onready var try_me: Control = $"../TryMe"
 
+@onready var top_left_debug_mesh: CSGMesh3D = $top_left_debug_mesh
+
 var _is_grid_open: bool = false
 var _path: PackedInt64Array = []
 
@@ -32,7 +34,7 @@ func _ready() -> void:
 	# Summary: Called when the node enters the scene tree for the first time.
 	#
 	# Last Modified: October 04, 2025
-	pass
+	top_left_debug_mesh.visible = false
 	# ----------------------------------------------------------------------------------------F-F*/
 
 func _process(delta: float) -> void:
@@ -40,6 +42,8 @@ func _process(delta: float) -> void:
 	# Summary: Called every frame. 'delta' is the elapsed time since the previous frame.
 	#
 	# Last Modified: November 20, 2025
+	
+	top_left_debug_mesh.global_position = get_top_left_global_position()
 	
 	if pawn_player != null:
 		
@@ -67,8 +71,9 @@ func open_grid():
 				# Centers the grid.
 				# ! Info: every time center is called, the state of the cells is reset.
 				self.center(player_pawn_collision_shape_3d.global_position)
-				var index_cell_pawn: int = self.get_cell_index_from_global_position(self.get_grid_center_global_position())
-				self.hide_distant_cells(index_cell_pawn, 6)
+				var index_pawn_cell: int = self.get_cell_index_from_global_position(self.get_grid_center_global_position())
+				self.hide_distant_cells(index_pawn_cell, 6)
+				self.compute_unreachable_cells(index_pawn_cell)
 				
 				_is_grid_open = true
 				try_me.visible = false

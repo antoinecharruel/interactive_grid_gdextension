@@ -1,0 +1,5 @@
+[gd_resource type="FogMaterial" format=3 uid="uid://btd84od41o2wq"]
+
+[resource]
+emission = Color(1, 1, 1, 1)
+edge_fade = 0.5
