@@ -42,6 +42,9 @@ collision_mask = 0
 
 [node name="TryMe" parent="." instance=ExtResource("4_2qaj2")]
 
+[node name="Button" parent="TryMe" index="0"]
+text = "(Press SPACE)"
+
 [node name="InteractiveGrid3D" type="InteractiveGrid3D" parent="."]
 _rows = 15
 _columns = 17
@@ -53,11 +56,14 @@ _cell_mesh = SubResource("CylinderMesh_dkjo2")
 _material_override = SubResource("ShaderMaterial_yeeyf")
 layout = 1
 movement = 1
+collision_detection_shape_scale = Vector3(0.9, 45, 0.9)
 script = ExtResource("4_w868w")
 
 [node name="top_left_debug_mesh" type="CSGMesh3D" parent="InteractiveGrid3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 mesh = SubResource("CylinderMesh_pbhab")
+
+[connection signal="button_down" from="TryMe/Button" to="InteractiveGrid3D" method="_on_button_button_down"]
 
 [editable path="PawnPlayer"]
 [editable path="TryMe"]

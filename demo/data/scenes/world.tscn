@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://b6dh75ey4vefh"]
+[gd_scene load_steps=17 format=3 uid="uid://b6dh75ey4vefh"]
 
 [ext_resource type="PackedScene" uid="uid://causf6bjt06hi" path="res://data/scenes/main.tscn" id="1_fh8d7"]
 [ext_resource type="PackedScene" uid="uid://c7nyakvh08r3u" path="res://data/scenes/camp.tscn" id="2_c8ggi"]
@@ -122,6 +122,14 @@ volumetric_fog_density = 0.01
 volumetric_fog_albedo = Color(0.843137, 0.737255, 0.329412, 1)
 volumetric_fog_emission = Color(0.843137, 0.737255, 0.329412, 1)
 
+[sub_resource type="BoxMesh" id="BoxMesh_wtkja"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cv6ia"]
+albedo_color = Color(1, 0, 0, 1)
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_wtkja"]
+data = PackedVector3Array(-0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, -0.5)
+
 [node name="World" type="Node3D"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
@@ -131,13 +139,34 @@ environment = SubResource("Environment_5p7ai")
 transform = Transform3D(-0.56123996, 0.79505605, 0.22999059, 0.68876356, 0.29457843, 0.6624412, 0.4589276, 0.53019756, -0.7129348, 43.409424, 26.8832, -4.690445)
 light_energy = 0.53
 shadow_enabled = true
+directional_shadow_blend_splits = true
 directional_shadow_max_distance = 40.0
 
 [node name="Main" parent="." instance=ExtResource("1_fh8d7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.0592103, 0.32895422, 9.158834)
 
+[node name="InteractiveGrid3D" parent="Main" index="2"]
+print_logs_enabled = true
+print_execution_time = true
+
+[node name="camp" parent="." instance=ExtResource("2_c8ggi")]
+
 [node name="LightningTools" parent="." instance=ExtResource("5_t61oy")]
 transform = Transform3D(1.4064668, 0, 1.421918, 0, 2, 0, -1.421918, 0, 1.4064668, -11.293724, 5.3920174, -4.7425556)
 visible = false
 
-[node name="camp" parent="." instance=ExtResource("2_c8ggi")]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.0190105, -3.3168888, 13.531503)
+visible = false
+mesh = SubResource("BoxMesh_wtkja")
+surface_material_override/0 = SubResource("StandardMaterial3D_cv6ia")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="MeshInstance3D"]
+collision_layer = 8193
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D/StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_wtkja")
+
+[editable path="Main"]
+[editable path="Main/PawnPlayer"]
+[editable path="Main/TryMe"]

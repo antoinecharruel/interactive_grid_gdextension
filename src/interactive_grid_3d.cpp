@@ -5,12 +5,12 @@ Summary: InteractiveGrid3D is a Godot 4.5 GDExtension that allows player
          interaction with a 3D grid, including cell selection,
 		 pathfinding, and hover highlights.
 
-Last Modified: November 28, 2025
+Last Modified: November 30, 2025
 
 This file is part of the InteractiveGrid3D GDExtension Source Code.
 Repository: https://github.com/antoinecharruel/interactive_grid
 
-Version InteractiveGrid3D: 1.6.0
+Version InteractiveGrid3D: 1.7.0
 Version: Godot Engine v4.5.stable.steam - https://godotengine.org
 
 Author: Antoine Charruel
@@ -296,403 +296,6 @@ void InteractiveGrid3D::_layout_cells_as_hexagonal_grid(godot::Vector3 center_po
 	}
 }
 
-void InteractiveGrid3D::_align_cells_with_floor() {
-	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Aligns each grid cell with the underlying floor
-        using a vertical downward raycast.
-        The ray starts above the cell and checks for a collision with
-        an object on the same layer. If a collision is detected,
-        the cell is repositioned and reoriented to match the
-        hit surface (floor normal). Cells are not aligned with
-        invisible objects.
-
-  Ref : BornCG. (2024, August 4). Godot 4 3D Platformer Lesson #13: 
-  		Align Player with Ground! [Video]. YouTube.
-		https://www.youtube.com/watch?v=Y5OiChOukfg
-  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-
-	if (data.flags & GFL_CREATED) {
-		auto start = std::chrono::high_resolution_clock::now();
-
-		// Maximum raycast length
-		const int ray_length{ 500 };
-
-		// Global transform of the MultiMeshInstance (position/rotation/scale in
-		// world space)
-		const godot::Transform3D global_transform = data.multimesh_instance->get_global_transform();
-
-		// Affine inverse: allows converting global coordinates into the local
-		// space
-		const godot::Transform3D global_to_local = global_transform.affine_inverse();
-
-		// Iterate through the cells
-		for (int row = 0; row < data.rows; row++) {
-			for (int column = 0; column < data.columns; column++) {
-				const int index =
-						row * data.columns + column; // Index in the 2D array stored as 1D
-
-				/*--------------------------------------------------------------------
-         Initialization of the starting coordinates and the ray
-        --------------------------------------------------------------------*/
-
-				// Local origin of the cell (in the grid's local space)
-				godot::Vector3 local_from = data.cells.at(index)->local_xform.origin;
-
-				// Global position of the cell (in the 3D world).
-				godot::Vector3 global_from = data.cells.at(index)->global_xform.origin;
-
-				// Raises the raycast starting point to ensure it begins above the cell
-				global_from.y += 100.0f;
-
-				// Raycast end point: 500 units below the starting point
-				godot::Vector3 global_to =
-						global_from - godot::Vector3(0, ray_length, 0);
-
-				// Retrieves the 3D physics space of the scene (for performing physics queries)
-				godot::Ref<godot::World3D> world = get_world_3d();
-				godot::PhysicsDirectSpaceState3D *space_state = world->get_direct_space_state();
-
-				// Sets up the parameters for the raycast query
-				godot::Ref<godot::PhysicsRayQueryParameters3D> ray_query;
-				ray_query.instantiate();
-				ray_query->set_collide_with_areas(false); // Ignores Area3D nodes
-				ray_query->set_from(global_from); // Starting point of the ray
-				ray_query->set_to(global_to); // End point of the ray
-
-				ray_query->set_collision_mask(data.floor_collision_masks);
-
-				// Excludes the MultiMesh to prevent it from blocking its own ray
-				godot::TypedArray<godot::RID> exclude_array;
-				exclude_array.append(data.multimesh->get_rid());
-				ray_query->set_exclude(exclude_array);
-
-				// Executes the raycast and retrieves the result
-				godot::Dictionary result = space_state->intersect_ray(ray_query);
-
-				/*--------------------------------------------------------------------
-          Checks the validity of the hit mesh (ignores invisible objects)
-        --------------------------------------------------------------------*/
-
-				if (!result.is_empty()) {
-					// Retrieves the collided object
-					godot::Object *collider_obj = Object::cast_to<godot::Object>(result["collider"]);
-
-					// Checks if a valid object was found
-					if (collider_obj) {
-						// Ignores the collision if the mesh is invisible in the scene tree
-						godot::Node3D *collider_node = Object::cast_to<godot::Node3D>(collider_obj);
-
-						// Skips the collision if the mesh is invisible in the scene tree
-						if (collider_node && !collider_node->is_visible_in_tree()) {
-							continue; // Passe à la cellule suivante
-						}
-					}
-
-					/*--------------------------------------------------------------------
-            Aligns the cell with the detected floor
-          --------------------------------------------------------------------*/
-
-					// Global position of the hit point
-					godot::Vector3 hit_position_global = result["position"];
-
-					// Surface normal at the hit point (used to correct orientation)
-					godot::Vector3 floor_normal = result["normal"];
-
-					// Converts the hit position from global to local coordinates
-					godot::Vector3 hit_position_local = global_to_local.xform(hit_position_global);
-
-					// Creates a new transform with the origin positioned on the floor
-					godot::Transform3D xform;
-					xform.origin = hit_position_local;
-
-					// Aligns the Y axis with the floor normal
-					xform.basis.set_column(1, floor_normal.normalized()); // Y = floor normal
-
-					// Recalculates the X and Z axes to obtain an orthogonal basis
-					godot::Vector3 basis_z = xform.basis.get_column(2);
-					godot::Vector3 basis_x = floor_normal.cross(basis_z).normalized();
-					xform.basis.set_column(0, basis_x); // X = cross product of Y and Z
-
-					basis_z = basis_x.cross(floor_normal).normalized();
-					xform.basis.set_column(2, basis_z); // Corrected Z axis
-					xform.basis = xform.basis.orthonormalized(); // Orthonormalizes to prevent
-					// numerical errors.
-					data.multimesh->set_instance_transform(index, xform);
-
-					// Updates the instance transform in the MultiMesh
-					data.cells.at(index)->local_xform = xform;
-					data.cells.at(index)->global_xform = data.multimesh_instance->get_global_transform() * data.multimesh->get_instance_transform(index);
-
-					set_cell_walkable(index, true);
-					set_cell_reachable(index, true);
-					set_cell_visible(index, true);
-
-					// Optional debug:
-					// godot::print_line("New transformation of the cell: ", xform);
-				} else if (!godot::Engine::get_singleton()->is_editor_hint()) {
-					// In game
-					_set_cell_in_void(index, true);
-				} else {
-					// In editor
-					set_cell_walkable(index, true);
-					set_cell_reachable(index, true);
-					set_cell_visible(index, true);
-				}
-			}
-		}
-
-		auto end = std::chrono::high_resolution_clock::now();
-
-		if (_debug_options.print_execution_time_enabled) {
-			std::chrono::duration<double, std::milli> duration = end - start;
-			PrintLine(__FILE__, __FUNCTION__, __LINE__, "Execution time (ms): ", duration.count());
-		}
-
-		if (_debug_options.print_logs_enabled) {
-			PrintLine(__FILE__, __FUNCTION__, __LINE__, "Grid cells have been aligned with the floor surface.");
-		}
-	}
-}
-
-void InteractiveGrid3D::_scan_environnement_obstacles() {
-	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Scans the game grid to detect obstacles and updates the 
-           corresponding grid cells as walkable or unwalkable. For each 
-		   cell in the grid, a physics query is performed using a box 
-		   shape representing the cell. The query checks for collisions 
-		   with objects on specific layers. Cells with collisions are 
-		   marked as invalid (unwalkable), while cells without collisions 
-		   are marked as valid (walkable). Debug logs are generated to 
-		   provide information about the collision results.
-  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	if (!(data.flags & GFL_VISIBLE)) {
-		return;
-	}
-
-	// Retrieve the physics interface (PhysicsDirectSpaceState3D) of the current
-	// world, which allows performing collision queries
-	godot::PhysicsDirectSpaceState3D *space_state = get_world_3d()->get_direct_space_state();
-
-	if (!space_state) {
-		PrintError(__FILE__, __FUNCTION__, __LINE__, "No PhysicsDirectSpaceState3D available.");
-		return;
-	}
-
-	// Prepare the shape if it has not been created yet
-	if (data.obstacle_shape.is_null()) {
-		data.obstacle_shape.instantiate();
-		data.obstacle_shape->set_size(godot::Vector3(data.cell_size.x, 1.0, data.cell_size.y));
-	}
-
-	auto start = std::chrono::high_resolution_clock::now();
-
-	// Iterate through the cells
-	for (int row = 0; row < data.rows; row++) {
-		for (int column = 0; column < data.columns; column++) {
-			// Calculates the cell index
-			const int index = row * data.columns + column;
-			// Retrieves the position of the cell
-			const godot::Vector3 cell_pos = data.cells.at(index)->global_xform.origin;
-
-			// Configure a physics query for collision detection
-			godot::Ref<godot::PhysicsShapeQueryParameters3D> query;
-
-			// Create a new PhysicsShapeQueryParameters3D instance
-			query.instantiate();
-
-			// Assign the shape to be tested (here: the box shape representing a grid cell)
-			query->set_shape(data.obstacle_shape);
-
-			// Place the shape in the world at the current grid cell position (no rotation applied)
-			query->set_transform(godot::Transform3D(godot::Basis(), cell_pos));
-
-			// Define which collision layers will be considered by this query
-			query->set_collision_mask(data.obstacles_collision_masks);
-
-			// Enable collision checks with PhysicsBody3D (e.g., walls, obstacles, characters)
-			query->set_collide_with_bodies(true);
-
-			// Disable collision checks with Area3D to avoid detecting sensor-only volumes
-			query->set_collide_with_areas(false);
-
-			// Perform the physics query: check which objects intersect the given
-			// shape. Returns up to 32 results, each stored as a Dictionary
-			godot::TypedArray<godot::Dictionary> results = space_state->intersect_shape(query, 32);
-
-			// If there are any results from the collision query
-			if (results.size() > 0) {
-				// Debug log: reports the detected collision along with the cell index
-				// and its grid coordinates
-
-				// ** Debug logs.
-				// PrintLine(__FILE__, __FUNCTION__, __LINE__,
-				// 		"[GridScan] Collision detected at cell index " +
-				// 				godot::String::num_int64(index) +
-				// 				" (row: " + godot::String::num_int64(i) +
-				// 				", column: " + godot::String::num_int64(j) + ")");
-
-				// Iterate over each collision result returned by the physics query
-				for (int k = 0; k < results.size(); k++) {
-					// Retrieve the k-th result as a Dictionary
-					godot::Dictionary hit = results[k];
-
-					// Extract the 'collider' object from the result
-					godot::Object *collider_obj = hit["collider"];
-
-					// Attempt to cast the collider to a Node, since all objects inherit
-					// from Node
-					godot::Node *collider =
-							godot::Object::cast_to<godot::Node>(collider_obj);
-
-					if (collider) {
-						// Log the detected collision, showing the node's name and its
-						// class
-
-						// ** Debug logs.
-						// PrintLine(__FILE__, __FUNCTION__, __LINE__,
-						// 		"[GridScan] Collision -> Node: " + collider->get_name() +
-						// 				" (Class: " + collider->get_class() + ")");
-
-						// Mark the grid cell as invalid (obstructed)
-
-						/*
-							Prevent cells that are above empty space and touching an obstacle
-							from being displayed
-						*/
-						bool is_in_void = is_cell_in_void(index);
-
-						if (!is_in_void) {
-							set_cell_walkable(index, false);
-						}
-					}
-				}
-			}
-		}
-	}
-
-	auto end = std::chrono::high_resolution_clock::now();
-
-	if (_debug_options.print_execution_time_enabled) {
-		std::chrono::duration<double, std::milli> duration = end - start;
-		PrintLine(__FILE__, __FUNCTION__, __LINE__, "Execution time (ms): ", duration.count());
-	}
-
-	if (_debug_options.print_logs_enabled) {
-		PrintLine(__FILE__, __FUNCTION__, __LINE__, "Scan complete.");
-	}
-}
-
-void InteractiveGrid3D::_apply_material(const godot::Ref<godot::Material> &p_material) {
-	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Applies the supplied material as an override to the grid’s
-           MultiMeshInstance
-  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	if (data.multimesh_instance == nullptr) {
-		PrintError(__FILE__, __FUNCTION__, __LINE__, "No MultiMeshInstance found.");
-		return;
-	}
-
-	if (p_material.is_null()) {
-		// No material provided; clearing existing material override and applying default material
-		data.multimesh_instance->set_material_override(nullptr);
-		apply_default_material();
-		return;
-	} else {
-		data.multimesh_instance->set_material_override(p_material);
-	}
-}
-
-void InteractiveGrid3D::_set_cells_visible(bool visible) {
-	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Toggles the visual visibility of every cell in the grid.
-  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	int cell_count = data.multimesh->get_instance_count();
-
-	// Iterate through the cells
-	for (int row = 0; row < data.rows; row++) {
-		for (int column = 0; column < data.columns; column++) {
-			const int index =
-					row * data.columns + column;
-
-			if (visible == true) {
-				data.multimesh->set_instance_custom_data(index, data.walkable_color); // Visible
-			} else {
-				data.multimesh->set_instance_custom_data(index, godot::Color(0.0, 0.0, 0.0, 0.0)); // Invisible
-			}
-		}
-	}
-
-	_apply_material(data.material_override);
-}
-
-void InteractiveGrid3D::_set_cell_in_void(unsigned int cell_index, bool is_in_void) {
-	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Marks a cell as being "in void" or not. If a cell is in void,
-	       it is hidden and flagged accordingly. Used to prevent cells
-	       above empty space.
-  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	if (is_cell_index_out_of_bounds(__FILE__, __FUNCTION__, __LINE__, cell_index)) {
-		return; // !Exit
-	}
-
-	if (is_in_void) {
-		data.cells.at(cell_index)->flags |= CFL_IN_VOID;
-		set_cell_visible(cell_index, false);
-	} else if (!is_in_void) {
-		data.cells.at(cell_index)->flags &= ~CFL_IN_VOID;
-	}
-}
-
-void InteractiveGrid3D::_set_cell_hovered(unsigned int cell_index, bool is_hovered) {
-	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Sets whether a particular grid cell (cell_index) is hovered.
-  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	if (is_cell_index_out_of_bounds(__FILE__, __FUNCTION__, __LINE__, cell_index)) {
-		return; // !Exit
-	}
-
-	if (is_hovered) {
-		data.cells.at(cell_index)->flags |= CFL_HOVERED;
-		set_cell_color(data.hovered_cell_index, data.hovered_color);
-	} else if (!is_hovered) {
-		data.cells.at(cell_index)->flags &= ~CFL_HOVERED;
-	}
-}
-
-void InteractiveGrid3D::_set_cell_selected(unsigned int cell_index, bool is_selected) {
-	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Sets whether a specific grid cell (cell_index) is marked as 
-           selected.
-  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	if (is_cell_index_out_of_bounds(__FILE__, __FUNCTION__, __LINE__, cell_index)) {
-		return; // !Exit
-	}
-
-	if (is_selected) {
-		data.cells.at(cell_index)->flags |= CFL_SELECTED;
-		set_cell_color(cell_index, data.selected_color);
-	} else if (!is_selected) {
-		data.cells.at(cell_index)->flags &= ~CFL_SELECTED;
-	}
-}
-
-void InteractiveGrid3D::_set_cell_on_path(unsigned int cell_index, bool is_on_path) {
-	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Summary: Sets whether a specific grid cell (cell_index) is part of the 
-           current path.
-  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	if (is_cell_index_out_of_bounds(__FILE__, __FUNCTION__, __LINE__, cell_index)) {
-		return; // !Exit
-	}
-
-	if (is_on_path) {
-		data.cells.at(cell_index)->flags |= CFL_PATH;
-		set_cell_color(cell_index, data.path_color);
-	} else if (!is_on_path) {
-		data.cells.at(cell_index)->flags &= ~CFL_PATH;
-	}
-}
-
 void InteractiveGrid3D::_configure_astar() {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
 	Summary: // TODO
@@ -931,6 +534,413 @@ void InteractiveGrid3D::_breadth_first_search(unsigned int start_cell_index) {
 	}
 }
 
+void InteractiveGrid3D::_align_cells_with_floor() {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Aligns each grid cell with the underlying floor
+        using a vertical downward raycast.
+        The ray starts above the cell and checks for a collision with
+        an object on the same layer. If a collision is detected,
+        the cell is repositioned and reoriented to match the
+        hit surface (floor normal). Cells are not aligned with
+        invisible objects.
+
+  Ref : BornCG. (2024, August 4). Godot 4 3D Platformer Lesson #13: 
+  		Align Player with Ground! [Video]. YouTube.
+		https://www.youtube.com/watch?v=Y5OiChOukfg
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+	if (data.flags & GFL_CREATED) {
+		auto start = std::chrono::high_resolution_clock::now();
+
+		// Maximum raycast length
+		const int ray_length{ 500 };
+
+		// Global transform of the MultiMeshInstance (position/rotation/scale in
+		// world space)
+		const godot::Transform3D global_transform = data.multimesh_instance->get_global_transform();
+
+		// Affine inverse: allows converting global coordinates into the local
+		// space
+		const godot::Transform3D global_to_local = global_transform.affine_inverse();
+
+		// Iterate through the cells
+		for (int row = 0; row < data.rows; row++) {
+			for (int column = 0; column < data.columns; column++) {
+				const int index =
+						row * data.columns + column; // Index in the 2D array stored as 1D
+
+				/*--------------------------------------------------------------------
+         Initialization of the starting coordinates and the ray
+        --------------------------------------------------------------------*/
+
+				// Local origin of the cell (in the grid's local space)
+				godot::Vector3 local_from = data.cells.at(index)->local_xform.origin;
+
+				// Global position of the cell (in the 3D world).
+				godot::Vector3 global_from = data.cells.at(index)->global_xform.origin;
+
+				// Raises the raycast starting point to ensure it begins above the cell
+				global_from.y += 100.0f;
+
+				// Raycast end point: 500 units below the starting point
+				godot::Vector3 global_to =
+						global_from - godot::Vector3(0, ray_length, 0);
+
+				// Retrieves the 3D physics space of the scene (for performing physics queries)
+				godot::Ref<godot::World3D> world = get_world_3d();
+				godot::PhysicsDirectSpaceState3D *space_state = world->get_direct_space_state();
+
+				// Sets up the parameters for the raycast query
+				godot::Ref<godot::PhysicsRayQueryParameters3D> ray_query;
+				ray_query.instantiate();
+				ray_query->set_collide_with_areas(true); // Ignores Area3D nodes
+				ray_query->set_from(global_from); // Starting point of the ray
+				ray_query->set_to(global_to); // End point of the ray
+
+				ray_query->set_collision_mask(data.floor_collision_masks);
+
+				// Excludes the MultiMesh to prevent it from blocking its own ray
+				godot::TypedArray<godot::RID> exclude_array;
+				exclude_array.append(data.multimesh->get_rid());
+				ray_query->set_exclude(exclude_array);
+
+				// Executes the raycast and retrieves the result
+				godot::Dictionary result = space_state->intersect_ray(ray_query);
+
+				/*--------------------------------------------------------------------
+          Checks the validity of the hit mesh (ignores invisible objects)
+        --------------------------------------------------------------------*/
+
+				if (!result.is_empty()) {
+					// Retrieves the collided object
+					godot::Object *collider_obj = Object::cast_to<godot::Object>(result["collider"]);
+
+					// Checks if a valid object was found
+					if (collider_obj) {
+						// Ignores the collision if the mesh is invisible in the scene tree
+						godot::Node3D *collider_node = Object::cast_to<godot::Node3D>(collider_obj);
+
+						// Skips the collision if the mesh is invisible in the scene tree
+						if (collider_node && !collider_node->is_visible_in_tree()) {
+							continue; // Passe à la cellule suivante
+						}
+					}
+
+					/*--------------------------------------------------------------------
+            Aligns the cell with the detected floor
+          --------------------------------------------------------------------*/
+
+					// Global position of the hit point
+					godot::Vector3 hit_position_global = result["position"];
+
+					// Surface normal at the hit point (used to correct orientation)
+					godot::Vector3 floor_normal = result["normal"];
+
+					// Converts the hit position from global to local coordinates
+					godot::Vector3 hit_position_local = global_to_local.xform(hit_position_global);
+
+					// Creates a new transform with the origin positioned on the floor
+					godot::Transform3D xform;
+					xform.origin = hit_position_local;
+
+					// Aligns the Y axis with the floor normal
+					xform.basis.set_column(1, floor_normal.normalized()); // Y = floor normal
+
+					// Recalculates the X and Z axes to obtain an orthogonal basis
+					godot::Vector3 basis_z = xform.basis.get_column(2);
+					godot::Vector3 basis_x = floor_normal.cross(basis_z).normalized();
+					xform.basis.set_column(0, basis_x); // X = cross product of Y and Z
+
+					basis_z = basis_x.cross(floor_normal).normalized();
+					xform.basis.set_column(2, basis_z); // Corrected Z axis
+					xform.basis = xform.basis.orthonormalized(); // Orthonormalizes to prevent
+					// numerical errors.
+					data.multimesh->set_instance_transform(index, xform);
+
+					// Updates the instance transform in the MultiMesh
+					data.cells.at(index)->local_xform = xform;
+					data.cells.at(index)->global_xform = data.multimesh_instance->get_global_transform() * data.multimesh->get_instance_transform(index);
+
+					set_cell_walkable(index, true);
+					set_cell_reachable(index, true);
+					set_cell_visible(index, true);
+
+					// Optional debug:
+					// godot::print_line("New transformation of the cell: ", xform);
+				} else if (!godot::Engine::get_singleton()->is_editor_hint()) {
+					// In game
+					_set_cell_in_void(index, true);
+				} else {
+					// In editor
+					set_cell_walkable(index, true);
+					set_cell_reachable(index, true);
+					set_cell_visible(index, true);
+				}
+			}
+		}
+
+		auto end = std::chrono::high_resolution_clock::now();
+
+		if (_debug_options.print_execution_time_enabled) {
+			std::chrono::duration<double, std::milli> duration = end - start;
+			PrintLine(__FILE__, __FUNCTION__, __LINE__, "Execution time (ms): ", duration.count());
+		}
+
+		if (_debug_options.print_logs_enabled) {
+			PrintLine(__FILE__, __FUNCTION__, __LINE__, "Grid cells have been aligned with the floor surface.");
+		}
+	}
+}
+
+void InteractiveGrid3D::_scan_environnement_obstacles() {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Scans the game grid to detect obstacles and updates the 
+           corresponding grid cells as walkable or unwalkable. For each 
+		   cell in the grid, a physics query is performed using a box 
+		   shape representing the cell. The query checks for collisions 
+		   with objects on specific layers. Cells with collisions are 
+		   marked as invalid (unwalkable), while cells without collisions 
+		   are marked as valid (walkable). Debug logs are generated to 
+		   provide information about the collision results.
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+	if (!(data.flags & GFL_VISIBLE)) {
+		return;
+	}
+
+	if (data.cell_mesh.is_null()) {
+		return;
+	}
+
+	// Retrieve the physics interface (PhysicsDirectSpaceState3D) of the current
+	// world, which allows performing collision queries
+	godot::PhysicsDirectSpaceState3D *space_state = get_world_3d()->get_direct_space_state();
+
+	if (!space_state) {
+		PrintError(__FILE__, __FUNCTION__, __LINE__, "No PhysicsDirectSpaceState3D available.");
+		return;
+	}
+
+	// Prepare the shape if it has not been created yet
+	if (data.obstacle_shape.is_null()) {
+		data.obstacle_shape = data.cell_mesh->create_convex_shape();
+		godot::Ref<godot::ConvexPolygonShape3D> convex_shape = data.obstacle_shape;
+		godot::PackedVector3Array points = convex_shape->get_points();
+
+		for (int i = 0; i < points.size(); i++) {
+			points[i] *= get_collision_detection_shape_scale();
+		}
+
+		convex_shape->set_points(points);
+		data.obstacle_shape = convex_shape;
+	}
+
+	auto start = std::chrono::high_resolution_clock::now();
+
+	// Iterate through the cells
+	for (int row = 0; row < data.rows; row++) {
+		for (int column = 0; column < data.columns; column++) {
+			// Calculates the cell index
+			const int index = row * data.columns + column;
+			// Retrieves the position of the cell
+			const godot::Vector3 cell_pos = data.cells.at(index)->global_xform.origin;
+
+			// Configure a physics query for collision detection
+			godot::Ref<godot::PhysicsShapeQueryParameters3D> query;
+
+			// Create a new PhysicsShapeQueryParameters3D instance
+			query.instantiate();
+
+			// Assign the shape to be tested (here: the box shape representing a grid cell)
+			query->set_shape(data.obstacle_shape);
+
+			// Place the shape in the world at the current grid cell position (no rotation applied)
+			query->set_transform(godot::Transform3D(godot::Basis(), cell_pos));
+
+			// Define which collision layers will be considered by this query
+			query->set_collision_mask(data.obstacles_collision_masks);
+
+			// Enable collision.
+			query->set_collide_with_bodies(true);
+			query->set_collide_with_areas(true);
+
+			// Perform the physics query: check which objects intersect the given
+			// shape. Returns up to 32 results, each stored as a Dictionary
+			godot::TypedArray<godot::Dictionary> results = space_state->intersect_shape(query, 32);
+
+			// If there are any results from the collision query
+			if (results.size() > 0) {
+				// Debug log: reports the detected collision along with the cell index
+				// and its grid coordinates
+
+				// ** Debug logs.
+				// PrintLine(__FILE__, __FUNCTION__, __LINE__,
+				// 		"[GridScan] Collision detected at cell index " +
+				// 				godot::String::num_int64(index) +
+				// 				" (row: " + godot::String::num_int64(i) +
+				// 				", column: " + godot::String::num_int64(j) + ")");
+
+				// Iterate over each collision result returned by the physics query
+				for (int k = 0; k < results.size(); k++) {
+					// Retrieve the k-th result as a Dictionary
+					godot::Dictionary hit = results[k];
+
+					// Extract the 'collider' object from the result
+					godot::Object *collider_obj = hit["collider"];
+
+					// Attempt to cast the collider to a Node, since all objects inherit
+					// from Node
+					godot::Node *collider =
+							godot::Object::cast_to<godot::Node>(collider_obj);
+
+					if (collider) {
+						// Log the detected collision, showing the node's name and its
+						// class
+
+						// ** Debug logs.
+						// PrintLine(__FILE__, __FUNCTION__, __LINE__,
+						// 		"[GridScan] Collision -> Node: " + collider->get_name() +
+						// 				" (Class: " + collider->get_class() + ")");
+
+						// Mark the grid cell as invalid (obstructed)
+
+						/*
+							Prevent cells that are above empty space and touching an obstacle
+							from being displayed
+						*/
+						bool is_in_void = is_cell_in_void(index);
+
+						if (!is_in_void) {
+							set_cell_walkable(index, false);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	auto end = std::chrono::high_resolution_clock::now();
+
+	if (_debug_options.print_execution_time_enabled) {
+		std::chrono::duration<double, std::milli> duration = end - start;
+		PrintLine(__FILE__, __FUNCTION__, __LINE__, "Execution time (ms): ", duration.count());
+	}
+
+	if (_debug_options.print_logs_enabled) {
+		PrintLine(__FILE__, __FUNCTION__, __LINE__, "Scan complete.");
+	}
+}
+
+void InteractiveGrid3D::_apply_material(const godot::Ref<godot::Material> &p_material) {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Applies the supplied material as an override to the grid’s
+           MultiMeshInstance
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+	if (data.multimesh_instance == nullptr) {
+		PrintError(__FILE__, __FUNCTION__, __LINE__, "No MultiMeshInstance found.");
+		return;
+	}
+
+	if (p_material.is_null()) {
+		// No material provided; clearing existing material override and applying default material
+		data.multimesh_instance->set_material_override(nullptr);
+		apply_default_material();
+		return;
+	} else {
+		data.multimesh_instance->set_material_override(p_material);
+	}
+}
+
+void InteractiveGrid3D::_set_cells_visible(bool visible) {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Toggles the visual visibility of every cell in the grid.
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+	int cell_count = data.multimesh->get_instance_count();
+
+	// Iterate through the cells
+	for (int row = 0; row < data.rows; row++) {
+		for (int column = 0; column < data.columns; column++) {
+			const int index =
+					row * data.columns + column;
+
+			if (visible == true) {
+				data.multimesh->set_instance_custom_data(index, data.walkable_color); // Visible
+			} else {
+				data.multimesh->set_instance_custom_data(index, godot::Color(0.0, 0.0, 0.0, 0.0)); // Invisible
+			}
+		}
+	}
+
+	_apply_material(data.material_override);
+}
+
+void InteractiveGrid3D::_set_cell_in_void(unsigned int cell_index, bool is_in_void) {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Marks a cell as being "in void" or not. If a cell is in void,
+	       it is hidden and flagged accordingly. Used to prevent cells
+	       above empty space.
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+	if (is_cell_index_out_of_bounds(__FILE__, __FUNCTION__, __LINE__, cell_index)) {
+		return; // !Exit
+	}
+
+	if (is_in_void) {
+		data.cells.at(cell_index)->flags |= CFL_IN_VOID;
+		set_cell_visible(cell_index, false);
+	} else if (!is_in_void) {
+		data.cells.at(cell_index)->flags &= ~CFL_IN_VOID;
+	}
+}
+
+void InteractiveGrid3D::_set_cell_hovered(unsigned int cell_index, bool is_hovered) {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Sets whether a particular grid cell (cell_index) is hovered.
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+	if (is_cell_index_out_of_bounds(__FILE__, __FUNCTION__, __LINE__, cell_index)) {
+		return; // !Exit
+	}
+
+	if (is_hovered) {
+		data.cells.at(cell_index)->flags |= CFL_HOVERED;
+		set_cell_color(data.hovered_cell_index, data.hovered_color);
+	} else if (!is_hovered) {
+		data.cells.at(cell_index)->flags &= ~CFL_HOVERED;
+	}
+}
+
+void InteractiveGrid3D::_set_cell_selected(unsigned int cell_index, bool is_selected) {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Sets whether a specific grid cell (cell_index) is marked as 
+           selected.
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+	if (is_cell_index_out_of_bounds(__FILE__, __FUNCTION__, __LINE__, cell_index)) {
+		return; // !Exit
+	}
+
+	if (is_selected) {
+		data.cells.at(cell_index)->flags |= CFL_SELECTED;
+		set_cell_color(cell_index, data.selected_color);
+	} else if (!is_selected) {
+		data.cells.at(cell_index)->flags &= ~CFL_SELECTED;
+	}
+}
+
+void InteractiveGrid3D::_set_cell_on_path(unsigned int cell_index, bool is_on_path) {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Sets whether a specific grid cell (cell_index) is part of the 
+           current path.
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+	if (is_cell_index_out_of_bounds(__FILE__, __FUNCTION__, __LINE__, cell_index)) {
+		return; // !Exit
+	}
+
+	if (is_on_path) {
+		data.cells.at(cell_index)->flags |= CFL_PATH;
+		set_cell_color(cell_index, data.path_color);
+	} else if (!is_on_path) {
+		data.cells.at(cell_index)->flags &= ~CFL_PATH;
+	}
+}
+
 void InteractiveGrid3D::_bind_methods() {
 	/*F+F+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	Summary: _bind_methods, is a static function that Godot will call to 
@@ -998,6 +1008,16 @@ void InteractiveGrid3D::_bind_methods() {
 	godot::ClassDB::bind_method(godot::D_METHOD("set_layout", "value"), &InteractiveGrid3D::set_layout);
 	godot::ClassDB::bind_method(godot::D_METHOD("get_layout"), &InteractiveGrid3D::get_layout);
 
+	// Astar.
+
+	godot::ClassDB::bind_method(godot::D_METHOD("set_movement", "value"), &InteractiveGrid3D::set_movement);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_movement"), &InteractiveGrid3D::get_movement);
+
+	// Collision.
+
+	godot::ClassDB::bind_method(godot::D_METHOD("set_collision_detection_shape_scale", "value"), &InteractiveGrid3D::set_collision_detection_shape_scale);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_collision_detection_shape_scale"), &InteractiveGrid3D::get_collision_detection_shape_scale);
+
 	// Grid visibility.
 
 	godot::ClassDB::bind_method(godot::D_METHOD("set_visible", "visible"), &InteractiveGrid3D::set_visible);
@@ -1034,11 +1054,6 @@ void InteractiveGrid3D::_bind_methods() {
 	godot::ClassDB::bind_method(godot::D_METHOD("set_grid_floor_collision_masks", "masks"), &InteractiveGrid3D::set_grid_floor_collision_masks);
 	godot::ClassDB::bind_method(godot::D_METHOD("get_grid_floor_collision_masks"), &InteractiveGrid3D::get_grid_floor_collision_masks);
 
-	// Astar.
-
-	godot::ClassDB::bind_method(godot::D_METHOD("set_movement", "value"), &InteractiveGrid3D::set_movement);
-	godot::ClassDB::bind_method(godot::D_METHOD("get_movement"), &InteractiveGrid3D::get_movement);
-
 	// User interaction.
 
 	godot::ClassDB::bind_method(godot::D_METHOD("select_cell", "global_position"), &InteractiveGrid3D::select_cell);
@@ -1067,9 +1082,10 @@ void InteractiveGrid3D::_bind_methods() {
 	ADD_PROPERTY(godot::PropertyInfo(godot::Variant::COLOR, "hovered color"), "set_hovered_color", "get_hovered_color");
 	ADD_PROPERTY(godot::PropertyInfo(godot::Variant::OBJECT, "_material_override", godot::PROPERTY_HINT_RESOURCE_TYPE, "Material"), "set_material_override", "get_material_override");
 	ADD_PROPERTY(godot::PropertyInfo(godot::Variant::INT, "layout", godot::PROPERTY_HINT_ENUM, "SQUARE, HEXAGONAL"), "set_layout", "get_layout");
+	ADD_PROPERTY(godot::PropertyInfo(godot::Variant::INT, "movement", godot::PROPERTY_HINT_ENUM, "FOUR-DIRECTIONS,SIX-DIRECTIONS,EIGH-DIRECTIONS"), "set_movement", "get_movement");
+	ADD_PROPERTY(godot::PropertyInfo(godot::Variant::VECTOR3, "collision_detection_shape_scale"), "set_collision_detection_shape_scale", "get_collision_detection_shape_scale");
 	ADD_PROPERTY(godot::PropertyInfo(godot::Variant::INT, "obstacles_collision_masks", godot::PROPERTY_HINT_LAYERS_3D_RENDER), "set_obstacles_collision_masks", "get_obstacles_collision_masks");
 	ADD_PROPERTY(godot::PropertyInfo(godot::Variant::INT, "floor_collision_masks", godot::PROPERTY_HINT_LAYERS_3D_RENDER), "set_grid_floor_collision_masks", "get_grid_floor_collision_masks");
-	ADD_PROPERTY(godot::PropertyInfo(godot::Variant::INT, "movement", godot::PROPERTY_HINT_ENUM, "FOUR-DIRECTIONS,SIX-DIRECTIONS,EIGH-DIRECTIONS"), "set_movement", "get_movement");
 	ADD_PROPERTY(godot::PropertyInfo(godot::Variant::BOOL, "print_logs_enabled"), "set_print_logs_enabled", "is_print_logs_enabled");
 	ADD_PROPERTY(godot::PropertyInfo(godot::Variant::BOOL, "print_execution_time"), "set_print_execution_time_enabled", "is_print_execution_time_enabled");
 }
@@ -1163,6 +1179,21 @@ godot::Ref<godot::Mesh> InteractiveGrid3D::get_cell_mesh() const {
 	return data.cell_mesh;
 }
 
+void InteractiveGrid3D::set_layout(unsigned int value) {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+	Summary: Sets the grid layout.
+	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+	data.layout_index = value;
+	_delete();
+}
+
+unsigned int InteractiveGrid3D::get_layout() const {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+	Summary: Returns the current grid layout.
+	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+	return data.layout_index;
+}
+
 void InteractiveGrid3D::set_movement(unsigned int value) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
   Summary: Sets the movement type used for pathfinding on the grid.
@@ -1176,6 +1207,21 @@ unsigned int InteractiveGrid3D::get_movement() const {
            grid.
   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 	return data.movement;
+}
+
+void InteractiveGrid3D::set_collision_detection_shape_scale(godot::Vector3 size) {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Returns the current scale of the collision detection shape.
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+	data.collision_detection_shape_scale = size;
+	_delete();
+}
+
+godot::Vector3 InteractiveGrid3D::get_collision_detection_shape_scale() const {
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Summary: Sets the scale for the collision detection shape.
+  M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+	return data.collision_detection_shape_scale;
 }
 
 void InteractiveGrid3D::set_walkable_color(const godot::Color &p_color) {
@@ -1440,7 +1486,8 @@ int InteractiveGrid3D::get_cell_index_from_global_position(godot::Vector3 global
 	}
 
 	float center_to_edge_x{ 0.0f }, center_to_edge_z{ 0.0f };
-	bool is_even_row = (data.rows % 2) == 0;
+	bool is_even_row = !(data.rows % 2);
+	bool is_even_column = !(data.columns % 2);
 
 	switch (data.layout_index) {
 		case LAYOUT::SQUARE:
@@ -1485,12 +1532,12 @@ int InteractiveGrid3D::get_cell_index_from_global_position(godot::Vector3 global
 			float center_to_grid_edge_z = (data.rows / 2) * data.cell_size.y;
 
 			// Z-AXIS CORRECTION.
-			if (!(data.rows % 2)) {
+			if (is_even_row) {
 				center_to_grid_edge_z -= hex_side_length;
 			}
 
 			// X-AXIS CORRECTION.
-			if (!(data.columns % 2)) {
+			if (is_even_column) {
 				// Side to side.
 				center_to_grid_edge_x -= data.cell_size.x / 2;
 			}
@@ -1509,12 +1556,10 @@ int InteractiveGrid3D::get_cell_index_from_global_position(godot::Vector3 global
 
 			if (is_even_row) {
 				if (global_position.z > (data.top_left_global_position.z + center_to_grid_edge_z * 2 + hex_circumradius + hex_side_length / 2)) {
-					godot::print_line("is_even_row true");
 					return -1;
 				}
 			} else {
 				if (global_position.z > (data.top_left_global_position.z + center_to_grid_edge_z * 2 + hex_circumradius)) {
-					godot::print_line("is_even_row false");
 					return -1;
 				}
 			}
@@ -1594,21 +1639,6 @@ void InteractiveGrid3D::center(godot::Vector3 center_position) {
 	}
 }
 
-void InteractiveGrid3D::set_layout(unsigned int value) {
-	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-	Summary: Sets the grid layout.
-	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	data.layout_index = value;
-	_delete();
-}
-
-unsigned int InteractiveGrid3D::get_layout() const {
-	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-	Summary: Returns the current grid layout.
-	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	return data.layout_index;
-}
-
 void InteractiveGrid3D::set_visible(bool visible) {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
   Summary: Sets the visibility of the grid.
@@ -1621,12 +1651,16 @@ void InteractiveGrid3D::set_visible(bool visible) {
 	if ((data.flags & GFL_VISIBLE) && !visible) {
 		// Visible
 		_set_cells_visible(false);
-		PrintLine(__FILE__, __FUNCTION__, __LINE__, "false.");
+		if (_debug_options.print_logs_enabled) {
+			PrintLine(__FILE__, __FUNCTION__, __LINE__, "false.");
+		}
 		data.flags &= ~GFL_VISIBLE;
 	} else if (!(data.flags & GFL_VISIBLE) && visible) {
 		// Not visible
 		_set_cells_visible(true);
-		PrintLine(__FILE__, __FUNCTION__, __LINE__, "true.");
+		if (_debug_options.print_logs_enabled) {
+			PrintLine(__FILE__, __FUNCTION__, __LINE__, "true.");
+		}
 		data.flags |= GFL_VISIBLE;
 	}
 }
