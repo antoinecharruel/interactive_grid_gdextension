@@ -1,67 +1,91 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <class name="InteractiveGrid3D" inherits="Node3D" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
 	<brief_description>
-		InteractiveGrid3D is Node that allows player interaction with a 3D grid, including cell selection, pathfinding, and hover highlights.
+		InteractiveGrid3D is a Node3D that allows player interaction with a 3D grid. It can be used for cell selection, pathfinding, and hover highlights.
 	</brief_description>
 	<description>
-		— Select individual cells.
-		— Detect obstacles (collision mask configurable from the editor).
-		— Align cells with the floor (collision mask configurable from the editor).
-		— Hide distant cells to focus on the relevant area.
-		— Calculate paths from a global position to selected cells using AStar2D.
-		— Choose movement type: 4 directions, 6 directions, 8 directions, directly from the editor.
-		— Customize the grid from the editor: grid size, cell size, mesh, colors, and shaders.
-		— High performance using MultiMeshInstance3D for efficient rendering of multiple cells.
+		- Select individual cells.
+		- Detect obstacles (collision mask configurable from the editor).
+		- Align cells with the floor (collision mask configurable from the editor).
+		- Hide distant cells to focus on the relevant area.
+		- Calculate paths from a global position to selected cells using AStar2D.
+		- Choose movement type: 4 directions, 6 directions, 8 directions, directly from the editor.
+		- Customize the grid from the editor: grid size, cell size, mesh, colors, and shaders.
+		- High performance using MultiMeshInstance3D for efficient rendering of multiple cells.
 	</description>
 	<tutorials>
 	</tutorials>
 	<methods>
+		<method name="add_custom_cell_data">
+			<return type="void" />
+			<param index="0" name="cell_index" type="int" />
+			<param index="1" name="custom_data_name" type="String" />
+			<description>
+			Adds custom data to a specific cell.
+			- Applies the associated layer mask to the cell.
+			- If a custom color is defined, it is applied to the cell.
+			</description>
+		</method>
 		<method name="center">
 			<return type="void" />
 			<param index="0" name="center_position" type="Vector3" />
 			<description>
-				Called to re-center the grid. This also resets the grid state.
+				Centers the grid around the given global position and rebuilds its layout.
+				This operation repositions all cells, realigns them with the environment, rescans obstacles and custom data, and refreshes A* navigation.
+			</description>
+		</method>
+		<method name="clear_all_custom_cell_data">
+			<return type="void" />
+			<param index="0" name="cell_index" type="int" />
+			<description>
+			Resets the cell's custom_flags and removes any custom_color.
+			</description>
+		</method>
+		<method name="clear_custom_cell_data">
+			<return type="void" />
+			<param index="0" name="cell_index" type="int" />
+			<param index="1" name="custom_data_name" type="String" />
+			<param index="2" name="clear_custom_color" type="bool" />
+			<description>
+			Resets the custom data of a given cell.
 			</description>
 		</method>
 		<method name="compute_unreachable_cells">
 			<return type="void" />
 			<param index="0" name="start_cell_index" type="int" />
 			<description>
-				Iterates over all grid cells and marks as unreachable those cells that
-			cannot be reached from the specified start cell. Updates the visual
-			representation by applying `_unreachable_color` to the grid's MultiMesh.
-			Unreachable cells are not marked as unwalkable to allow gameplay features
-			such as teleportation.
+			Iterates over all grid cells and marks as unreachable those cells that cannot be reached from the specified start_cell.
+			Updates the visual representation by applying unreachable_color to the cells.
 			</description>
 		</method>
 		<method name="get_cell_global_position" qualifiers="const">
 			<return type="Vector3" />
 			<param index="0" name="cell_index" type="int" />
 			<description>
-			Returns the global world‑space position of the cell identified by index.
+				Returns the global_position of the cell identified by index.
 			</description>
 		</method>
-		<method name="get_cell_index_from_global_position">
+		<method name="get_cell_index_from_global_position" qualifiers="const">
 			<return type="int" />
 			<param index="0" name="global_position" type="Vector3" />
 			<description>
-				Returns the linear index of the grid cell that is closest to the supplied world‑space position.
+				Returns the index of the grid cell that is closest to the supplied world position.
 			</description>
 		</method>
 		<method name="get_grid_center_global_position" qualifiers="const">
 			<return type="Vector3" />
 			<description>
-				Returns the central position of the interactive grid in world coordinates.
+				Returns the global_position of the interactive grid.
 			</description>
 		</method>
-		<method name="get_latest_selected">
+		<method name="get_latest_selected" qualifiers="const">
 			<return type="int" />
 			<description>
-				Returns the most recently selected cell.
+				Returns the most recently selected_cell.
 			</description>
 		</method>
 		<method name="get_neighbors" qualifiers="const">
-			<return type="PackedInt64Array" />
+			<return type="Array" />
 			<param index="0" name="cell_index" type="int" />
 			<description>
 				Returns the indices of neighboring cells for the specified grid cell.
@@ -81,26 +105,40 @@
 				Returns an array of all cells currently marked as selected.
 			</description>
 		</method>
+		<method name="get_size" qualifiers="const">
+			<return type="int" />
+			<description>
+			Returns the total number of cells in the grid.
+			</description>
+		</method>
+		<method name="has_custom_cell_data">
+			<return type="bool" />
+			<param index="0" name="cell_index" type="int" />
+			<param index="1" name="custom_data_name" type="String" />
+			<description>
+			Checks if a specific cell has the given CustomCellData applied. Returns true if the cell's flags include the full layer mask of the specified CustomCellData, otherwise returns false.
+			</description>
+		</method>
 		<method name="hide_distant_cells">
 			<return type="void" />
 			<param index="0" name="start_cell_index" type="int" />
 			<param index="1" name="distance" type="float" />
 			<description>
-				Iterates over all grid cells and hides those located farther than the specified distance from the start cell. Marks them as non-walkable.
+				Iterates over all grid cells and hides those located farther than the specified distance from the start_cell. Marks them as unwalkable.
 			</description>
 		</method>
 		<method name="highlight_on_hover">
 			<return type="void" />
 			<param index="0" name="global_position" type="Vector3" />
 			<description>
-				Updates the hover highlight state based on the specified global position. Identifies the corresponding cell, clears any previous hover, and applies the hover color unless the cell is already selected.
+				Updates the hover highlight state based on the specified global_position. Identifies the corresponding cell, clears any previous hover, and applies the hover color unless the cell is already selected.
 			</description>
 		</method>
 		<method name="highlight_path">
 			<return type="void" />
 			<param index="0" name="path" type="PackedInt64Array" />
 			<description>
-				Highlights a given path on the grid by changing the color of each cell along the path to the predefined path color.
+				Updates the hover highlight state based on the specified global_position. Identifies the corresponding cell, clears any previous hover, and applies the hover color unless the cell is already selected.
 			</description>
 		</method>
 		<method name="is_cell_hovered" qualifiers="const">
@@ -147,26 +185,20 @@
 		<method name="is_hover_enabled" qualifiers="const">
 			<return type="bool" />
 			<description>
-				Checks whether hover functionality is currently disabled on the grid.
-			</description>
-		</method>
-		<method name="is_visible" qualifiers="const">
-			<return type="bool" />
-			<description>
-				Checks whether the grid is currently visible in the scene.
+				Checks whether hover functionality is currently disabled.
 			</description>
 		</method>
 		<method name="reset_cells_state">
 			<return type="void" />
 			<description>
-				Resets the state of all cells in the grid to their default flags.
+				Clears all CustomCellData, resets cell_flags.
 			</description>
 		</method>
 		<method name="select_cell">
 			<return type="void" />
-			<param index="0" name="global_position" type="Vector3" />
+			<param index="0" name="global_position" type="int" />
 			<description>
-				Selects a grid cell based on a world‑space position.
+				Selects a grid cell based on a global_position.
 			</description>
 		</method>
 		<method name="set_cell_color">
@@ -174,7 +206,7 @@
 			<param index="0" name="cell_index" type="int" />
 			<param index="1" name="color" type="Color" />
 			<description>
-				Sets the color of a specific cell in the interactive grid.
+				Sets the color of a specific cell.
 			</description>
 		</method>
 		<method name="set_cell_reachable">
@@ -197,53 +229,68 @@
 			<return type="void" />
 			<param index="0" name="enabled" type="bool" />
 			<description>
-				Enables or disables hover functionality on the grid.
+				Enables or disables hover functionality.
 			</description>
 		</method>
-		<method name="set_visible">
+		<method name="update_custom_data">
 			<return type="void" />
-			<param index="0" name="visible" type="bool" />
 			<description>
-				Sets the visibility of the grid.
+			Refreshes custom_cell_flags, colors, and A* configuration based on the current CellCustomData.
 			</description>
 		</method>
 	</methods>
 	<members>
-		<member name="_cell_mesh" type="Mesh" setter="set_cell_mesh" getter="get_cell_mesh">
+		<member name="cell_mesh" type="Mesh" setter="set_cell_mesh" getter="get_cell_mesh">
 		</member>
-		<member name="_columns" type="int" setter="set_columns" getter="get_columns" default="9">
+		<member name="cell_shape" type="Shape3D" setter="set_cell_shape" getter="get_cell_shape">
 		</member>
-		<member name="_material_override" type="Material" setter="set_material_override" getter="get_material_override">
-		</member>
-		<member name="_rows" type="int" setter="set_rows" getter="get_rows" default="9">
+		<member name="cell_shape_offset" type="Vector3" setter="set_cell_shape_offset" getter="get_cell_shape_offset" default="Vector3(0, 0, 0)">
 		</member>
 		<member name="cell_size" type="Vector2" setter="set_cell_size" getter="get_cell_size" default="Vector2(1, 1)">
 		</member>
-		<member name="enable_alpha_pass" type="bool" setter="enable_alpha_pass" getter="is_alpha_pass_enabled" default="false">
+		<member name="columns" type="int" setter="set_columns" getter="get_columns" default="9">
+		</member>
+		<member name="custom_cells_data" type="Array" setter="set_custom_cells_data" getter="get_custom_cells_data" default="[]">
 		</member>
 		<member name="floor_collision_masks" type="int" setter="set_grid_floor_collision_masks" getter="get_grid_floor_collision_masks" default="16384">
 		</member>
-		<member name="hovered color" type="Color" setter="set_hovered_color" getter="get_hovered_color" default="Color(1, 0.84313726, 0, 1)">
+		<member name="hovered_color" type="Color" setter="set_hovered_color" getter="get_hovered_color" default="Color(1, 0.84313726, 0, 1)">
 		</member>
-		<member name="layout" type="int" setter="set_layout" getter="get_layout" default="0">
+		<member name="layout" type="int" setter="set_layout" getter="get_layout" enum="InteractiveGrid3D.Layout" default="0">
 		</member>
-		<member name="movement" type="int" setter="set_movement" getter="get_movement" default="0">
+		<member name="material_override" type="Material" setter="set_material_override" getter="get_material_override">
+		</member>
+		<member name="movement" type="int" setter="set_movement" getter="get_movement" enum="InteractiveGrid3D.Movement" default="0">
 		</member>
 		<member name="obstacles_collision_masks" type="int" setter="set_obstacles_collision_masks" getter="get_obstacles_collision_masks" default="8192">
 		</member>
-		<member name="path color" type="Color" setter="set_path_color" getter="get_path_color" default="Color(0.5647059, 0.93333334, 0.5647059, 1)">
+		<member name="path_color" type="Color" setter="set_path_color" getter="get_path_color" default="Color(0.5647059, 0.93333334, 0.5647059, 1)">
 		</member>
-		<member name="print_execution_time" type="bool" setter="set_print_execution_time_enabled" getter="is_print_execution_time_enabled" default="false">
+		<member name="print_execution_time_enabled" type="bool" setter="set_print_execution_time_enabled" getter="is_print_execution_time_enabled" default="false">
 		</member>
 		<member name="print_logs_enabled" type="bool" setter="set_print_logs_enabled" getter="is_print_logs_enabled" default="false">
 		</member>
-		<member name="selected color" type="Color" setter="set_selected_color" getter="get_selected_color" default="Color(0.8784314, 1, 1, 1)">
+		<member name="rows" type="int" setter="set_rows" getter="get_rows" default="9">
 		</member>
-		<member name="unreachable color" type="Color" setter="set_unreachable_color" getter="get_unreachable_color" default="Color(1, 1, 1, 1)">
+		<member name="selected_color" type="Color" setter="set_selected_color" getter="get_selected_color" default="Color(0.8784314, 1, 1, 1)">
 		</member>
-		<member name="unwalkable color" type="Color" setter="set_unwalkable_color" getter="get_unwalkable_color" default="Color(0.8039216, 0.36078432, 0.36078432, 1)">
+		<member name="unreachable_color" type="Color" setter="set_unreachable_color" getter="get_unreachable_color" default="Color(1, 1, 1, 1)">
 		</member>
-		<member name="walkable color" type="Color" setter="set_walkable_color" getter="get_walkable_color" default="Color(0.5, 0.65, 1, 1)">
+		<member name="unwalkable_color" type="Color" setter="set_unwalkable_color" getter="get_unwalkable_color" default="Color(0.8039216, 0.36078432, 0.36078432, 1)">
+		</member>
+		<member name="walkable_color" type="Color" setter="set_walkable_color" getter="get_walkable_color" default="Color(0.5, 0.65, 1, 1)">
 		</member>
 	</members>
+	<constants>
+		<constant name="LAYOUT_SQUARE" value="0" enum="Layout">
+		</constant>
+		<constant name="LAYOUT_HEXAGONAL" value="1" enum="Layout">
+		</constant>
+		<constant name="MOVEMENT_FOUR_DIRECTIONS" value="0" enum="Movement">
+		</constant>
+		<constant name="MOVEMENT_SIX_DIRECTIONS" value="1" enum="Movement">
+		</constant>
+		<constant name="MOVEMENT_EIGH_DIRECTIONS" value="2" enum="Movement">
+		</constant>
+	</constants>
 </class>

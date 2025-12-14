@@ -975,6 +975,7 @@ visible = false
 visible = false
 
 [node name="cliff_blockCave_rock2" type="Node3D" parent="."]
+visible = false
 
 [node name="cliff_blockCave_rock" type="MeshInstance3D" parent="cliff_blockCave_rock2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
@@ -1185,7 +1186,6 @@ shape = SubResource("ConcavePolygonShape3D_h227u")
 visible = false
 
 [node name="cliff_stepsCorner_rock2" type="Node3D" parent="."]
-visible = false
 
 [node name="cliff_stepsCorner_rock" type="MeshInstance3D" parent="cliff_stepsCorner_rock2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)

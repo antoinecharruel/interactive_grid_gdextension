@@ -47,11 +47,11 @@ Launch Godot, create a new project, choose a location, and give it a name.
   - Select World, Click +, choose MeshInstance3D.
   - Rename it "Floor".
   - In the Mesh property, select PlaneMesh.
-  - Set Transform → Scale to 20.0, 1.0, 20.0
+  - Set Transform → Scale to 20.0, 20.0, 20.0
 
 - __Add collision to the floor.__
   - With Floor selected, click Mesh → Create Collision Shape.
-      - Collision Shape Placement. Static Body Child.
+      - Collision Shape Placement: Static Body Child.
       - Collision Shape Type: Trimesh.
 
 ```{=latex}
@@ -99,7 +99,7 @@ Assign it to Collision Layer 15. This is important to ensure proper alignment of
 ## 3 - Player scene and input actions
 
 - __Create the player scene.__
-  - Click +, select 3D Scene.
+  - New scene, Select 3D Scene.
   - Choose Node3D
   - Rename it "PawnPlayer".
 
@@ -118,8 +118,9 @@ Assign it to Collision Layer 15. This is important to ensure proper alignment of
 
 - __Attach a Camera3D to the player.__
   - Select the Pawn (CharacterBody3D) node, click +, and add a Camera3D node.
-  - Set the Transform → Position to 8, 12, 8.
-  - Set Rotation X to -45° and Rotation Y to 45°.
+  - Set the Transform → Position to 6.0, 10.0, 6.0.
+  - FOV 60.0
+  - Set Rotation X to -45.0° and Rotation Y to 45.0°.
 
 - __Moving the player with code.__
   - Attach a script to the player.
@@ -140,7 +141,7 @@ Assign it to Collision Layer 15. This is important to ensure proper alignment of
   colframe=githubDark,
   title={\includegraphics[height=1.2em]{data/github-mark-white.pdf} \textbf{pawn.gd}}
 ]
-\href{https://github.com/antoinecharruel/interactive_grid_gdextension/blob/main/minimal_demo/pawn.gd}{\url{https://github.com/antoinecharruel/interactive_grid_gdextension/blob/main/minimal_demo/pawn.gd}
+\href{https://github.com/antoinecharruel/interactive_grid_gdextension/blob/master/minimal_demo/pawn.gd}{\url{https://github.com/antoinecharruel/interactive_grid_gdextension/blob/master/minimal_demo/pawn.gd}
 }
 \end{tcolorbox}
 ```
@@ -195,7 +196,7 @@ func _physics_process(delta: float) -> void:
   colframe=githubDark,
   title={\includegraphics[height=1.2em]{data/github-mark-white.pdf} \textbf{ray\_cast\_from\_mouse.gd}}
 ]
-\href{https://github.com/antoinecharruel/interactive_grid_gdextension/blob/main/minimal_demo/ray_cast_from_mouse.gd}{\url{https://github.com/antoinecharruel/interactive_grid_gdextension/blob/main/minimal_demo/ray_cast_from_mouse.gd}
+\href{https://github.com/antoinecharruel/interactive_grid_gdextension/blob/master/minimal_demo/ray_cast_from_mouse.gd}{\url{https://github.com/antoinecharruel/interactive_grid_gdextension/blob/master/minimal_demo/ray_cast_from_mouse.gd}
 }
 \end{tcolorbox}
 ```
@@ -204,9 +205,8 @@ func _physics_process(delta: float) -> void:
 \begin{lstlisting}[language=python]
 extends RayCast3D
 
-@onready var ray_cast_from_mouse: RayCast3D = $"."
 @export var debug_sphere_ray_cast_: MeshInstance3D
-@onready var camera_3d: Camera3D = $"../Camera3D"
+@onready var camera_3d: Camera3D = $"../Pawn/Camera3D"
 
 func _ready() -> void:
 
@@ -222,7 +222,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 
 	# Position the debug sphere at the ray intersection point from the mouse.
-	if(ray_cast_from_mouse):
+	if(self):
 		debug_sphere_ray_cast_.global_transform.origin = get_ray_intersection_position()
 	
 func get_ray_intersection_position() -> Vector3:
@@ -235,31 +235,31 @@ func get_ray_intersection_position() -> Vector3:
 	var ray_length:int = 2000
 	
 	# Position and orient the RayCast.
-	ray_cast_from_mouse.global_position = ray_origin
-	ray_cast_from_mouse.target_position = ray_direction * ray_length
-	ray_cast_from_mouse.collide_with_areas = true
+	self.global_position = ray_origin
+	self.target_position = ray_direction * ray_length
+	self.collide_with_areas = true
 	
-	ray_cast_from_mouse.collision_mask = 0 # Reset.
-	ray_cast_from_mouse.set_collision_mask_value(1, true)
-	ray_cast_from_mouse.set_collision_mask_value(15, false) # Ignore this layer.
+	self.collision_mask = 0 # Reset.
+	self.set_collision_mask_value(1, true)
+	self.set_collision_mask_value(15, false) # Ignore this layer.
 	
 	var debug_sphere_raycast: MeshInstance3D
 
-	ray_cast_from_mouse.force_raycast_update()
+	self.force_raycast_update()
 	
 	# Force an immediate RayCast update.
-	if ray_cast_from_mouse.is_colliding():
-		var collider:Node3D = ray_cast_from_mouse.get_collider()
+	if self.is_colliding():
+		var collider:Node3D = self.get_collider()
 		
-		intersect_ray_position = ray_cast_from_mouse.get_collision_point()
-		print("[GetRayIntersectionPosition] Collision detected at: ", intersect_ray_position)
-		print("[GetRayIntersectionPosition] Collision detected with: ", collider.name)
+		intersect_ray_position = self.get_collision_point()
+		#print("[GetRayIntersectionPosition] Collision detected at: ", intersect_ray_position)
+		#print("[GetRayIntersectionPosition] Collision detected with: ", collider.name)
 		
 	return intersect_ray_position
 \end{lstlisting}
 ```
 
-- __Save and add the player to the main scene.__
+- __Save and add the player to the master scene.__
   - Save the player scene as pawn_player.tscn.
   - Open world.tscn, and drag pawn_player.tscn into the scene as an instance.
   - Set the Transform → Position to 0, 0, 0.
@@ -267,7 +267,7 @@ func get_ray_intersection_position() -> Vector3:
 ## 4 - Install interactive grid addon
 
 - __In Godot, click AssetLib.__
-  - Search for Interactive Grid GDExtension by antoinecharruel.
+  - Search for "Interactive Grid GDExtension".
   - Download and install.
 
 ```{=latex}
@@ -279,7 +279,7 @@ func get_ray_intersection_position() -> Vector3:
 ## 5 - Setup interactive grid addon
 
 - Open the PawnPlayer scene.
-- Select CharacterBody3D (Pawn), click +, and add a InteractiveGrid node.
+- Select Pawn (CharacterBody3D), click +, and add a InteractiveGrid node.
 
 ```{=latex}
 \begin{center}
@@ -302,13 +302,16 @@ Don’t worry—this is normal. It simply means that the InteractiveGrid node do
   - Select InteractiveGrid, go to the Inspector → Cell Mesh property.
   - Click on the mesh field and select BoxMesh.
   - Set Transform → 0.8, 0.1, 0.8.
+- __Set grid size__
+  - Rows: 15
+  - Columns: 15
 
 ## 6 - Interactive grid scripting
 
 - __Attach a script__
-  - Select the InteractiveGrid node.
+  - Select the InteractiveGrid3D node.
   - Click Attach Script.
-  - Choose or create the script interactive_grid.gd.
+  - Choose or create the script interactive_grid_3d.gd.
   - Fill in the script.
 
 ```{=latex}
@@ -317,14 +320,14 @@ Don’t worry—this is normal. It simply means that the InteractiveGrid node do
   colframe=githubDark,
   title={\includegraphics[height=1.2em]{data/github-mark-white.pdf} \textbf{interactive\_grid.gd}}
 ]
-\href{https://github.com/antoinecharruel/interactive_grid_gdextension/blob/main/minimal_demo/interactive_grid.gd}{\url{https://github.com/antoinecharruel/interactive_grid_gdextension/blob/main/minimal_demo/interactive_grid.gd}
+\href{https://github.com/antoinecharruel/interactive_grid_gdextension/blob/master/minimal_demo/interactive_grid_3d.gd}{\url{https://github.com/antoinecharruel/interactive_grid_gdextension/blob/master/minimal_demo/interactive_grid_3d.gd}
 }
 \end{tcolorbox}
 ```
 
 ```{=latex}
 \begin{lstlisting}[language=python]
-extends InteractiveGrid
+extends InteractiveGrid3D
 
 @onready var pawn: CharacterBody3D = $".."
 @onready var ray_cast_from_mouse: RayCast3D = $"../../RayCastFromMouse"
@@ -354,7 +357,7 @@ func _input(event):
 				# ! Info: every time center is called, the state of the cells is reset.
 				self.center(pawn.global_position)
 				
-				var index_cell_pawn: int = self.get_cell_index_from_global_position(pawn.global_position)
+				var pawn_cell_index: int = self.get_cell_index_from_global_position(pawn.global_position)
 				
 				# Manually set cell as unwalkable.
 				# set_cell_walkable(75, false);
@@ -363,8 +366,7 @@ func _input(event):
 				# print("Cell 75 is walkable ? : ", is_cell_walkable(75))
 				
  				# Hides distant cells.
-				self.hide_distant_cells(index_cell_pawn, 6)	
-				self.compute_inaccessible_cells(index_cell_pawn)
+				self.hide_distant_cells(pawn_cell_index, 6)
 				
 				# Manually set cell color.
 				# var color_cell = Color(0.3, 0.4, 0.9)
@@ -383,21 +385,22 @@ func _input(event):
 			if pawn && ray_cast_from_mouse:
 				# Select a cell.
 				if self.get_selected_cells().is_empty():
-					self.select_cell(ray_cast_from_mouse.get_ray_intersection_position())
+					var selected_cell_index = get_cell_index_from_global_position(ray_cast_from_mouse.get_ray_intersection_position())
+					self.select_cell(selected_cell_index)
 				
 				# Retrieve the selected cells.
 				var selected_cells: Array = self.get_selected_cells()
 				if selected_cells.size() > 0:
 					
-					get_cell_golbal_position(selected_cells[0])
+					get_cell_global_position(selected_cells[0])
 
-					var index_cell_pawn = self.get_cell_index_from_global_position(self.get_grid_center_global_position())
-					print("Pawn index: ", index_cell_pawn)
+					var pawn_cell_index = self.get_cell_index_from_global_position(self.get_grid_center_global_position())
+					print("Pawn index: ", pawn_cell_index)
 					
 					# Retrieve the path.
 					var path: PackedInt64Array
-					path = self.get_path(index_cell_pawn, selected_cells[0]) # only the first one.
-					#path = self.get_path(index_cell_pawn, self.get_latest_selected()) # the last one.
+					path = self.get_path(pawn_cell_index, selected_cells[0]) # only the first one.
+					#path = self.get_path(pawn_cell_index, self.get_latest_selected()) # the last one.
 					print("Last selected cell:", self.get_latest_selected())
 					print("Path:", path)
 					
@@ -417,12 +420,12 @@ func _input(event):
 
   - __Add the wall mesh.__
     - Select Walls, click +, choose CSGBox3D.
-    - Set Transform → Scale to 3.0, 3.0, 0.5.
+    - Set Transform → Scale to 3.0, 3.0, 0.5
 
 - __Add collision.__
   - In the Inspector, check Use Collision.
   - Set the Collision Shape Type to Single Convex.
-  - Assign the wall to Collision Layer 14.
+  - Assign the StaticBody3D to Collision Layer 14.
 
 ```{=latex}
 \begin{tcolorbox}[
@@ -448,13 +451,13 @@ Assign it to Collision Layer 14. This is important to ensure that the grid corre
   - __Add the ramp mesh.__
     - Select Rampes, click +, choose MeshInstance3D.
     - In the Mesh property, select PrismMesh.
-    - Set Transform → Scale to 10.0, 2.0, 3.
+    - Set Transform → Scale to 10.0, 2.0, 5.0
 
   - __Add collision.__
     - Create Collision Shape.
-      - Collision Shape Placement. Static Body Child.
+      - Collision Shape Placement: Static Body Child.
       - Collision Shape Type: Trimesh.
-      - Assign it to Collision Layer 15 (same as the floor).
+      - Assign the StaticBody3D to Collision Layer 15 (same as the floor).
 
 ```{=latex}
 \begin{tcolorbox}[

@@ -1,19 +1,31 @@
-/*+===================================================================
-File: common.cpp
-
-Summary: This file provides utility functions and common includes 
-         used across the InteractiveGrid Godot GDExtension project.
-
-Last Modified: November 25, 2025
-
-This file is part of the InteractiveGrid GDExtension Source Code.
-Repository: https://github.com/antoinecharruel/interactive_grid
-
-Version InteractiveGrid: 1.5.0
-Version: Godot Engine v4.5.stable.steam - https://godotengine.org
-
-Author: Antoine Charruel
-===================================================================+*/
+/**************************************************************************/
+/*  common.h                                                              */
+/**************************************************************************/
+/*                         This file is part of:                          */
+/*                     INTERACTIVE GRID GDExtension                       */
+/*         https://github.com/antoinecharruel/interactive_grid            */
+/**************************************************************************/
+/* Copyright (c) 2025 Antoine Charruel.                                   */
+/*                                                                        */
+/* Permission is hereby granted, free of charge, to any person obtaining  */
+/* a copy of this software and associated documentation files (the        */
+/* "Software"), to deal in the Software without restriction, including    */
+/* without limitation the rights to use, copy, modify, merge, publish,    */
+/* distribute, sublicense, and/or sell copies of the Software, and to     */
+/* permit persons to whom the Software is furnished to do so, subject to  */
+/* the following conditions:                                              */
+/*                                                                        */
+/* The above copyright notice and this permission notice shall be         */
+/* included in all copies or substantial portions of the Software.        */
+/*                                                                        */
+/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,        */
+/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF     */
+/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. */
+/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY   */
+/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,   */
+/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE      */
+/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
+/**************************************************************************/
 
 #pragma once
 
@@ -25,56 +37,27 @@ Author: Antoine Charruel
 #include <strings.h> // POSIX systems
 #endif
 
-#include <array>
-#include <sstream>
-#include <vector>
-
-// Godot engine
 #include <godot_cpp/core/binder_common.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-inline void PrintError(const godot::String &file, const godot::String &func, const int &line, const godot::Variant &p_variant) {
-	/*F+F+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  Summary: Prints an error message to the Godot console with the specified
-  file, function, line number, and error message string.
-
-  ref : godot_cpp/core/print_string.hpp
-  -----------------------------------------------------------------F-F*/
-	godot::String line_str = godot::String("[") + file + "@" + func + ":" + godot::itos(line) + "] " + godot::String(p_variant);
+inline void PrintError(const godot::String &p_file, const godot::String &p_func, const int &p_line, const godot::Variant &p_variant) {
+	godot::String line_str = godot::String("[") + p_file + "@" + p_func + ":" + godot::itos(p_line) + "] " + godot::String(p_variant);
 	godot::UtilityFunctions::printerr(line_str);
 }
 
 template <typename... Args>
-// ref : godot_cpp/core/print_string.hpp
-void PrintError(const godot::String &file, const godot::String &func, const int &line, const godot::Variant &p_variant, Args... p_args) {
-	/*F+F+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  Summary: Prints an error message to the Godot console with the specified
-  file, function, line number, and error message string with args.
-
-  ref : godot_cpp/core/print_string.hpp
-  -----------------------------------------------------------------F-F*/
-	godot::String line_str = godot::String("[") + file + "@" + func + ":" + godot::itos(line) + "] " + godot::String(p_variant);
+void PrintError(const godot::String &p_file, const godot::String &p_func, const int &p_line, const godot::Variant &p_variant, Args... p_args) {
+	godot::String line_str = godot::String("[") + p_file + "@" + p_func + ":" + godot::itos(p_line) + "] " + godot::String(p_variant);
 	godot::UtilityFunctions::printerr(line_str, p_args...);
 }
 
-inline void PrintLine(const godot::String &file, const godot::String &func, const int &line, const godot::Variant &p_variant) {
-	/*F+F+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  Summary: Prints an log message to the Godot console with the specified file,
-                    function, line number, and log message string.
-  -----------------------------------------------------------------F-F*/
-	godot::String line_str = godot::String("[") + file + "@" + func + ":" + godot::itos(line) + "] " + godot::String(p_variant);
+inline void PrintLine(const godot::String &p_file, const godot::String &p_func, const int &p_line, const godot::Variant &p_variant) {
+	godot::String line_str = godot::String("[") + p_file + "@" + p_func + ":" + godot::itos(p_line) + "] " + godot::String(p_variant);
 	godot::UtilityFunctions::print(line_str);
 }
 
 template <typename... Args>
-// ref : godot_cpp/core/print_string.hpp
-void PrintLine(const godot::String &file, const godot::String &func, const int &line, const godot::Variant &p_variant, Args... p_args) {
-	/*F+F+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  Summary: Prints an log message to the Godot console with the specified
-  file, function, line number, and error message string with args.
-
-  ref : godot_cpp/core/print_string.hpp
-  -----------------------------------------------------------------F-F*/
-	godot::String line_str = godot::String("[") + file + "@" + func + ":" + godot::itos(line) + "] " + godot::String(p_variant);
+void PrintLine(const godot::String &p_file, const godot::String &p_func, const int &p_line, const godot::Variant &p_variant, Args... p_args) {
+	godot::String line_str = godot::String("[") + p_file + "@" + p_func + ":" + godot::itos(p_line) + "] " + godot::String(p_variant);
 	godot::UtilityFunctions::print(line_str, p_args...);
 }

@@ -1,136 +1,146 @@
-# =================================================================================================
-# File: interactive_grid.gd
-#
-# Summary: Script extending InteractiveGrid to handle player interaction with the grid.
-#
-# Node: InteractiveGrid (InteractiveGrid).
-#
-# Last modified: November 28, 2025
-#
-# This file is part of the InteractiveGrid GDExtension Source Code.
-# Repository: https://github.com/antoinecharruel/interactive_grid_gdextension
-#
-# Version InteractiveGrid: 1.6.0
-# Version: Godot Engine v4.5.stable.steam - https://godotengine.org
-#
-# Author: Antoine Charruel
-# =================================================================================================
+#**************************************************************************#
+#*  interactive_grid_3d.gd                                                *#
+#**************************************************************************#
+#*                         This file is part of:                          *#
+#*                     INTERACTIVE GRID GDExtension                       *#
+#*         https://github.com/antoinecharruel/interactive_grid            *#
+#**************************************************************************#
+#* Copyright (c) 2025 Antoine Charruel.                                   *#
+#*                                                                        *#
+#* Permission is hereby granted, free of charge, to any person obtaining  *#
+#* a copy of this software and associated documentation files (the        *#
+#* "Software"), to deal in the Software without restriction, including    *#
+#* without limitation the rights to use, copy, modify, merge, publish,    *#
+#* distribute, sublicense, and/or sell copies of the Software, and to     *#
+#* permit persons to whom the Software is furnished to do so, subject to  *#
+#* the following conditions:                                              *#
+#*                                                                        *#
+#* The above copyright notice and this permission notice shall be         *#
+#* included in all copies or substantial portions of the Software.        *#
+#*                                                                        *#
+#* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,        *#
+#* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF     *#
+#* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. *#
+#* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY   *#
+#* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,   *#
+#* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE      *#
+#* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 *#
+#**************************************************************************#
 
 extends InteractiveGrid3D
 
-@onready var pawn_player: CharacterBody3D = $"../PawnPlayer"
-@onready var player_pawn_collision_shape_3d: CollisionShape3D = $"../PawnPlayer/PlayerPawnCollisionShape3D"
-
 @onready var ray_cast_from_mouse: RayCast3D = $"../PawnPlayer/RayCastFromMouse"
-@onready var try_me: Control = $"../TryMe"
 
-@onready var top_left_debug_mesh: CSGMesh3D = $top_left_debug_mesh
-
-var _is_grid_open: bool = false
 var _path: PackedInt64Array = []
+var _pawn: CharacterBody3D = null
+
 
 func _ready() -> void:
-	# /*F+F++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	# Summary: Called when the node enters the scene tree for the first time.
-	#
-	# Last Modified: October 04, 2025
-	top_left_debug_mesh.visible = false
-	# ----------------------------------------------------------------------------------------F-F*/
+	pass
+
 
 func _process(delta: float) -> void:
-	# /*F+F++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	# Summary: Called every frame. 'delta' is the elapsed time since the previous frame.
-	#
-	# Last Modified: November 20, 2025
+	if _pawn == null: return
 	
-	top_left_debug_mesh.global_position = get_top_left_global_position()
+	if self.get_selected_cells().is_empty():
+		self.highlight_on_hover(ray_cast_from_mouse.get_ray_intersection_position())
+	else:
+		move_along_path(_path)
+
+
+func show_grid():
+	#region InteractiveGrid3D Center
+	## Here, the grid is centered around the player.
+	## !Note: This operation repositions all cells, aligns them with the environment,
+	## rescans obstacles and custom data, and refreshes A* navigation.
+	##  - Manual modifications can also be applied here, such as:
+	##     - Hiding cells beyond a certain distance
+	##     - compute_unreachable_cells
+	##     - Adding custom data
+
+	if _pawn == null: return
+
+	_path = []
+	self.set_visible(true)
+	self.center(_pawn.global_position)
 	
-	if pawn_player != null:
-		
-		# Highlight the cell under the mouse.
-		if self.get_selected_cells().is_empty():
-			self.highlight_on_hover(ray_cast_from_mouse.get_ray_intersection_position())
-		else:
-			var selected_cells: Array = self.get_selected_cells()
-			var index_pawn_cell: int = self.get_cell_index_from_global_position(self.player_pawn_collision_shape_3d.global_position)
-		
-			if pawn_player._is_target_reached == true:
-				_path = []
-				_path = self.get_path(index_pawn_cell, selected_cells[0]) # only the first one.
-				pawn_player._is_target_reached = false
-			
-			pawn_player.move_player_along_path(_path)
-	# ----------------------------------------------------------------------------------------F-F*/
+	var pawn_current_cell_index: int = self.get_cell_index_from_global_position(_pawn.global_position)
 
-func open_grid():
-	if player_pawn_collision_shape_3d != null:
+	# To prevent the player from getting stuck.
+	self.set_cell_walkable(pawn_current_cell_index, true)
+	self.set_cell_reachable(pawn_current_cell_index, true)
 
-				# Makes the grid visible.
-				self.set_visible(true)
-				
-				# Centers the grid.
-				# ! Info: every time center is called, the state of the cells is reset.
-				self.center(player_pawn_collision_shape_3d.global_position)
-				var index_pawn_cell: int = self.get_cell_index_from_global_position(self.get_grid_center_global_position())
-				self.hide_distant_cells(index_pawn_cell, 6)
-				self.compute_unreachable_cells(index_pawn_cell)
-				
-				_is_grid_open = true
-				try_me.visible = false
+	self.hide_distant_cells(pawn_current_cell_index, 6)
+	self.compute_unreachable_cells(pawn_current_cell_index)
+
+	var neighbors: PackedInt64Array = self.get_neighbors(pawn_current_cell_index)
+	for neighbor_index in neighbors:
+		self.add_custom_cell_data(neighbor_index, "CFL_NEIGHBORS")
+
+	self.add_custom_cell_data(pawn_current_cell_index, "CFL_PLAYER")
+	
+	## !Note: Don't forget to call update_custom_data().
+	## It refreshes custom_cell_flags, colors, and the A* configuration
+	## based on the newly updated CellCustomData.
+	self.update_custom_data()
+	#endregion
 
 func _input(event):
-	# /*F+F++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	# Summary: Handles mouse input events for the InteractiveGrid.
-	#
-	# Last Modified: October 10, 2025
-	
-	if event.is_action_pressed("open_grid") && _is_grid_open == false:
-	# --------------------------------------------------------------------
-	#  SPACE BAR: Open the grid
-	# --------------------------------------------------------------------
-		open_grid()
-
-
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-	# --------------------------------------------------------------------
-	#  LEFT MOUSE CLICK.
-	# --------------------------------------------------------------------
+		if _pawn == null: 
+			return
 
-		if pawn_player == null:
+		var ray_pos: Vector3 = ray_cast_from_mouse.get_ray_intersection_position()
+		if ray_pos == null: 
 			return
-			
-		var ray_pos = ray_cast_from_mouse.get_ray_intersection_position()
-		if ray_pos == null:
-			return
-			
+
 		var selected_cells: Array = self.get_selected_cells()
-		
 		if selected_cells.size() < 1:
-			# Retrieve the selected cells.
-			self.select_cell(ray_cast_from_mouse.get_ray_intersection_position())
-			
-			# Select a cell.
-			if self.get_selected_cells().is_empty():
+			var hit_cell_index = self.get_cell_index_from_global_position(ray_pos)
+			self.select_cell(hit_cell_index)
+			selected_cells = self.get_selected_cells()
+			if selected_cells.is_empty():
 				return
-			
-			var index_cell_pawn: int = self.get_cell_index_from_global_position(self.get_grid_center_global_position())
-			self.set_cell_walkable(index_cell_pawn, true)
-			
-			# Retrieve the path.
-			var path: PackedInt64Array
-			path = self.get_path(index_cell_pawn, selected_cells[0]) # only the first one.
+
+			var pawn_current_cell_index: int = self.get_cell_index_from_global_position(self.get_grid_center_global_position())
+			self.set_cell_walkable(pawn_current_cell_index, true)
+			_path = self.get_path(pawn_current_cell_index, selected_cells[0])
 			print("Last selected cell:", self.get_latest_selected())
-			print("Path:", path)
+			print("Path:", _path)
+			self.highlight_path(_path)
 
-			# Highlight the path.
-			self.highlight_path(path)
-	# ----------------------------------------------------------------------------------------F-F*/	
 
-func _on_button_button_down() -> void:
-	# /*F+F++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	# Summary: Handles mouse input events for the InteractiveGrid.
-	#
-	# Last Modified: October 10, 2025
+func move_along_path(path: PackedInt64Array)-> void:
+	if path.is_empty():
+		_pawn.idle()
+		show_grid()
+		return
 	
-	open_grid()
-	# ----------------------------------------------------------------------------------------F-F*/	
+	var target_cell_index: int = path[0]
+	var target_global_position: Vector3 = get_cell_global_position(target_cell_index)
+	if not is_on_target_cell(_pawn.global_position, target_global_position, 0.20):
+		reaching_cell_target(target_cell_index, path)
+	else:
+		target_cell_reached()
+
+
+func reaching_cell_target(target_cell_index: int, path: PackedInt64Array) -> void:
+	if _path.size() > 0:
+		var target_cell_global_position: Vector3 = self.get_cell_global_position(target_cell_index)
+		if _pawn.has_method("move_to"):
+			_pawn.move_to(target_cell_global_position)
+		else:
+			printerr("pawn does not have the 'move_to' method.")
+
+
+func target_cell_reached():
+	if not _path.is_empty():
+		_path.remove_at(0)
+
+
+static func is_on_target_cell(current_global_position: Vector3, target_global_position: Vector3, threshold: float) -> bool:
+	return current_global_position.distance_to(target_global_position) <= threshold
+
+
+func set_pawn(pawn: CharacterBody3D):
+	_pawn = pawn

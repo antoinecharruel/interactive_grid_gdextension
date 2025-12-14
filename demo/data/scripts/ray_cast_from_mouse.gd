@@ -1,93 +1,70 @@
-# =================================================================================================
-# File: ray_cast_from_mouse.gd
-#
-# Summary: 
-#
-# Node: RayCastFromMouse (RayCast3D).
-#
-# Last modified: October 04, 2025
-#
-# This file is part of the InteractiveGrid GDExtension Source Code.
-# Repository: https://github.com/antoinecharruel/interactive_grid_gdextension
-#
-# Version InteractiveGrid: 1.1.0
-# Version: Godot Engine v4.5.stable.steam - https://godotengine.org
-#
-# Author: Antoine Charruel
-# =================================================================================================
+#**************************************************************************#
+#*  ray_cast_from_mouse.gd                                                *#
+#**************************************************************************#
+#*                         This file is part of:                          *#
+#*                     INTERACTIVE GRID GDExtension                       *#
+#*         https://github.com/antoinecharruel/interactive_grid            *#
+#**************************************************************************#
+#* Copyright (c) 2025 Antoine Charruel.                                   *#
+#*                                                                        *#
+#* Permission is hereby granted, free of charge, to any person obtaining  *#
+#* a copy of this software and associated documentation files (the        *#
+#* "Software"), to deal in the Software without restriction, including    *#
+#* without limitation the rights to use, copy, modify, merge, publish,    *#
+#* distribute, sublicense, and/or sell copies of the Software, and to     *#
+#* permit persons to whom the Software is furnished to do so, subject to  *#
+#* the following conditions:                                              *#
+#*                                                                        *#
+#* The above copyright notice and this permission notice shall be         *#
+#* included in all copies or substantial portions of the Software.        *#
+#*                                                                        *#
+#* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,        *#
+#* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF     *#
+#* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. *#
+#* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY   *#
+#* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,   *#
+#* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE      *#
+#* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 *#
+#**************************************************************************#
 
 extends RayCast3D
 
-@onready var ray_cast_from_mouse: RayCast3D = $"."
-@export var debug_sphere_ray_cast_: MeshInstance3D
-
 @onready var camera_3d: Camera3D = $"../Camera3D_Iso"
+@export var debug_sphere_raycast: MeshInstance3D
 
 func _ready() -> void:
-	# /*F+F++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	# Summary: Called when the node enters the scene tree for the first time.
-	#
-	# Last Modified: October 04, 2025
-	
-	# Create a sphere for raycast debugging.
-	debug_sphere_ray_cast_ = MeshInstance3D.new()
-	debug_sphere_ray_cast_.mesh = SphereMesh.new()
-	var mat_target = StandardMaterial3D.new()
+	debug_sphere_raycast = MeshInstance3D.new()
+	debug_sphere_raycast.mesh = SphereMesh.new()
+	var mat_target: StandardMaterial3D = StandardMaterial3D.new()
 	mat_target.albedo_color = Color.GREEN
-	debug_sphere_ray_cast_.material_override = mat_target
-	debug_sphere_ray_cast_.scale = Vector3(0.3, 0.3, 0.3)
-	
-	add_child(debug_sphere_ray_cast_)
-	debug_sphere_ray_cast_.visible = false
-	# ----------------------------------------------------------------------------------------F-F*/
+	debug_sphere_raycast.material_override = mat_target
+	debug_sphere_raycast.scale = Vector3(0.3, 0.3, 0.3)
+	add_child(debug_sphere_raycast)
+	debug_sphere_raycast.visible = false
 	
 func _process(delta: float) -> void:
-	# /*F+F++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	# Summary: Called every frame. 'delta' is the elapsed time since the previous frame.
-	#
-	# Last Modified: October 04, 2025
-	
-	# Position the debug sphere at the ray intersection point from the mouse.
-	if(ray_cast_from_mouse):
-		debug_sphere_ray_cast_.global_transform.origin = get_ray_intersection_position()
-	# ----------------------------------------------------------------------------------------F-F*/
+		debug_sphere_raycast.global_transform.origin = get_ray_intersection_position()
 	
 func get_ray_intersection_position() -> Vector3:
-	# /*F+F++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	# Summary: Computes the world position where the mouse ray intersects with collidable objects.
-	#          Uses a RayCast3D projected from the camera through the mouse cursor.
-	#
-	# Last Modified: October 04, 2025
-	
 	var intersect_ray_position: Vector3 = Vector3.ZERO
-
 	var mouse_pos:Vector2 = get_viewport().get_mouse_position()
 	var ray_origin:Vector3 = camera_3d.project_ray_origin(mouse_pos)
 	var ray_direction:Vector3 = camera_3d.project_ray_normal(mouse_pos)
 	var ray_length:int = 2000
 	
-	# Position and orient the RayCast.
-	ray_cast_from_mouse.global_position = ray_origin
-	ray_cast_from_mouse.target_position = ray_direction * ray_length
-	ray_cast_from_mouse.collide_with_areas = false
-	
-	ray_cast_from_mouse.collision_mask = 0 # Reset.
-	ray_cast_from_mouse.set_collision_mask_value(15, true) # Ignore this layer.
-	
-	# Désactiver toutes les autres couches éventuellement conflictuelles
-	ray_cast_from_mouse.set_collision_mask_value(1, false)
-	
-	var debug_sphere_raycast: MeshInstance3D
+	self.global_position = ray_origin
+	self.target_position = ray_direction * ray_length
+	self.collide_with_areas = false
+	self.collision_mask = 0
+	self.set_collision_mask_value(15, true)
+	self.set_collision_mask_value(1, false)
+	self.force_raycast_update()
 
-	ray_cast_from_mouse.force_raycast_update()
-	
-	# Force an immediate RayCast update.
-	if ray_cast_from_mouse.is_colliding():
-		var collider:Node3D = ray_cast_from_mouse.get_collider()
+	if self.is_colliding():
+		var collider:Node3D = self.get_collider()
 		
-		intersect_ray_position = ray_cast_from_mouse.get_collision_point()
-		#print("[GetRayIntersectionPosition] Collision detected at: ", intersect_ray_position)
-		#print("[GetRayIntersectionPosition] Collision detected with: ", collider.name)
+		intersect_ray_position = self.get_collision_point()
+		#print("[get_ray_intersection_position] Collision detected at: ", intersect_ray_position)
+		#print("[get_ray_intersection_position] Collision detected with: ", collider.name)
 		
 	return intersect_ray_position
-	# ----------------------------------------------------------------------------------------F-F*/

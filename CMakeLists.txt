@@ -49,6 +49,8 @@ target_sources(${LIBNAME}
     PRIVATE
     src/register_types.cpp
     src/register_types.h
+    src/custom_cell_data.cpp
+    src/custom_cell_data.h
     src/interactive_grid.cpp
     src/interactive_grid.h
 )

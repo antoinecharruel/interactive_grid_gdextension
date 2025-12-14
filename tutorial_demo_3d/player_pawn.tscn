@@ -1,0 +1,93 @@
+[gd_scene load_steps=15 format=3 uid="uid://ths1sc3yn4sm"]
+
+[ext_resource type="Script" uid="uid://dfw8a7neo5ko4" path="res://pawn.gd" id="1_f52xy"]
+[ext_resource type="Script" uid="uid://ba8ppuyglmhoh" path="res://ray_cast_from_mouse.gd" id="2_788fa"]
+[ext_resource type="Shader" uid="uid://k2cctwwqj5pb" path="res://interractive_grid.gdshader" id="3_8u2o4"]
+[ext_resource type="Script" uid="uid://bv6qv2b3lsria" path="res://interactive_grid_3d.gd" id="3_j7dk7"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_gh5hs"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_gh5hs"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_788fa"]
+top_radius = 1.14
+bottom_radius = 1.14
+height = 0.1
+radial_segments = 6
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_8u2o4"]
+height = 6.0
+radius = 1.0
+
+[sub_resource type="CustomCellData" id="CustomCellData_8u2o4"]
+custom_data_name = "CFL_TRAP"
+layer_mask = 1280
+collision_layer = 1024
+use_custom_color = true
+color = Color(1, 0.3647059, 0.26666668, 1)
+
+[sub_resource type="CustomCellData" id="CustomCellData_2008n"]
+custom_data_name = "CFL_PULSE"
+layer_mask = 256
+collision_layer = 0
+
+[sub_resource type="CustomCellData" id="CustomCellData_7d7wc"]
+custom_data_name = "CFL_PLAYER"
+layer_mask = 128
+collision_layer = 0
+use_custom_color = true
+color = Color(1, 1, 0, 1)
+
+[sub_resource type="CustomCellData" id="CustomCellData_k2v5m"]
+custom_data_name = "CFL_NEIGHBORS"
+layer_mask = 512
+collision_layer = 0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8u2o4"]
+render_priority = 0
+shader = ExtResource("3_8u2o4")
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_j7dk7"]
+height = 6.0
+radius = 1.0
+
+[node name="PlayerPawn" type="Node3D"]
+
+[node name="Pawn" type="CharacterBody3D" parent="."]
+script = ExtResource("1_f52xy")
+
+[node name="Model" type="MeshInstance3D" parent="Pawn"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_gh5hs")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Pawn"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_gh5hs")
+
+[node name="Camera3D" type="Camera3D" parent="Pawn"]
+transform = Transform3D(0.70710677, -0.49999997, 0.49999997, 0, 0.70710677, 0.70710677, -0.70710677, -0.49999997, 0.49999997, 6, 10, 6)
+fov = 60.0
+
+[node name="RayCastFromMouse" type="RayCast3D" parent="."]
+target_position = Vector3(0, 0, 0)
+script = ExtResource("2_788fa")
+
+[node name="InteractiveGrid3D" type="InteractiveGrid3D" parent="."]
+rows = 13
+columns = 13
+cell_size = Vector2(2, 1.732)
+cell_mesh = SubResource("CylinderMesh_788fa")
+cell_shape = SubResource("CylinderShape3D_8u2o4")
+cell_shape_offset = Vector3(0, 3, 0)
+walkable_color = Color(0.5019608, 0.6509804, 1, 0.3137255)
+custom_cells_data = [SubResource("CustomCellData_8u2o4"), SubResource("CustomCellData_2008n"), SubResource("CustomCellData_7d7wc"), SubResource("CustomCellData_k2v5m")]
+material_override = SubResource("ShaderMaterial_8u2o4")
+layout = 1
+movement = 1
+script = ExtResource("3_j7dk7")
+
+[node name="DebugCollisionShapeArea3D" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 0)
+
+[node name="DebugCollisionShapeArea3D" type="CollisionShape3D" parent="DebugCollisionShapeArea3D"]
+shape = SubResource("CylinderShape3D_j7dk7")
