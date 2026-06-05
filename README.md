@@ -18,7 +18,7 @@ To get started with your new GDExtension, do the following:
 * clone your repository to your local computer
 * initialize the godot-cpp git submodule via `git submodule update --init`
 * change the name of the compiled library file inside the [SConstruct](./SConstruct) file by modifying the `libname` string.
-  * change the paths of the to be loaded library name inside the [project/bin/example.gdextension](./project/bin/example.gdextension) file, by replacing `EXTENSION-NAME` with the name you chose for `libname`.
+  * change the paths of the to be loaded library name inside the [project/bin/example.gdextension](./project/bin/example.gdextension) file, by replacing `interactive_grid` with the name you chose for `libname`.
 * change the `entry_symbol` string inside [project/bin/example.gdextension](./project/bin/example.gdextension) file.
   * rename the `example_library_init` function in [src/register_types.cpp](./src/register_types.cpp) to the same name you chose for `entry_symbol`.
 * change the name of the `project/bin/example.gdextension` file
