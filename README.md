@@ -67,28 +67,22 @@ Note: To use this plugin, simply download it and add the 'addons' folder to your
 
 ```python
 # interactive_grid_3d.gd
-
 extends InteractiveGrid3D
-
-@onready var ray_cast_from_mouse: RayCast3D = $"../RayCastFromMouse"
 
 var _path: PackedInt64Array = []
 var _pawn: CharacterBody3D = null
 var _show_grid: bool = false
 
-@onready var debug_collision_shape_area_3d: CollisionShape3D = $"../DebugCollisionShapeArea3D/DebugCollisionShapeArea3D"
-
 func _ready() -> void:
 	_show_grid = false
 
 
-func _process(delta: float) -> void:
-	
+func _process(_delta: float) -> void:
 	if _show_grid == false and self.visible:
 		self.set_visible(false)
-		
+
 	if self.get_selected_cells().is_empty():
-		self.highlight_on_hover(ray_cast_from_mouse.get_ray_intersection_position())
+		self.highlight_on_hover(%RayCastFromMouse.get_ray_intersection_position())
 	else:
 		move_along_path(_path)
 
@@ -103,13 +97,10 @@ func show_grid():
 	##     - compute_unreachable_cells
 	##     - Adding custom data
 	#endregion
-	
+
 	if _pawn == null:
 		return
 
-	if not self.is_created():
-		return
-				
 	print("show_grid")
 	_show_grid = true
 
@@ -126,15 +117,10 @@ func show_grid():
 	self.hide_distant_cells(pawn_current_cell_index, 6)
 	self.compute_unreachable_cells(pawn_current_cell_index)
 	
-	var cell_global_xform: Transform3D = get_cell_global_transform(pawn_current_cell_index)
-	var offset:Vector3 = get_cell_shape_offset()
-	var offset_xform:Transform3D = Transform3D(Basis.IDENTITY, offset)
-	debug_collision_shape_area_3d.global_transform = cell_global_xform * offset_xform
-	
 	var neighbors: PackedInt64Array = self.get_neighbors(pawn_current_cell_index)
 	for neighbor_index in neighbors:
 		self.add_custom_cell_data(neighbor_index, "CFL_NEIGHBORS")
-
+			
 	self.add_custom_cell_data(pawn_current_cell_index, "CFL_PLAYER")
 
 	#region update_custom_data()
@@ -150,7 +136,7 @@ func _input(event):
 		if _pawn == null:
 			return
 
-		var ray_pos: Vector3 = ray_cast_from_mouse.get_ray_intersection_position()
+		var ray_pos: Vector3 = %RayCastFromMouse.get_ray_intersection_position()
 		if ray_pos == null:
 			return
 
@@ -204,9 +190,6 @@ static func is_on_target_cell(current_global_position: Vector3, target_global_po
 func set_pawn(pawn: CharacterBody3D):
 	_pawn = pawn
 ```
-
-More information about scripting the interactive 3D grid:  
-[Interactive Grid Scripting](https://antoinecharruel.github.io/godot-gdextension-docs/interactive-grid/tutorial-interactive-grid-3d.html#interactive-grid-scripting)
 
 ## Use Cell Flags via Alpha Channel to Modify Cell Shader at Runtime
 
