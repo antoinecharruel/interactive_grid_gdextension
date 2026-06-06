@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="InteractiveGrid2D" inherits="Node2D" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		InteractiveGrid is a Godot GDExtension that allows player interaction with a 2D grid, including cell selection, pathfinding, and hover highlights.
+	</brief_description>
+	<description>
+		- Select individual cells.
+		- Detect obstacles.
+		- Align cells with the floor.
+		- Calculate paths from a global position to selected cells using AStar2D.
+		- Choose movement type: 4 directions, 6 directions, 8 directions.
+		- Customize the grid from the editor: grid size, cell size, mesh, colors, and shaders.
+		- High performance using MultiMeshInstance3D for efficient rendering of multiple cells.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="add_custom_cell_data">
+			<return type="void" />
+			<param index="0" name="cell_index" type="int" />
+			<param index="1" name="custom_data_name" type="String" />
+			<description>
+				Adds custom data to a specific cell.
+				- Applies the associated layer mask to the cell.
+				- If a custom color is defined, it is applied to the cell.
+			</description>
+		</method>
+		<method name="center">
+			<return type="void" />
+			<param index="0" name="center_position" type="Vector2" />
+			<description>
+				Centers the grid around the given global position and rebuilds its layout.
+				This operation repositions all cells, realigns them with the environment, rescans obstacles and custom data, and refreshes A* navigation.
+			</description>
+		</method>
+		<method name="clear_all_custom_cell_data">
+			<return type="void" />
+			<param index="0" name="cell_index" type="int" />
+			<description>
+				Resets the cell's custom_flags and removes any custom_color.
+			</description>
+		</method>
+		<method name="clear_custom_cell_data">
+			<return type="void" />
+			<param index="0" name="cell_index" type="int" />
+			<param index="1" name="custom_data_name" type="String" />
+			<param index="2" name="clear_custom_color" type="bool" />
+			<description>
+				Resets the custom data of a given cell.
+			</description>
+		</method>
+		<method name="compute_unreachable_cells">
+			<return type="void" />
+			<param index="0" name="start_cell_index" type="int" />
+			<description>
+				Iterates over all grid cells and marks as unreachable those cells that cannot be reached from the specified start_cell.
+				Updates the visual representation by applying unreachable_color to the cells.
+			</description>
+		</method>
+		<method name="get_cell_color">
+			<return type="Color" />
+			<param index="0" name="cell_index" type="int" />
+			<description>
+				Returns the color of the cell identified by index.
+			</description>
+		</method>
+		<method name="get_cell_global_position" qualifiers="const">
+			<return type="Vector2" />
+			<param index="0" name="cell_index" type="int" />
+			<description>
+				Returns the global_position of the cell identified by index.
+			</description>
+		</method>
+		<method name="get_cell_global_transform" qualifiers="const">
+			<return type="Transform2D" />
+			<param index="0" name="cell_index" type="int" />
+			<description>
+				Returns the global [Transform2D] of the cell identified by index.
+			</description>
+		</method>
+		<method name="get_cell_index_from_global_position" qualifiers="const">
+			<return type="int" />
+			<param index="0" name="global_position" type="Vector2" />
+			<description>
+				Returns the index of the grid cell that is closest to the supplied world position.
+			</description>
+		</method>
+		<method name="get_cell_position" qualifiers="const">
+			<return type="Vector2" />
+			<param index="0" name="cell_index" type="int" />
+			<description>
+				Returns the local position of the cell identified by index.
+			</description>
+		</method>
+		<method name="get_cell_transform" qualifiers="const">
+			<return type="Transform2D" />
+			<param index="0" name="cell_index" type="int" />
+			<description>
+				Returns the local [Transform2D] of the specified cell.
+			</description>
+		</method>
+		<method name="get_latest_selected" qualifiers="const">
+			<return type="int" />
+			<description>
+				Returns the most recently selected_cell.
+			</description>
+		</method>
+		<method name="get_neighbors" qualifiers="const">
+			<return type="Array" />
+			<param index="0" name="cell_index" type="int" />
+			<description>
+				Returns the indices of neighboring cells for the specified grid cell.
+			</description>
+		</method>
+		<method name="get_path" qualifiers="const">
+			<return type="PackedInt64Array" />
+			<param index="0" name="start_cell_index" type="int" />
+			<param index="1" name="target_cell_index" type="int" />
+			<description>
+				Computes a path between two cells on the grid using A* pathfinding.
+			</description>
+		</method>
+		<method name="get_selected_cells">
+			<return type="Array" />
+			<description>
+				Returns an array of all cells currently marked as selected.
+			</description>
+		</method>
+		<method name="get_size" qualifiers="const">
+			<return type="int" />
+			<description>
+				Returns the total number of cells in the grid.
+			</description>
+		</method>
+		<method name="has_custom_cell_data">
+			<return type="bool" />
+			<param index="0" name="cell_index" type="int" />
+			<param index="1" name="custom_data_name" type="String" />
+			<description>
+				Checks if a specific cell has the given CustomCellData applied. Returns true if the cell's flags include the full layer mask of the specified CustomCellData, otherwise returns false.
+			</description>
+		</method>
+		<method name="hide_distant_cells">
+			<return type="void" />
+			<param index="0" name="start_cell_index" type="int" />
+			<param index="1" name="distance" type="float" />
+			<description>
+				Iterates over all grid cells and hides those located farther than the specified distance from the start_cell. Marks them as unaccessible.
+			</description>
+		</method>
+		<method name="highlight_on_hover">
+			<return type="void" />
+			<param index="0" name="global_position" type="Vector2" />
+			<description>
+				Updates the hover highlight state based on the specified global_position. Identifies the corresponding cell, clears any previous hover, and applies the hover color unless the cell is already selected.
+			</description>
+		</method>
+		<method name="highlight_path">
+			<return type="void" />
+			<param index="0" name="path" type="PackedInt64Array" />
+			<description>
+				Highlights a given path on the grid by changing the color of each cell along the path to the predefined path color.
+			</description>
+		</method>
+		<method name="is_cell_accessible" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="cell_index" type="int" />
+			<description>
+				Returns true if the cell at the specified index is currently marked as accessible.
+			</description>
+		</method>
+		<method name="is_cell_hovered" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="cell_index" type="int" />
+			<description>
+				Returns true if the cell at the specified index is currently marked as hovered.
+			</description>
+		</method>
+		<method name="is_cell_in_void" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="cell_index" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="is_cell_reachable" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="cell_index" type="int" />
+			<description>
+				Returns true if the cell at the specified index is currently marked as unreachable.
+			</description>
+		</method>
+		<method name="is_cell_selected" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="cell_index" type="int" />
+			<description>
+				Returns true if the cell at the specified index is currently marked as selected.
+			</description>
+		</method>
+		<method name="is_cell_visible" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="cell_index" type="int" />
+			<description>
+				Returns true if the cell at the specified index is currently marked as visible.
+			</description>
+		</method>
+		<method name="is_centered" qualifiers="const">
+			<return type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="is_created" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Checks if the grid has been created.
+			</description>
+		</method>
+		<method name="is_hover_enabled" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Checks whether hover functionality is currently disabled.
+			</description>
+		</method>
+		<method name="select_cell">
+			<return type="void" />
+			<param index="0" name="global_position" type="int" />
+			<description>
+				Selects a grid cell based on a cell index.
+			</description>
+		</method>
+		<method name="set_cell_accessible">
+			<return type="void" />
+			<param index="0" name="cell_index" type="int" />
+			<param index="1" name="is_accessible" type="bool" />
+			<description>
+				Sets whether a specific cell is accessible or not.
+			</description>
+		</method>
+		<method name="set_cell_color">
+			<return type="void" />
+			<param index="0" name="cell_index" type="int" />
+			<param index="1" name="color" type="Color" />
+			<description>
+				Sets the color of a specific cell.
+			</description>
+		</method>
+		<method name="set_cell_reachable">
+			<return type="void" />
+			<param index="0" name="cell_index" type="int" />
+			<param index="1" name="set_cell_reachable" type="bool" />
+			<description>
+				Sets whether a given grid cell is reachable.
+			</description>
+		</method>
+		<method name="set_hover_enabled">
+			<return type="void" />
+			<param index="0" name="enabled" type="bool" />
+			<description>
+				Enables or disables hover functionality.
+			</description>
+		</method>
+		<method name="update_custom_data">
+			<return type="void" />
+			<description>
+				Refreshes custom_cell_flags, colors, and A* configuration based on the current CellCustomData.
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="cell_mesh" type="Mesh" setter="set_cell_mesh" getter="get_cell_mesh">
+			The [Mesh] resource for the grid.
+		</member>
+		<member name="cell_shape" type="Shape2D" setter="set_cell_shape" getter="get_cell_shape">
+			The [Shape2D] resource for the cell, used for obstacle detection and for detecting objects that have a collision shape on the same layer as a CustomCellData.
+		</member>
+		<member name="cell_shape_offset" type="Vector2" setter="set_cell_shape_offset" getter="get_cell_shape_offset" default="Vector2(0, 0)">
+			Offset of the cell shape relative to the cell origin.
+		</member>
+		<member name="cell_size" type="Vector2" setter="set_cell_size" getter="get_cell_size" default="Vector2(64, 64)">
+			Size of each grid cell.
+		</member>
+		<member name="cell_texture" type="Texture2D" setter="set_cell_texture" getter="get_cell_texture">
+			The [Texture2D] resource for the grid.
+		</member>
+		<member name="collision_obstacles_enabled" type="bool" setter="set_obstacles_collision_enabled" getter="get_obstacles_collision_enabled" default="false">
+			If true, the grid will detect and account for obstacles during pathfinding or cell updates.
+		</member>
+		<member name="collision_obstacles_mask" type="int" setter="set_obstacles_collision_mask" getter="get_obstacles_collision_mask" default="1">
+			Collision masks used to detect obstacles on the grid.
+		</member>
+		<member name="color_accessible" type="Color" setter="set_accessible_color" getter="get_accessible_color" default="Color(1, 1, 1, 1)">
+			Color used to indicate that the cell is accessible.
+		</member>
+		<member name="color_hovered_color" type="Color" setter="set_hovered_color" getter="get_hovered_color" default="Color(1, 1, 1, 1)">
+			Color used when the cell is hovered over.
+		</member>
+		<member name="color_path" type="Color" setter="set_path_color" getter="get_path_color" default="Color(1, 1, 1, 1)">
+			Color used to display the path.
+		</member>
+		<member name="color_selected" type="Color" setter="set_selected_color" getter="get_selected_color" default="Color(1, 1, 1, 1)">
+			Color used to indicate the currently selected cell.
+		</member>
+		<member name="color_unaccessible" type="Color" setter="set_unaccessible_color" getter="get_unaccessible_color" default="Color(1, 1, 1, 1)">
+			Color used to indicate that the cell is not accessible or blocked.
+		</member>
+		<member name="color_unreachable" type="Color" setter="set_unreachable_color" getter="get_unreachable_color" default="Color(1, 1, 1, 1)">
+			Color used to indicate that the cell is not reachable.
+		</member>
+		<member name="columns" type="int" setter="set_columns" getter="get_columns" default="9">
+			Number of columns in the grid.
+		</member>
+		<member name="custom_cells_data" type="Array" setter="set_custom_cells_data" getter="get_custom_cells_data" default="[]">
+			List of CustomCellData used to add additional states, behaviors, or visual effects to specific grid cells. Each CustomCellData can be applied via a collision mask or through GDScript, and is accessible in shader scripts via the INSTANCE_CUSTOM alpha channel.
+		</member>
+		<member name="debug_execution_time_enabled" type="bool" setter="set_execution_time_enabled" getter="is_execution_time_enabled" default="false">
+			Enable printing execution time of grid operations for debugging.
+		</member>
+		<member name="debug_logs_enabled" type="bool" setter="set_logs_enabled" getter="is_logs_enabled" default="false">
+			Enable printing debug logs related to grid operations.
+		</member>
+		<member name="layout" type="int" setter="set_layout" getter="get_layout" enum="InteractiveGrid2D.Layout" default="0">
+			Grid layout type (LAYOUT_SQUARE, LAYOUT_HEXAGONAL).
+		</member>
+		<member name="material_override" type="Material" setter="set_material_override" getter="get_material_override">
+			Optional material override for the grid. Assign a custom [ShaderMaterial] to visually modify grid cells.
+		</member>
+		<member name="movement" type="int" setter="set_movement" getter="get_movement" enum="InteractiveGrid2D.Movement" default="0">
+			Type of movement on the grid for pathfinding: 4, 6, or 8 directions.
+		</member>
+		<member name="rows" type="int" setter="set_rows" getter="get_rows" default="9">
+			Number of rows in the grid.
+		</member>
+	</members>
+	<constants>
+		<constant name="LAYOUT_SQUARE" value="0" enum="Layout">
+		</constant>
+		<constant name="LAYOUT_HEXAGONAL" value="1" enum="Layout">
+		</constant>
+		<constant name="MOVEMENT_FOUR_DIRECTIONS" value="0" enum="Movement">
+		</constant>
+		<constant name="MOVEMENT_SIX_DIRECTIONS" value="1" enum="Movement">
+		</constant>
+		<constant name="MOVEMENT_EIGH_DIRECTIONS" value="2" enum="Movement">
+		</constant>
+	</constants>
+</class>

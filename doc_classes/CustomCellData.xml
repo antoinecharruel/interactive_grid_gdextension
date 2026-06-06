@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="CustomCellData" inherits="Resource" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<members>
+		<member name="collision_layer" type="int" setter="set_collision_layer" getter="get_collision_layer" default="1">
+		</member>
+		<member name="color" type="Color" setter="set_color" getter="get_color" default="Color(1, 1, 1, 1)">
+		</member>
+		<member name="custom_data_name" type="String" setter="set_custom_data_name" getter="get_custom_data_name" default="&quot;&quot;">
+		</member>
+		<member name="layer_mask" type="int" setter="set_layer_mask" getter="get_layer_mask" default="1">
+		</member>
+		<member name="use_custom_color" type="bool" setter="set_custom_color_enabled" getter="get_custom_color_enabled" default="false">
+		</member>
+	</members>
+</class>
