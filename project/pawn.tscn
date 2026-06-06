@@ -1,0 +1,95 @@
+[gd_scene format=3 uid="uid://ba6ob4sr3mjmp"]
+
+[ext_resource type="Script" uid="uid://dt0uaevbrpnpu" path="res://pawn.gd" id="1_f14ny"]
+[ext_resource type="Script" uid="uid://dw7j4ue8bed6q" path="res://ray_cast_from_mouse.gd" id="2_o6oh4"]
+[ext_resource type="Script" uid="uid://itdny50t02et" path="res://interactive_grid_3d.gd" id="3_augvb"]
+[ext_resource type="Shader" uid="uid://bv71wx0xxifqq" path="res://interactive_grid.gdshader" id="3_p2eup"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_ny8vt"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ny8vt"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_o6oh4"]
+top_radius = 1.154
+bottom_radius = 1.154
+height = 0.1
+radial_segments = 6
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_o6oh4"]
+height = 6.0
+radius = 1.0
+
+[sub_resource type="CustomCellData" id="CustomCellData_p2eup"]
+custom_data_name = "CFL_TRAP"
+layer_mask = 1280
+collision_layer = 1024
+use_custom_color = true
+color = Color(1, 0.3647059, 0.26666668, 1)
+
+[sub_resource type="CustomCellData" id="CustomCellData_is2gf"]
+custom_data_name = "CFL_PULSE"
+layer_mask = 256
+collision_layer = 0
+
+[sub_resource type="CustomCellData" id="CustomCellData_hq71w"]
+custom_data_name = "CFL_PLAYER"
+layer_mask = 2048
+collision_layer = 0
+use_custom_color = true
+color = Color(0.7514731, 0.6058024, 0, 1)
+
+[sub_resource type="CustomCellData" id="CustomCellData_4c16a"]
+custom_data_name = "CFL_NEIGHBORS"
+layer_mask = 4096
+collision_layer = 0
+use_custom_color = true
+color = Color(0, 0.39215687, 1, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_p2eup"]
+render_priority = 0
+shader = ExtResource("3_p2eup")
+
+[node name="PlayerPawn" type="Node3D" unique_id=1824772841]
+
+[node name="Pawn" type="CharacterBody3D" parent="." unique_id=1805692455]
+script = ExtResource("1_f14ny")
+
+[node name="Model" type="MeshInstance3D" parent="Pawn" unique_id=374568505]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_ny8vt")
+skeleton = NodePath("")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Pawn" unique_id=1775458316]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_ny8vt")
+
+[node name="Camera3D" type="Camera3D" parent="Pawn" unique_id=1362170950]
+unique_name_in_owner = true
+transform = Transform3D(0.7071068, -0.5, 0.5, 0, 0.7071068, 0.7071068, -0.7071068, -0.5, 0.5, 6, 10, 6)
+
+[node name="RayCastFromMouse" type="RayCast3D" parent="Pawn" unique_id=372949500]
+unique_name_in_owner = true
+script = ExtResource("2_o6oh4")
+
+[node name="InteractiveGrid3D" type="InteractiveGrid3D" parent="." unique_id=2011485518]
+rows = 13
+columns = 13
+cell_size = Vector2(2, 1.732)
+cell_mesh = SubResource("CylinderMesh_o6oh4")
+cell_shape = SubResource("CylinderShape3D_o6oh4")
+layout = 1
+movement = 1
+custom_cells_data = [SubResource("CustomCellData_p2eup"), SubResource("CustomCellData_is2gf"), SubResource("CustomCellData_hq71w"), SubResource("CustomCellData_4c16a")]
+material_override = SubResource("ShaderMaterial_p2eup")
+color_accessible = Color(0.15686275, 0.18039216, 0.62352943, 1)
+color_unaccessible = Color(1, 0, 0, 1)
+color_unreachable = Color(1, 1, 1, 0)
+color_selected = Color(0, 1, 0, 1)
+color_path = Color(1, 0.5058824, 0, 1)
+color_hovered = Color(1, 1, 0, 1)
+collision_obstacles_enabled = true
+collision_floor_enabled = true
+collision_obstacles_mask = 8192
+collision_floor_mask = 16384
+unique_name_in_owner = true
+script = ExtResource("3_augvb")
