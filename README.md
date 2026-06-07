@@ -7,6 +7,8 @@
 [![Join the Discord](https://img.shields.io/static/v1?logo=discord&label=Discord&color=7289DA&message=Vivensoft)](https://discord.gg/hZb9PGrrt9)
 [![YouTube](https://img.shields.io/static/v1?logo=youtube&label=YouTube&color=FF0000&message=antoinecharruel)](https://www.youtube.com/@antoinecharruel)
 
+Generated from [godotengine/godot-cpp-template](https://github.com/godotengine/godot-cpp-template)
+
 # Interactive Grid GDExtension
 
 <p align="center">
